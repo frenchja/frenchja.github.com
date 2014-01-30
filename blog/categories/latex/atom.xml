@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: LaTeX | Jason A. French]]></title>
+  <link href="http://gradstudents.wcas.northwestern.edu/~jaf502//blog/categories/latex/atom.xml" rel="self"/>
+  <link href="http://gradstudents.wcas.northwestern.edu/~jaf502//"/>
+  <updated>2013-11-07T17:11:20-06:00</updated>
+  <id>http://gradstudents.wcas.northwestern.edu/~jaf502//</id>
+  <author>
+    <name><![CDATA[Jason A. French]]></name>
+    <email><![CDATA[frenchja@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Easy Sweave for LaTeX and R]]></title>
+    <link href="http://gradstudents.wcas.northwestern.edu/~jaf502//blog/2013/08/16/easy-sweaving-for-latex-and-r/"/>
+    <updated>2013-08-16T12:41:00-05:00</updated>
+    <id>http://gradstudents.wcas.northwestern.edu/~jaf502//blog/2013/08/16/easy-sweaving-for-latex-and-r</id>
+    <content type="html"><![CDATA[<p>When you're writing up reports using statistics from R, it can be tiresome
+to constantly copy and paste results from the R Console.  To get around this, many of us use Sweave, which allows us to <em>embed</em> R code in LaTeX files.
+<a href="https://en.wikipedia.org/wiki/Sweave">Sweave</a> is an R function that converts R code to LaTeX, a document typesetting language.  This enables accurate, shareable analyses as well as high-resolution graphs that are publication quality.</p>
+
+<p>Needless to say, the marriage of statistics with documents makes writing up APA-style reports a bit easier, especially with Brian Beitzel's amazing <a href="http://www.ctan.org/pkg/apa6"><code>apa6</code> class for LaTeX</a>.</p>
+
+<!-- more -->
+
+
+<h2>Making Sweave Available Systemwide</h2>
+
+<p>However, Sweave doesn't always work correctly.  One common complaint that you'll get after Sweaving a file is <code>Sweave.sty not found!</code>. While Sweave.sty is a LaTeX package, it doesn't <em>live</em> with the rest of the LaTeX packages because it's installed using R.  Many people try to solve this by copying and pasting Sweave.sty into every document directory, but I'm sharing a better way below.</p>
+
+<p>Using <a href="https://en.wikipedia.org/wiki/Terminal_%28OS_X%29">Terminal.app</a>:
+<code>bash Go to the MacTeX or TeX Live local directory.
+cd /usr/local/texlive/texmf-local/tex/latex
+</code></p>
+
+<p><code>bash Form a link between the R Sweave.sty files and MacTeX
+sudo ln -s /Library/Frameworks/R.framework/Resources/share/texmf/ Sweave
+</code></p>
+
+<p><code>bash Tell MacTeX/TeX Live to recognize the file and rebuild the database
+sudo mktexlsr
+</code></p>
+
+<p>If using <code>mktexlsr</code> results in a <code>command not found</code> error, the TeX Live distribution probably isn't in your <a href="https://en.wikipedia.org/wiki/PATH_%28variable%29">$PATH</a>, but you can hunt for the program anyway.  For example, if you're using MacTeX 2013, the program will be found in a directory similar to this:</p>
+
+<p><code>bash
+sudo /usr/local/texlive/2013/bin/x86_64-darwin/mktexlsr
+</code></p>
+
+<h2>Using Sweave in TeXShop</h2>
+
+<p>When you're getting started with LaTeX, many Mac users prefer the bundled
+editor, TeXShop.  <a href="http://cameron.bracken.bz/sweave-for-texshop">Cameron Bracken</a> gives us a helpful piece of code that allows easy Sweaving straight from TeXShop.  TeXShop uses various <em>engines</em> that allow it to render LaTeX.  Using a bit of <a href="https://en.wikipedia.org/wiki/Bash_%28Unix_shell%29"><code>BASH</code></a> scripting, we can write our own Sweave engine and make it available right within TeXShop.  I have adapted Cameron's original engine to accomodate Bibtex citations (<a href="https://en.wikibooks.org/wiki/LaTeX/Bibliography_Management#Why_won.27t_LaTeX_generate_any_output.3F">see here</a>).</p>
+
+<p>Using a text editor, paste in the following syntax and save the file as Sweave.engine:</p>
+
+<p>```bash Sweave.engine</p>
+
+<h1>!/bin/env bash</h1>
+
+<p>export PATH=$PATH:/usr/texbin:/usr/local/bin
+R CMD Sweave "$1"
+pdflatex "${1%.<em>}"
+bibtex "${1%.aux}"
+pdflatex "${1%.</em>}"</p>
+
+<h1>If you run pdflatex again you get citations</h1>
+
+<p>pdflatex "${1%.*}"
+```</p>
+
+<p>Next, in Terminal.app, move the file to the TeXShop engines folder:</p>
+
+<p><code>bash Enable the Sweave.engine
+mv Sweave.engine ~/Library/TeXShop/Engines/
+chmod +x ~/Library/TeXShop/Engines/Sweave.engine
+</code></p>
+
+<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/sweaveengine.png"></p>
+
+<p>Now restart TeXShop if it's running and you should see Sweave as an available option!</p>
+
+<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/sweave.png"></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Using Figures within Tables in LaTeX]]></title>
+    <link href="http://gradstudents.wcas.northwestern.edu/~jaf502//blog/2012/01/17/using-figures-within-tables-in-latex/"/>
+    <updated>2012-01-17T18:23:00-06:00</updated>
+    <id>http://gradstudents.wcas.northwestern.edu/~jaf502//blog/2012/01/17/using-figures-within-tables-in-latex</id>
+    <content type="html"><![CDATA[<p>By using LaTeX to author APA manuscripts, researchers can address many problems associated with formatting their results
+into tables and figures. For example, ANOVA tables can be readily generated using the
+<a href="http://cran.r-project.org/web/packages/xtable/index.html"><code>xtable</code></a> package in R, and graphs from
+<a href="http://cran.r-project.org/web/packages/ggplot2/index.html"><code>ggplot2</code></a> can be rendered <em>within</em> the manuscript using
+<code>Sweave</code> (see <a href="https://en.wikipedia.org/wiki/Sweave">Wikipedia</a>). However, more complicated layouts can be difficult to
+achieve.</p>
+
+<p>In order to make test items or stimuli easier to understand, researchers occasionally organize examples in a table or
+figure. Using the standard <code>\table</code> command in LaTeX, it's possible to include figures in an individual table cell
+without breaking the <a href="http://ctan.org/pkg/apa6">APA6.cls</a> package. For example: <!-- more --></p>
+
+<p>```latex Bottom-Aligned Figures in LaTeX Tables
+\begin{table}</p>
+
+<pre><code>[ht] \caption{Stimuli Category Explanations} \label{tab:stimuli} 
+\begin{tabular}
+    {lllll} \hline Category &amp; Familiar Organism &amp; Growth Model &amp; Metamorphosis &amp; Figure \\
+    \hline \textbf{FDM} &amp; Yes &amp; Dramatic &amp; Yes &amp; 
+    \includegraphics[width=1in]{"Figure Stimuli"/Fam-Meta-Dramatic} \\
+    FDN &amp; Yes &amp; Dramatic &amp; No &amp;
+    \includegraphics[width=1in]{"Figure Stimuli"/Fam-Dramatic} \\
+    FGM &amp; Yes &amp; Growth &amp; Yes &amp; 
+    \includegraphics[width=1in]{"Figure Stimuli"/Fam-Meta-Growth} \\
+    \textbf{FGN} &amp; Yes &amp; Growth &amp; No &amp; 
+    \includegraphics[width=1in]{"Figure Stimuli"/Fam-Growth} \\
+    FIM &amp; Yes &amp; Identical &amp; Yes &amp; 
+    \includegraphics[width=1in]{"Figure Stimuli"/Fam-Meta-ID} \\
+    FIN &amp; Yes &amp; Identical &amp; No &amp; 
+    \includegraphics[width=1in]{"Figure Stimuli"/Fam-Identical} \\
+    FSM &amp; Yes &amp; Species Change &amp; Yes &amp; 
+    \includegraphics[width=1in]{"Figure Stimuli"/Fam-Meta-Species} \\
+    FSN &amp; Yes &amp; Species Change &amp; No &amp; 
+    \includegraphics[width=1in]{"Figure Stimuli"/Fam-Species} \\
+    \textbf{UDM} &amp; No &amp; Dramatic &amp; Yes &amp; 
+    \includegraphics[width=1in]{"Figure Stimuli"/Un2-Meta-Dramatic} \\
+    UDN &amp; No &amp; Dramatic &amp; No &amp; 
+    \includegraphics[width=1in]{"Figure Stimuli"/Un-Dramatic} \\
+    UGM &amp; No &amp; Growth &amp; Yes &amp; 
+    \includegraphics[width=1in]{"Figure Stimuli"/Un2-Meta-Growth} \\
+    \textbf{UGN} &amp; No &amp; Growth &amp; No &amp; 
+    \includegraphics[width=1in]{"Figure Stimuli"/Un-Growth} \\
+    UIM &amp; No &amp; Identical &amp; Yes &amp; 
+    \includegraphics[width=1in]{"Figure Stimuli"/Un2-Meta-ID} \\
+    UIN &amp; No &amp; Identical &amp; No &amp; 
+    \includegraphics[width=1in]{"Figure Stimuli"/Un-Identical} \\
+    USM &amp; No &amp; Species Change &amp; Yes &amp; 
+    \includegraphics[width=1in]{"Figure Stimuli"/Un2-Meta-Species} \\
+    USN &amp; No &amp; Species Change &amp; No &amp; 
+    \includegraphics[width=1in]{"Figure Stimuli"/Un-Species} \\
+    USM &amp; No &amp; Species Change &amp; Yes &amp; 
+    \includegraphics[width=1in]{"Figure Stimuli"/Un2-Meta-Species} \\
+    \hline 
+\end{tabular}
+\tabfnt{Note: Bold categories are biologically correct growth models.} 
+</code></pre>
+
+<p>\end{table}
+```</p>
+
+<h2>Center-Aligned Figures</h2>
+
+<p>However, the above code vertically aligned my images according to their bottom-edge, producing an awkward looking table.
+Instead, we want the figures to be vertically centered. A Google search revealed the <a href="https://en.wikibooks.org/wiki/LaTeX/Tables#Vertically_centered_images">LaTeX
+Wikibook</a>, which suggests a few methods to force
+figures to vertically align according to their center. Below, I surround each <code>\includegraphics{}</code> command with the
+<code>\parbox{}</code> command, which centers it along 1 unit of measurement, set to 12 pts. in my apa6 class options.</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>Center-Aligned Figures in LaTeX Tables  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+</pre></td><td class='code'><pre><code class='latex'><span class='line'><span class="k">\begin</span><span class="nb">{</span>table<span class="nb">}</span>&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;pre&gt;&lt;code&gt;[ht] <span class="k">\caption</span><span class="nb">{</span>Stimuli Category Explanations<span class="nb">}</span> <span class="k">\label</span><span class="nb">{</span>tab:stimuli<span class="nb">}</span>
+</span><span class='line'><span class="k">\begin</span><span class="nb">{</span>tabular<span class="nb">}</span>
+</span><span class='line'>    <span class="nb">{</span>lllll<span class="nb">}</span> <span class="k">\hline</span> Stimuli Category <span class="nb">&amp;</span>amp; Familiar Organism <span class="nb">&amp;</span>amp; Growth Model <span class="nb">&amp;</span>amp; Metamorphosis <span class="nb">&amp;</span>amp; Figure <span class="k">\\</span>
+</span><span class='line'>    <span class="k">\hline</span> <span class="k">\textbf</span><span class="nb">{</span>FDM<span class="nb">}</span> <span class="nb">&amp;</span>amp; Yes <span class="nb">&amp;</span>amp; Dramatic <span class="nb">&amp;</span>amp; Yes <span class="nb">&amp;</span>amp; <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>    <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Meta-Dramatic<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>    FDN <span class="nb">&amp;</span>amp; Yes <span class="nb">&amp;</span>amp; Dramatic <span class="nb">&amp;</span>amp; No <span class="nb">&amp;</span>amp; <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>    <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Dramatic<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>    FGM <span class="nb">&amp;</span>amp; Yes <span class="nb">&amp;</span>amp; Growth <span class="nb">&amp;</span>amp; Yes <span class="nb">&amp;</span>amp; <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>    <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Meta-Growth<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>    <span class="k">\textbf</span><span class="nb">{</span>FGN<span class="nb">}</span> <span class="nb">&amp;</span>amp; Yes <span class="nb">&amp;</span>amp; Growth <span class="nb">&amp;</span>amp; No <span class="nb">&amp;</span>amp; <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>    <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Growth<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>    FIM <span class="nb">&amp;</span>amp; Yes <span class="nb">&amp;</span>amp; Identical <span class="nb">&amp;</span>amp; Yes <span class="nb">&amp;</span>amp; <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>    <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Meta-ID<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>    FIN <span class="nb">&amp;</span>amp; Yes <span class="nb">&amp;</span>amp; Identical <span class="nb">&amp;</span>amp; No <span class="nb">&amp;</span>amp; <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>    <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Identical<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>    FSM <span class="nb">&amp;</span>amp; Yes <span class="nb">&amp;</span>amp; Species Change <span class="nb">&amp;</span>amp; Yes <span class="nb">&amp;</span>amp; <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>    <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Meta-Species<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>    FSN <span class="nb">&amp;</span>amp; Yes <span class="nb">&amp;</span>amp; Species Change <span class="nb">&amp;</span>amp; No <span class="nb">&amp;</span>amp; <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>    <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Species<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>    <span class="k">\textbf</span><span class="nb">{</span>UDM<span class="nb">}</span> <span class="nb">&amp;</span>amp; No <span class="nb">&amp;</span>amp; Dramatic <span class="nb">&amp;</span>amp; Yes <span class="nb">&amp;</span>amp; <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>    <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un2-Meta-Dramatic<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>    UDN <span class="nb">&amp;</span>amp; No <span class="nb">&amp;</span>amp; Dramatic <span class="nb">&amp;</span>amp; No <span class="nb">&amp;</span>amp; <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>    <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un-Dramatic<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>    UGM <span class="nb">&amp;</span>amp; No <span class="nb">&amp;</span>amp; Growth <span class="nb">&amp;</span>amp; Yes <span class="nb">&amp;</span>amp; <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>    <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un2-Meta-Growth<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>    <span class="k">\textbf</span><span class="nb">{</span>UGN<span class="nb">}</span> <span class="nb">&amp;</span>amp; No <span class="nb">&amp;</span>amp; Growth <span class="nb">&amp;</span>amp; No <span class="nb">&amp;</span>amp; <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>    <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un-Growth<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>    UIM <span class="nb">&amp;</span>amp; No <span class="nb">&amp;</span>amp; Identical <span class="nb">&amp;</span>amp; Yes <span class="nb">&amp;</span>amp; <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>    <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un2-Meta-ID<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>    UIN <span class="nb">&amp;</span>amp; No <span class="nb">&amp;</span>amp; Identical <span class="nb">&amp;</span>amp; No <span class="nb">&amp;</span>amp; <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>    <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un-Identical<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>    USM <span class="nb">&amp;</span>amp; No <span class="nb">&amp;</span>amp; Species Change <span class="nb">&amp;</span>amp; Yes <span class="nb">&amp;</span>amp; <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>    <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un2-Meta-Species<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>    USN <span class="nb">&amp;</span>amp; No <span class="nb">&amp;</span>amp; Species Change <span class="nb">&amp;</span>amp; No <span class="nb">&amp;</span>amp; <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>    <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un-Species<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>    USM <span class="nb">&amp;</span>amp; No <span class="nb">&amp;</span>amp; Species Change <span class="nb">&amp;</span>amp; Yes <span class="nb">&amp;</span>amp; <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>    <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un2-Meta-Species<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>    <span class="k">\hline</span>
+</span><span class='line'><span class="k">\end</span><span class="nb">{</span>tabular<span class="nb">}</span>
+</span><span class='line'><span class="k">\tabfnt</span><span class="nb">{</span>Note: Bold categories are biologically correct growth models.<span class="nb">}</span>
+</span><span class='line'>&lt;/code&gt;&lt;/pre&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;<span class="k">\end</span><span class="nb">{</span>table<span class="nb">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+Output:
+<img class="center" src="/images/origins.png" title="'Broken LaTeX Table'" ></p>
+
+<p>By using <code>\parbox</code>, figures are now vertically aligned with text cells. However, with the addition of figures the table
+is too long and we must span the table across 2-pages. To solve this, split the information across two tables. In this
+case, I can split by the <strong>stimuli category</strong>.</p>
+
+<p>Alternatively, <a href="http://www.edpsych.net/brian/">Brian Beitzel</a> also pointed out that we can invoke
+<a href="http://tug.ctan.org/pkg/longtable"><code>longtable</code></a> as a class option in <a href="http://ctan.org/pkg/apa6">APA6.cls</a>, which allows
+tables to span multiple pages.</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,424 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Easy Sweave for LaTeX and R - Jason A. French</title>
+  <meta name="author" content="Jason A. French">
+
+  
+  <meta name="description" content="When you&#8217;re writing up reports using statistics from R, it can be tiresome
+to constantly copy and paste results from the R Console. To get &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://gradstudents.wcas.northwestern.edu/~jaf502//blog/2013/08/16/easy-sweaving-for-latex-and-r/">
+  <link href="/~jaf502/favicon.png" rel="icon">
+  <link href="/~jaf502/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/~jaf502/javascripts/modernizr-2.0.js"></script>
+  <script src="/~jaf502/javascripts/ender.js"></script>
+  <script src="/~jaf502/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Jason A. French" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<!-- MathJax -->
+<script type="text/javascript"
+  src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-29782432-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/~jaf502/">Jason A. French</a></h1>
+  
+    <h2>Northwestern University</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:gradstudents.wcas.northwestern.edu/~jaf502/" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/~jaf502/">Blog</a></li>
+  <li><a href="/~jaf502/blog/archives">Archives</a></li>
+  <li><a href="/~jaf502/files/JFrenchCV.pdf">Curriculum Vitae</a></li>
+  <!-- <li><a href="http://www.sapa-project.org">Projects</a></li> -->
+  <li><a href="/~jaf502/pubs">Pubs</a></li>
+  <li><a href="http://www.personality-project.org/dev/pmc.html">Lab</a></li>
+  <li><a href="/~jaf502/tutorials">R Tutorials</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Easy Sweave for LaTeX and R</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-08-16T12:41:00-05:00" pubdate data-updated="true">Aug 16<span>th</span>, 2013</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>When you&#8217;re writing up reports using statistics from R, it can be tiresome
+to constantly copy and paste results from the R Console.  To get around this, many of us use Sweave, which allows us to <em>embed</em> R code in LaTeX files.
+<a href="https://en.wikipedia.org/wiki/Sweave">Sweave</a> is an R function that converts R code to LaTeX, a document typesetting language.  This enables accurate, shareable analyses as well as high-resolution graphs that are publication quality.</p>
+
+<p>Needless to say, the marriage of statistics with documents makes writing up APA-style reports a bit easier, especially with Brian Beitzel&#8217;s amazing <a href="http://www.ctan.org/pkg/apa6"><code>apa6</code> class for LaTeX</a>.</p>
+
+<!-- more -->
+
+
+<h2>Making Sweave Available Systemwide</h2>
+
+<p>However, Sweave doesn&#8217;t always work correctly.  One common complaint that you&#8217;ll get after Sweaving a file is <code>Sweave.sty not found!</code>. While Sweave.sty is a LaTeX package, it doesn&#8217;t <em>live</em> with the rest of the LaTeX packages because it&#8217;s installed using R.  Many people try to solve this by copying and pasting Sweave.sty into every document directory, but I&#8217;m sharing a better way below.</p>
+
+<p>Using <a href="https://en.wikipedia.org/wiki/Terminal_%28OS_X%29">Terminal.app</a>:</p>
+
+<figure class='code'><figcaption><span>Go to the MacTeX or TeX Live local directory.</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd</span> /usr/local/texlive/texmf-local/tex/latex
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Form a link between the R Sweave.sty files and MacTeX</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo ln -s /Library/Frameworks/R.framework/Resources/share/texmf/ Sweave
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Tell MacTeX/TeX Live to recognize the file and rebuild the database</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo mktexlsr
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If using <code>mktexlsr</code> results in a <code>command not found</code> error, the TeX Live distribution probably isn&#8217;t in your <a href="https://en.wikipedia.org/wiki/PATH_%28variable%29">$PATH</a>, but you can hunt for the program anyway.  For example, if you&#8217;re using MacTeX 2013, the program will be found in a directory similar to this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo /usr/local/texlive/2013/bin/x86_64-darwin/mktexlsr
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Using Sweave in TeXShop</h2>
+
+<p>When you&#8217;re getting started with LaTeX, many Mac users prefer the bundled
+editor, TeXShop.  <a href="http://cameron.bracken.bz/sweave-for-texshop">Cameron Bracken</a> gives us a helpful piece of code that allows easy Sweaving straight from TeXShop.  TeXShop uses various <em>engines</em> that allow it to render LaTeX.  Using a bit of <a href="https://en.wikipedia.org/wiki/Bash_%28Unix_shell%29"><code>BASH</code></a> scripting, we can write our own Sweave engine and make it available right within TeXShop.  I have adapted Cameron&#8217;s original engine to accomodate Bibtex citations (<a href="https://en.wikibooks.org/wiki/LaTeX/Bibliography_Management#Why_won.27t_LaTeX_generate_any_output.3F">see here</a>).</p>
+
+<p>Using a text editor, paste in the following syntax and save the file as Sweave.engine:</p>
+
+<figure class='code'><figcaption><span>Sweave.engine</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/env bash</span>
+</span><span class='line'><span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:/usr/texbin:/usr/local/bin
+</span><span class='line'>R CMD Sweave <span class="s2">&quot;$1&quot;</span>
+</span><span class='line'>pdflatex <span class="s2">&quot;${1%.*}&quot;</span>
+</span><span class='line'>bibtex <span class="s2">&quot;${1%.aux}&quot;</span>
+</span><span class='line'>pdflatex <span class="s2">&quot;${1%.*}&quot;</span>
+</span><span class='line'><span class="c"># If you run pdflatex again you get citations</span>
+</span><span class='line'>pdflatex <span class="s2">&quot;${1%.*}&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Next, in Terminal.app, move the file to the TeXShop engines folder:</p>
+
+<figure class='code'><figcaption><span>Enable the Sweave.engine</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>mv Sweave.engine ~/Library/TeXShop/Engines/
+</span><span class='line'>chmod +x ~/Library/TeXShop/Engines/Sweave.engine
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/sweaveengine.png"></p>
+
+<p>Now restart TeXShop if it&#8217;s running and you should see Sweave as an available option!</p>
+
+<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/sweave.png"></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Jason A. French</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-08-16T12:41:00-05:00" pubdate data-updated="true">Aug 16<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/~jaf502/blog/categories/latex/'>LaTeX</a>, <a class='category' href='/~jaf502/blog/categories/r/'>R</a>, <a class='category' href='/~jaf502/blog/categories/sweave/'>Sweave</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://gradstudents.wcas.northwestern.edu/~jaf502//blog/2013/08/16/easy-sweaving-for-latex-and-r/" data-via="" data-counturl="http://gradstudents.wcas.northwestern.edu/~jaf502//blog/2013/08/16/easy-sweaving-for-latex-and-r/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/~jaf502/blog/2013/03/11/installing-r-in-linux/" title="Previous Post: Installing R in Linux">&laquo; Installing R in Linux</a>
+      
+      
+        <a class="basic-alignment right" href="/~jaf502/blog/2013/10/25/analyzing-student-exams-using-irt/" title="Next Post: Analyze Student Exam Items using IRT">Analyze Student Exam Items using IRT &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/~jaf502/blog/2013/11/07/faster-tetrachoric-correlations/">Faster Tetrachoric Correlations</a>
+      </li>
+    
+      <li class="post">
+        <a href="/~jaf502/blog/2013/10/25/analyzing-student-exams-using-irt/">Analyze Student Exam Items using IRT</a>
+      </li>
+    
+      <li class="post">
+        <a href="/~jaf502/blog/2013/08/16/easy-sweaving-for-latex-and-r/">Easy Sweave for LaTeX and R</a>
+      </li>
+    
+      <li class="post">
+        <a href="/~jaf502/blog/2013/03/11/installing-r-in-linux/">Installing R in Linux</a>
+      </li>
+    
+      <li class="post">
+        <a href="/~jaf502/blog/2012/04/05/faster-sscc-access-using-bash/">Faster SSCC  Access using Bash</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/frenchja">@frenchja</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'frenchja',
+            count: 4,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/~jaf502/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/113717313588371204162?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <h1>Popular Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/~jaf502/blog/2012/01/17/using-figures-within-tables-in-latex/">Using Figures within Tables in LaTeX</a>
+      </li>
+    
+      <li class="post">
+        <a href="/~jaf502/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2/">Graphing Error Bars for Repeated-Measures Variables with ggplot2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/~jaf502/blog/2012/03/27/integrating-r-and-qualtrics/">Analyzing Qualtrics Data in R using Github Packages</a>
+      </li>
+    
+  </ul>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Jason A. French -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+<script type="text/javascript">
+var infolinks_pid = 1932344;
+var infolinks_wsid = 0;
+</script>
+<script type="text/javascript" src="http://resources.infolinks.com/js/infolinks_main.js"></script>
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'frenchja';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://gradstudents.wcas.northwestern.edu/~jaf502//blog/2013/08/16/easy-sweaving-for-latex-and-r/';
+        var disqus_url = 'http://gradstudents.wcas.northwestern.edu/~jaf502//blog/2013/08/16/easy-sweaving-for-latex-and-r/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

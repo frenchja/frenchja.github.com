@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Sweave | Jason A. French]]></title>
+  <link href="http://gradstudents.wcas.northwestern.edu/~jaf502//blog/categories/sweave/atom.xml" rel="self"/>
+  <link href="http://gradstudents.wcas.northwestern.edu/~jaf502//"/>
+  <updated>2013-11-07T17:11:20-06:00</updated>
+  <id>http://gradstudents.wcas.northwestern.edu/~jaf502//</id>
+  <author>
+    <name><![CDATA[Jason A. French]]></name>
+    <email><![CDATA[frenchja@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Easy Sweave for LaTeX and R]]></title>
+    <link href="http://gradstudents.wcas.northwestern.edu/~jaf502//blog/2013/08/16/easy-sweaving-for-latex-and-r/"/>
+    <updated>2013-08-16T12:41:00-05:00</updated>
+    <id>http://gradstudents.wcas.northwestern.edu/~jaf502//blog/2013/08/16/easy-sweaving-for-latex-and-r</id>
+    <content type="html"><![CDATA[<p>When you're writing up reports using statistics from R, it can be tiresome
+to constantly copy and paste results from the R Console.  To get around this, many of us use Sweave, which allows us to <em>embed</em> R code in LaTeX files.
+<a href="https://en.wikipedia.org/wiki/Sweave">Sweave</a> is an R function that converts R code to LaTeX, a document typesetting language.  This enables accurate, shareable analyses as well as high-resolution graphs that are publication quality.</p>
+
+<p>Needless to say, the marriage of statistics with documents makes writing up APA-style reports a bit easier, especially with Brian Beitzel's amazing <a href="http://www.ctan.org/pkg/apa6"><code>apa6</code> class for LaTeX</a>.</p>
+
+<!-- more -->
+
+
+<h2>Making Sweave Available Systemwide</h2>
+
+<p>However, Sweave doesn't always work correctly.  One common complaint that you'll get after Sweaving a file is <code>Sweave.sty not found!</code>. While Sweave.sty is a LaTeX package, it doesn't <em>live</em> with the rest of the LaTeX packages because it's installed using R.  Many people try to solve this by copying and pasting Sweave.sty into every document directory, but I'm sharing a better way below.</p>
+
+<p>Using <a href="https://en.wikipedia.org/wiki/Terminal_%28OS_X%29">Terminal.app</a>:
+<code>bash Go to the MacTeX or TeX Live local directory.
+cd /usr/local/texlive/texmf-local/tex/latex
+</code></p>
+
+<p><code>bash Form a link between the R Sweave.sty files and MacTeX
+sudo ln -s /Library/Frameworks/R.framework/Resources/share/texmf/ Sweave
+</code></p>
+
+<p><code>bash Tell MacTeX/TeX Live to recognize the file and rebuild the database
+sudo mktexlsr
+</code></p>
+
+<p>If using <code>mktexlsr</code> results in a <code>command not found</code> error, the TeX Live distribution probably isn't in your <a href="https://en.wikipedia.org/wiki/PATH_%28variable%29">$PATH</a>, but you can hunt for the program anyway.  For example, if you're using MacTeX 2013, the program will be found in a directory similar to this:</p>
+
+<p><code>bash
+sudo /usr/local/texlive/2013/bin/x86_64-darwin/mktexlsr
+</code></p>
+
+<h2>Using Sweave in TeXShop</h2>
+
+<p>When you're getting started with LaTeX, many Mac users prefer the bundled
+editor, TeXShop.  <a href="http://cameron.bracken.bz/sweave-for-texshop">Cameron Bracken</a> gives us a helpful piece of code that allows easy Sweaving straight from TeXShop.  TeXShop uses various <em>engines</em> that allow it to render LaTeX.  Using a bit of <a href="https://en.wikipedia.org/wiki/Bash_%28Unix_shell%29"><code>BASH</code></a> scripting, we can write our own Sweave engine and make it available right within TeXShop.  I have adapted Cameron's original engine to accomodate Bibtex citations (<a href="https://en.wikibooks.org/wiki/LaTeX/Bibliography_Management#Why_won.27t_LaTeX_generate_any_output.3F">see here</a>).</p>
+
+<p>Using a text editor, paste in the following syntax and save the file as Sweave.engine:</p>
+
+<p>```bash Sweave.engine</p>
+
+<h1>!/bin/env bash</h1>
+
+<p>export PATH=$PATH:/usr/texbin:/usr/local/bin
+R CMD Sweave "$1"
+pdflatex "${1%.<em>}"
+bibtex "${1%.aux}"
+pdflatex "${1%.</em>}"</p>
+
+<h1>If you run pdflatex again you get citations</h1>
+
+<p>pdflatex "${1%.*}"
+```</p>
+
+<p>Next, in Terminal.app, move the file to the TeXShop engines folder:</p>
+
+<p><code>bash Enable the Sweave.engine
+mv Sweave.engine ~/Library/TeXShop/Engines/
+chmod +x ~/Library/TeXShop/Engines/Sweave.engine
+</code></p>
+
+<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/sweaveengine.png"></p>
+
+<p>Now restart TeXShop if it's running and you should see Sweave as an available option!</p>
+
+<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/sweave.png"></p>
+]]></content>
+  </entry>
+  
+</feed>

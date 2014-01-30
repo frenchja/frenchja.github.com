@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Github | Jason A. French]]></title>
+  <link href="http://gradstudents.wcas.northwestern.edu/~jaf502//blog/categories/github/atom.xml" rel="self"/>
+  <link href="http://gradstudents.wcas.northwestern.edu/~jaf502//"/>
+  <updated>2013-11-07T17:11:20-06:00</updated>
+  <id>http://gradstudents.wcas.northwestern.edu/~jaf502//</id>
+  <author>
+    <name><![CDATA[Jason A. French]]></name>
+    <email><![CDATA[frenchja@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Analyzing Qualtrics Data in R using Github Packages]]></title>
+    <link href="http://gradstudents.wcas.northwestern.edu/~jaf502//blog/2012/03/27/integrating-r-and-qualtrics/"/>
+    <updated>2012-03-27T14:23:00-05:00</updated>
+    <id>http://gradstudents.wcas.northwestern.edu/~jaf502//blog/2012/03/27/integrating-r-and-qualtrics</id>
+    <content type="html"><![CDATA[<p><a href="http://www.qualtrics.com/">Qualtrics</a> is an online survey platform similar to SurveyMonkey that is used by researchers to
+collect data.  Until recently, one had to manually download the data in either SPSS or .csv format, making ongoing data
+analysis difficult to check whether the trend of the incoming data supports the hypothesis.</p>
+
+<p><a href="http://bryer.org/">Jason Bryer</a> has recently
+developed an R package published to Github for downloading data from Qualtrics within R using the Qualtrics API
+(<a href="https://github.com/jbryer/qualtrics">see his Github repo</a>).  Using this package, you can integrate your Qualtrics data
+with other experimental data collected in the lab and, by running an Rscript as a cronjob, get daily updates for your
+analyses in R.  I'll demonstrate the use of this package below.</p>
+
+<!-- more -->
+
+
+<h2>Installing the Qualtrics Package from Github</h2>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>Installing Qualtrics  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="o">&lt;/</span>p<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>h1<span class="o">&gt;!/</span>usr<span class="o">/</span>bin<span class="o">/</span>env Rscript<span class="o">&lt;/</span>h1<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>h1<span class="o">&gt;</span>Authors<span class="o">:</span>  Jason A. French<span class="o">&lt;/</span>h1<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>h1<span class="o">&gt;</span>Email<span class="o">:</span>    frenchja<span class="o">@</span>u.northwestern.edu<span class="o">&lt;/</span>h1<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>p<span class="o">&gt;</span>install.packages<span class="p">(</span><span class="s">&#39;devtools&#39;</span><span class="p">,</span>dependencies<span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span>
+</span><span class='line'>require<span class="p">(</span>devtools<span class="p">)</span>
+</span><span class='line'>install_github<span class="p">(</span>repo<span class="o">=</span><span class="s">&#39;qualtrics&#39;</span><span class="p">,</span>username<span class="o">=</span><span class="s">&#39;jbryer&#39;</span><span class="p">)</span>
+</span><span class='line'>require<span class="p">(</span>qualtrics<span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>If you wanted to distribute the Rscript to colleagues with different setups, you would use something like this:
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="o">&lt;/</span>p<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>h1<span class="o">&gt;!/</span>usr<span class="o">/</span>bin<span class="o">/</span>env Rscript<span class="o">&lt;/</span>h1<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>h1<span class="o">&gt;</span>Authors<span class="o">:</span>  Jason A. French<span class="o">&lt;/</span>h1<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>h1<span class="o">&gt;</span>Email<span class="o">:</span>    frenchja<span class="o">@</span>u.northwestern.edu<span class="o">&lt;/</span>h1<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>h1<span class="o">&gt;</span>Check <span class="kr">for</span> devtools<span class="o">&lt;/</span>h1<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>p<span class="o">&gt;</span><span class="kr">if</span> <span class="p">(</span><span class="o">!</span>require<span class="p">(</span>devtools<span class="p">))</span> <span class="p">{</span><span class="o">&lt;/</span>p<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>pre<span class="o">&gt;&lt;</span>code<span class="o">&gt;</span>warning<span class="p">(</span><span class="s">&#39;devtools not found. Attempting to install!&#39;</span><span class="p">)</span>
+</span><span class='line'>install.packages<span class="p">(</span><span class="s">&#39;devtools&#39;</span><span class="p">,</span>dependencies<span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span>
+</span><span class='line'>require<span class="p">(</span>devtools<span class="p">,</span>character.only<span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span>
+</span><span class='line'><span class="o">&lt;/</span>code<span class="o">&gt;&lt;/</span>pre<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>p<span class="o">&gt;</span><span class="p">}</span><span class="o">&lt;/</span>p<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>h1<span class="o">&gt;</span>Check Qualtrics Package from Github<span class="o">&lt;/</span>h1<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>p<span class="o">&gt;</span><span class="kr">if</span> <span class="p">(</span><span class="o">!</span>require<span class="p">(</span>qualtrics<span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>  warning<span class="p">(</span><span class="s">&#39;Qualtrics package not found&#39;</span><span class="p">)</span>
+</span><span class='line'>  install_github<span class="p">(</span>repo<span class="o">=</span><span class="s">&#39;qualtrics&#39;</span><span class="p">,</span>username<span class="o">=</span><span class="s">&#39;jbryer&#39;</span><span class="p">)</span>
+</span><span class='line'>  require<span class="p">(</span>qualtrics<span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h2>Pulling Data from Qualtrics</h2>
+
+<p><img class="right" src="/images/qualtricsid2.png">
+First, you'll need to find the Survey ID of the associated study on Qualtrics.  Access your <code>Account Settings</code> and click on
+<code>Qualtrics IDs</code>.  From here, copy the entire ID into your R code (e.g., <code>SV_blahblah</code>).
+<img class="center" src="/images/qualtricsid1.png"></p>
+
+<p>Next, load the <code>qualtrics</code> package in R and pull the data using <code>getSurveyResults()</code>. <em>If you receive an error in R
+regarding API permissions, you may need to email support@qualtrics.com and request API access.  The
+R function accesses your survey using XML.</em>
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="o">&lt;/</span>p<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>h1<span class="o">&gt;</span>Get Qualtrics Survey Data<span class="o">&lt;/</span>h1<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>p<span class="o">&gt;</span>qualtrics.data <span class="o">&amp;</span>lt<span class="p">;</span><span class="o">-</span> getSurveyResults<span class="p">(</span>username<span class="o">=</span>qualtrics.user<span class="p">,</span><span class="o">&lt;/</span>p<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>pre<span class="o">&gt;&lt;</span>code<span class="o">&gt;</span>                  password<span class="o">=</span>qualtrics.pass<span class="p">,</span>
+</span><span class='line'>                  surveyid<span class="o">=</span><span class="s">&#39;SV_blahblah&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="o">&lt;/</span>code<span class="o">&gt;&lt;/</span>pre<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>p<span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Again, if you are distributing the analysis to collaborators, you may want to use a setup like below, which reads the user and
+password securely.  If you want to automate this, you'll obviously need hardcode your username and password.  At this time,
+I don't believe R has a hashing mechanism for passwords like Python, meaning you'll need to have a plaintext password.
+<div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>Password Protection for the Paranoid  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="o">&lt;/</span>p<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>h1<span class="o">&gt;</span>Get Qualtrics Survey Data<span class="o">&lt;/</span>h1<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>h1<span class="o">&gt;</span>Not sure this will work <span class="kr">in</span> R.app.  Only <span class="kr">in</span> Terminal.app<span class="o">&lt;/</span>h1<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>p<span class="o">&gt;</span>get_password <span class="o">&amp;</span>lt<span class="p">;</span><span class="o">-</span> <span class="kr">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  cat<span class="p">(</span><span class="s">&quot;Qualtrics Password: &quot;</span><span class="p">)</span>
+</span><span class='line'>  system<span class="p">(</span><span class="s">&quot;stty -echo&quot;</span><span class="p">)</span>
+</span><span class='line'>  a <span class="o">&amp;</span>lt<span class="p">;</span><span class="o">-</span> readline<span class="p">()</span>
+</span><span class='line'>  system<span class="p">(</span><span class="s">&quot;stty echo&quot;</span><span class="p">)</span>
+</span><span class='line'>  cat<span class="p">(</span><span class="s">&quot;\n&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="kr">return</span><span class="p">(</span>a<span class="p">)</span>
+</span><span class='line'><span class="p">}</span><span class="o">&lt;/</span>p<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>p<span class="o">&gt;</span>qualtrics.user <span class="o">&amp;</span>lt<span class="p">;</span><span class="o">-</span> readline<span class="p">(</span>prompt<span class="o">=</span><span class="s">&#39;Enter your Qualtrics username&#39;</span><span class="p">)</span>
+</span><span class='line'>qualtrics.pass <span class="o">&amp;</span>lt<span class="p">;</span><span class="o">-</span> get_password<span class="p">()</span>
+</span><span class='line'>qualtrics.data <span class="o">&amp;</span>lt<span class="p">;</span><span class="o">-</span> getSurvey<span class="p">(</span>username<span class="o">=</span>qualtrics.user<span class="p">,</span><span class="o">&lt;/</span>p<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>pre<span class="o">&gt;&lt;</span>code<span class="o">&gt;</span>                  password<span class="o">=</span>qualtrics.pass<span class="p">,</span>
+</span><span class='line'>                  surveyid<span class="o">=</span><span class="s">&#39;SV_blahblah&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="o">&lt;/</span>code<span class="o">&gt;&lt;/</span>pre<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>p<span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h2>Outputting Data using xtable</h2>
+
+<p>Now that we have our data pulled from Qualtrics, we can analyze it as if it were a regular R data.frame.
+If you know your specific survey variables of interest, you'll want to modify the code using <code>qualtrics.data[,c('Var1','Var2)]</code>.</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>require<span class="p">(</span>psych<span class="p">)</span>
+</span><span class='line'>require<span class="p">(</span>xtable<span class="p">)</span>
+</span><span class='line'>qualtrics.describe <span class="o">&amp;</span>lt<span class="p">;</span><span class="o">-</span> describe<span class="p">(</span>qualtrics.data<span class="p">)</span>
+</span><span class='line'>qual.table <span class="o">&amp;</span>lt<span class="p">;</span><span class="o">-</span> xtable<span class="p">(</span>qualtrics.describe<span class="p">)</span>
+</span><span class='line'>print.xtable<span class="p">(</span>qual.table<span class="p">,</span>type<span class="o">=</span><span class="s">&#39;html&#39;</span><span class="p">,</span>file<span class="o">=</span><span class="s">&#39;~/Desktop/Qualtrics.html&#39;</span><span class="p">)</span><span class="o">&lt;/</span>p<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>h1<span class="o">&gt;</span>Or...<span class="o">&lt;/</span>h1<span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span>p<span class="o">&gt;</span>qual.lm <span class="o">&amp;</span>lt<span class="p">;</span><span class="o">-</span> lm<span class="p">(</span>DV <span class="o">~</span> IV1<span class="o">*</span>IV2<span class="p">,</span> data<span class="o">=</span>qualtrics.data<span class="p">)</span>
+</span><span class='line'>lm.table <span class="o">&amp;</span>lt<span class="p">;</span><span class="o">-</span> xtable<span class="p">(</span>qual.lm<span class="p">)</span>
+</span><span class='line'>print.xtable<span class="p">(</span>lm.table<span class="p">,</span>type<span class="o">=</span><span class="s">&quot;html&quot;</span><span class="p">,</span>file<span class="o">=</span><span class="s">&#39;~/Desktop/Qualtrics.html&#39;</span><span class="p">,</span>append<span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h2>Running an Rscript</h2>
+
+<p>In order for your script to be run daily, it needs to be a) marked as executable (<a href="https://en.wikipedia.org/wiki/Filesystem_permissions">see here</a>)
+and b) added to <a href="https://en.wikipedia.org/wiki/Cron">crontab</a>.  First, mark it
+as executable:
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>chmod +x ~/Qualtrics.R
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p><em>Make sure that <code>#!/usr/bin/env Rscript</code> is at the top of your script!</em></p>
+
+<p>Next, edit the system's <a href="https://en.wikipedia.org/wiki/Cron">crontab</a> and add the script.
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo nano /etc/crontab&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;0 1 * * * ~/Qualtrics.R
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+]]></content>
+  </entry>
+  
+</feed>
