@@ -90,11 +90,10 @@ Rstudio is a cross-platform user interface for R. The
 RStudio package is compiled for both Debian and Ubuntu distributions.
 Therefore, the installation instructions are the same.  Copy the link for the
 latest RStudio package from [http://www.rstudio.com/ide/download/desktop](http:/
-/www.rstudio.com/ide/download/desktop) (e.g., [http://download1.rstudio.org/rstu
-dio-0.97.320-amd64.deb](http://download1.rstudio.org/rstudio-0.97.320-amd64.deb)
+/www.rstudio.com/ide/download/desktop) (e.g., [http://download1.rstudio.org/rstudio-0.97.320-amd64.deb](http://download1.rstudio.org/rstudio-0.97.320-amd64.deb)
 ).
 
-``` bash
+``` bash Installing RStudio using apt-get
 sudo apt-get install http://download1.rstudio.org/rstudio-0.97.320-amd64.deb
 ```
 
@@ -148,8 +147,7 @@ Dealing with PPC-based Systems
 As our lab has a lot of old iMacs that are still quite useful, I've recently
 dealt with the best way to support R on these machines.  These machines are
 still quite useful, particulary when their maximum potential RAM is installed.
-However, Apple stopped supporting the machines after OS 10.5.8 ([see
-here](https://en.wikipedia.org/wiki/Apple%27s_transition_to_Intel_processors)).
+However, Apple stopped supporting the machines after OS 10.5.8 ([see here](https://en.wikipedia.org/wiki/Apple%27s_transition_to_Intel_processors)).
 While the [nightly packages](http://r.research.att.com/) distributed do install
 on PPC machines with OS X, they lack the R Framework compiled for PPC, meaning
 that it's a useless installation.  This means that a user stuck on OS X 10.5.8
@@ -166,8 +164,7 @@ R and its necessary dependencies on a 1.8 Ghz G5 processor.  From a system
 administrator's perspective, this also is the least parsimonious solution
 possible, since each machine has to be updated with each new release of R.
 
-Thanks to [RStudio
-Server](http://www.rstudio.com/ide/docs/server/getting_started), each machine
+Thanks to [RStudio Server](http://www.rstudio.com/ide/docs/server/getting_started), each machine
 doesn't need to have R installed, as it can be run off a more powerful server
 and accessed using a reasonably up-to-date browser.  I was able to install R and
 RStudio on our RedHat EL6 server easily.  The trick was to make this as seemless
@@ -191,8 +188,7 @@ Finally, this was dragged to the OS X dock, appearing just as if it were R on th
 {% img http://gradstudents.wcas.northwestern.edu/~jaf502/images/ppc-r-dock.png Fake Dock Icon %}
 
 It is worth noting that this solution is only important for users tied to OS X
-10.5.8.  I've had great success with using [Fedora's PPC
-build](https://fedoraproject.org/wiki/Architectures/PowerPC?rd=Arch:PPC), which
+10.5.8.  I've had great success with using [Fedora's PPC build](https://fedoraproject.org/wiki/Architectures/PowerPC?rd=Arch:PPC), which
 has packages compiled for PPC already.  However, as Linux is intimidating for
 many users, I chose to install RStudio Server on our lab server.
 
