@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: ggplot2 | Jason A. French]]></title>
+  <link href="http://frenchja.github.com/blog/categories/ggplot2/atom.xml" rel="self"/>
+  <link href="http://frenchja.github.com/"/>
+  <updated>2014-01-30T15:37:36-06:00</updated>
+  <id>http://frenchja.github.com/</id>
+  <author>
+    <name><![CDATA[Jason A. French]]></name>
+    <email><![CDATA[frenchja@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Graphing Error Bars for Repeated-Measures Variables with ggplot2]]></title>
+    <link href="http://frenchja.github.com/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2/"/>
+    <updated>2012-03-07T10:37:00-06:00</updated>
+    <id>http://frenchja.github.com/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2</id>
+    <content type="html"><![CDATA[<p>When presenting data, confidence intervals and error bars let the audience know the amount of uncertainty in the data, and
+see how much of the variance is explained by the reported effect of an experiment.  While this is straightforward for
+between-subject variables, it's less clear for mixed- and repeated-measures designs.</p>
+
+<p>Consider the following.  When running an ANOVA, the test accounts for three sources of variance:  1) the fixed effect of the condition, 2) the
+ability of the participants, and 3) the random error, as data = model + error.  Plotting the repeated-measures without taking the
+different sources of variance into consideration would result in overlapping error bars that include between-subject variability, confusing the presentation's audience.
+While the ANOVA partials out the differences between the participants and allow you to assess the effect of the
+repeated-measure, computing a regular confidence interval by
+multiplying the standard error and the F-statistic doesn't work in this way.</p>
+
+<p>Winston Chang has developed a set of R functions based on Morey (2008) and Cousineau (2005) on his wiki that help deal with this problem, where the sample variance is
+computed for the normalized data, and then multiplied by the sample variances in each condition by M(M-1), where M is the
+number of within-subject conditions.</p>
+
+<p><a href="http://goo.gl/9rD3P">See his wiki here</a> for more info.</p>
+
+<!-- more -->
+
+
+<h3>References</h3>
+
+<p>Morey, R. D. (2008). <em>Confidence Intervals from Normalized Data:  
+A correction to Cousineau (2005).</em></p>
+
+<p>Cousineau,D. (2005). <em>Confidence intervals in within‐subject
+designs:A simpler solution to Loftus and Masson’s
+method.</em></p>
+
+<p>Loftus, G.R., &amp; Masson, M.E.J. (1994). <em>Using confidence
+intervals in within‐subject designs.</em></p>
+]]></content>
+  </entry>
+  
+</feed>

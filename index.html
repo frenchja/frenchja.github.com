@@ -1,0 +1,786 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Jason A. French</title>
+  <meta name="author" content="Jason A. French">
+
+  
+  <meta name="description" content="What are tetra- and polychoric correlations? Polychoric correlations estimate the correlation between two theorized normal distributions given two &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://frenchja.github.com/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Jason A. French" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<!-- MathJax -->
+<script type="text/javascript"
+  src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-29782432-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Jason A. French</a></h1>
+  
+    <h2>Northwestern University</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:frenchja.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/files/JFrenchCV.pdf">Curriculum Vitae</a></li>
+  <!-- <li><a href="http://www.sapa-project.org">Projects</a></li> -->
+  <li><a href="/pubs">Pubs</a></li>
+  <li><a href="http://www.personality-project.org/dev/pmc.html">Lab</a></li>
+  <li><a href="/tutorials">R Tutorials</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/07/faster-tetrachoric-correlations/">Faster Tetrachoric Correlations</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-07T16:48:00-06:00" pubdate data-updated="true">Nov 7<span>th</span>, 2013</time>
+        
+         | <a href="/blog/2013/11/07/faster-tetrachoric-correlations/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>What are tetra- and polychoric correlations?</h2>
+
+<p>Polychoric correlations estimate the correlation between two theorized normal distributions given two ordinal variables.  In psychological research, much of our data fits this definition.  For example, many survey studies used with introductory psychology pools use Likert scale items.  The responses to these items typically range from 1 (Strongly disagree) to 6 (Strongly agree).  However, we don&#8217;t <em>really</em> think that person&#8217;s relationship to the item is actually polytomous.  Instead, it&#8217;s an imperfect approximation.</p>
+
+<p>Similarly, tetrachorics are special cases of polychoric crrelations when the variable of interest is dichotomous. The participant may have gotten the item either correct (i.e., 1) or incorrect (i.e., 0), but the underlying knowledge that led to the items&#8217; response is probably a continuous distribution.</p>
+
+<p>When you have polytomous rating scales but want to disattenuate the correlations to more accurately estimate the correlation betwen the latent continuous variables, one way of doing this is to use a tetrachoric or polychoric correlation coefficient.</p>
+
+<h2>The problem</h2>
+
+<p>At the <a href="https://sapa-project.org">SAPA Project</a>, the majority of our data is polytomous.  We ask you the degree to which you like to go to lively parties to estimate your score on latent <em>extraversion</em>.  Presently, we use <code>mixed.cor()</code>, which calls a combination of the <code>tetrachoric()</code> and <code>polychoric()</code> functions in the <code>psych</code> package (Revelle, W., 2013).</p>
+
+<p>However, each time we build a new dataset from the website&#8217;s SQL server, it takes <em>hours</em>.  And that&#8217;s <strong>if</strong> everything goes correctly.  If there&#8217;s an error in the code or a bug in a new function, it may take hours to hit the error, wasting your day.</p>
+
+<p>After a bit of profiling, it was revealed that much of our time building the SAPA dataset was used estimating the tetrachoric and polychoric correlation coefficients.  When you do this for 250,000+ participants for 10,000+ variables, it takes <em>a long time</em>.  So Bill and I thought about how we could speed them up and feel others may benefit from our optimization.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/11/07/faster-tetrachoric-correlations/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/25/analyzing-student-exams-using-irt/">Analyze Student Exam Items Using IRT</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-25T14:26:00-05:00" pubdate data-updated="true">Oct 25<span>th</span>, 2013</time>
+        
+         | <a href="/blog/2013/10/25/analyzing-student-exams-using-irt/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I&#8217;ve cross-posted this at the <a href="http://sapa-project.org/blog/">SAPA Project&#8217;s blog</a>.</p>
+
+<p><a href="https://en.wikipedia.org/wiki/Item_response_theory">Item Response Theory</a> can be used to evaluate the effectiveness of
+exams given to students.  One distinguishing feature from other paradigms is that it does not assume that every question
+is equally difficult (or that the difficulty is tied to what the researcher said).  In this way, it is an empirical investigation
+into the effectiveness of a given exam and can help the researcher 1) eliminate bad or problematic items and 2) judge whether the test was too difficult or the students simply didn&#8217;t study.</p>
+
+<p>In the following tutorial, we&#8217;ll use <a href="http://www.r-project.org/">R</a> (R Core Team, 2013) along with the <a href="http://cran.r-project.org/web/packages/psych/index.html"><code>psych</code></a> package (Revelle, W., 2013) to look at a hypothetical exam.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/10/25/analyzing-student-exams-using-irt/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/08/16/easy-sweaving-for-latex-and-r/">Easy Sweave for LaTeX and R</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-08-16T12:41:00-05:00" pubdate data-updated="true">Aug 16<span>th</span>, 2013</time>
+        
+         | <a href="/blog/2013/08/16/easy-sweaving-for-latex-and-r/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>When you&#8217;re writing up reports using statistics from R, it can be tiresome
+to constantly copy and paste results from the R Console.  To get around this, many of us use Sweave, which allows us to <em>embed</em> R code in LaTeX files.
+<a href="https://en.wikipedia.org/wiki/Sweave">Sweave</a> is an R function that converts R code to LaTeX, a document typesetting language.  This enables accurate, shareable analyses as well as high-resolution graphs that are publication quality.</p>
+
+<p>Needless to say, the marriage of statistics with documents makes writing up APA-style reports a bit easier, especially with Brian Beitzel&#8217;s amazing <a href="http://www.ctan.org/pkg/apa6"><code>apa6</code> class for LaTeX</a>.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/08/16/easy-sweaving-for-latex-and-r/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/03/11/installing-r-in-linux/">Installing R in Linux</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-03-11T17:18:00-05:00" pubdate data-updated="true">Mar 11<span>th</span>, 2013</time>
+        
+         | <a href="/blog/2013/03/11/installing-r-in-linux/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This guide is intended to faciliate the installation of up-to-date R packages
+for users new to either R or Linux.  Unlike Windows binaries or Mac packages,
+Linux software is often distributed as source-code and then compiled by package
+maintainers.  The use of package managers has many advantages that I won&#8217;t
+discuss here (see <a href="https://en.wikipedia.org/wiki/Package_management_system">Wikipedia</a>).<br/>
+More importantly, the difference can be initially intimidating.<br/>
+However, once the user gets used to using package managers such as
+<a href="https://en.wikipedia.org/wiki/Advanced_Packaging_Tool">apt</a> or
+<a href="https://en.wikipedia.org/wiki/Yellowdog_Updater,_Modified">yum</a> to install software,
+I&#8217;m confident they&#8217;ll appreciate their ease of use.</p>
+
+<p>These instructions are organized by system type.</p>
+
+<h2>Debian-based Distributions</h2>
+
+<h3>Ubuntu</h3>
+
+<p>Full installation instructions for Ubuntu can be found
+<a href="http://cran.rstudio.com/bin/linux/ubuntu/">here</a>.  Luckily, CRAN mirrors have
+compiled binaries of R which can be installed using the apt-get package manager.
+To accomplish this, we&#8217;ll first add the <a href="http://cran.us.r-project.org/bin/linux/ubuntu/">CRAN
+repo</a> for Ubuntu packages to
+<code>/etc/apt/sources.list</code>.  If you prefer to manually edit the sources.list file,
+you can do so by issuing the following in the terminal:</p>
+
+<figure class='code'><figcaption><span>Inspecting sources.list</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo nano /etc/apt/sources.list
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Installing R in Ubuntu</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># Grabs your version of Ubuntu as a BASH variable</span>
+</span><span class='line'><span class="nv">CODENAME</span><span class="o">=</span><span class="sb">`</span>grep CODENAME /etc/lsb-release | cut -c 18-<span class="sb">`</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Appends the CRAN repository to your sources.list file </span>
+</span><span class='line'>sudo sh -c <span class="s1">&#39;echo &quot;deb http://cran.rstudio.com/bin/linux/ubuntu $CODENAME&quot; &gt;&gt; /etc/apt/sources.list&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Adds the CRAN GPG key, which is used to sign the R packages for security.</span>
+</span><span class='line'>sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+</span><span class='line'>
+</span><span class='line'>sudo apt-get update
+</span><span class='line'>sudo apt-get install r-base r-dev
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/03/11/installing-r-in-linux/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/04/05/faster-sscc-access-using-bash/">Faster SSCC Access Using Bash</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-04-05T19:08:00-05:00" pubdate data-updated="true">Apr 5<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/04/05/faster-sscc-access-using-bash/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I use SSH regularly to login remotely to servers for experiments and
+data analysis.  For instance, <a href="http://www.it.northwestern.edu/research/sscc/">Northwestern&#8217;s Social Sciences Computing
+Cluster</a> is available with an
+SSH remote login and using <a href="https://en.wikipedia.org/wiki/X_Window_System">X11</a>
+forwarding, I can access <a href="http://www.rstudio.org/">RStudio</a> and run analyses
+that require more memory than my office iMac has.  However, logging into the
+SSCC over SSH isn&#8217;t as quick and launching a program in Spotlight.</p>
+
+<p>While browsing a friend&#8217;s .bashrc on Github, I realized I could
+use a simple Bash function to speed things up.  Copy and paste the following
+into Terminal:</p>
+
+<figure class='code'><figcaption><span>Launching RStudio Remotely over SSH</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">echo</span> <span class="s2">&quot;function Rsscc() {</span>
+</span><span class='line'><span class="s2">    ssh  -c arcfour,blowfish-cbc \</span>
+</span><span class='line'><span class="s2">        -XC netid@hardin.it.northwestern.edu rstudio</span>
+</span><span class='line'><span class="s2">    wait $1</span>
+</span><span class='line'><span class="s2">    exit 0</span>
+</span><span class='line'><span class="s2">}&quot;</span> &gt;&gt; ~/.profile
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After you restart Terminal.app, you can launch RStudio remotely by typing
+<code>Rsscc</code>, or whatever you renamed my function to.  In principle, you could also
+create a simple menu for choosing among multiple servers or programs using a bit of
+<a href="http://ss64.com/bash/read.html">read</a> and
+<a href="http://tldp.org/LDP/Bash-Beginners-Guide/html/sect_07_03.html">case</a>.</p>
+
+<figure class='code'><figcaption><span>Creating a Simple Command Menu</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>task_menu <span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>cat <span class="s">&lt;&lt; EOF</span>
+</span><span class='line'><span class="s">$(tput setaf 5)Remote Login$(tput sgr0)</span>
+</span><span class='line'><span class="s">$(tput setaf 5)============$(tput sgr0)</span>
+</span><span class='line'>
+</span><span class='line'><span class="s">Please choose one of the following:</span>
+</span><span class='line'>
+</span><span class='line'><span class="s">1) RStudio</span>
+</span><span class='line'><span class="s">2) Stata</span>
+</span><span class='line'>
+</span><span class='line'><span class="s">EOF</span>
+</span><span class='line'>  <span class="nb">read</span> -r choice
+</span><span class='line'>  <span class="k">case</span> <span class="s2">&quot;$choice&quot;</span> in
+</span><span class='line'>      1<span class="o">)</span> <span class="nv">task</span><span class="o">=</span><span class="s2">&quot;rstudio&quot;</span> ;;
+</span><span class='line'>      2<span class="o">)</span> <span class="nv">task</span><span class="o">=</span><span class="s2">&quot;xstata&quot;</span> ;;
+</span><span class='line'>      *<span class="o">)</span> <span class="nb">echo</span> <span class="s2">&quot;Please choose a number!&quot;</span> <span class="o">&amp;&amp;</span> task_menu ;;
+</span><span class='line'>  <span class="k">esac</span>
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>ssh -c arcfour,blowfish-cbc <span class="se">\</span>
+</span><span class='line'>    -XC netid@hardin.it.northwestern.edu <span class="nv">$task</span>
+</span><span class='line'>    <span class="nb">wait</span> <span class="nv">$1</span>
+</span><span class='line'>    <span class="nb">exit </span>0
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em>Note:</em>  This works best if you&#8217;re using an up-to-date version of X11, such as
+<a href="http://xquartz.macosforge.org/trac/wiki">XQuartz</a> and are accessing the SSCC
+using Ethernet.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/03/27/integrating-r-and-qualtrics/">Analyzing Qualtrics Data in R Using Github Packages</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-27T14:23:00-05:00" pubdate data-updated="true">Mar 27<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/03/27/integrating-r-and-qualtrics/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://www.qualtrics.com/">Qualtrics</a> is an online survey platform similar to SurveyMonkey that is used by researchers to
+collect data.  Until recently, one had to manually download the data in either SPSS or .csv format, making ongoing data
+analysis difficult to check whether the trend of the incoming data supports the hypothesis.</p>
+
+<p><a href="http://bryer.org/">Jason Bryer</a> has recently
+developed an R package published to Github for downloading data from Qualtrics within R using the Qualtrics API
+(<a href="https://github.com/jbryer/qualtrics">see his Github repo</a>).  Using this package, you can integrate your Qualtrics data
+with other experimental data collected in the lab and, by running an Rscript as a cronjob, get daily updates for your
+analyses in R.  I&#8217;ll demonstrate the use of this package below.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/03/27/integrating-r-and-qualtrics/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2/">Graphing Error Bars for Repeated-Measures Variables With Ggplot2</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-07T10:37:00-06:00" pubdate data-updated="true">Mar 7<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>When presenting data, confidence intervals and error bars let the audience know the amount of uncertainty in the data, and
+see how much of the variance is explained by the reported effect of an experiment.  While this is straightforward for
+between-subject variables, it&#8217;s less clear for mixed- and repeated-measures designs.</p>
+
+<p>Consider the following.  When running an ANOVA, the test accounts for three sources of variance:  1) the fixed effect of the condition, 2) the
+ability of the participants, and 3) the random error, as data = model + error.  Plotting the repeated-measures without taking the
+different sources of variance into consideration would result in overlapping error bars that include between-subject variability, confusing the presentation&#8217;s audience.
+While the ANOVA partials out the differences between the participants and allow you to assess the effect of the
+repeated-measure, computing a regular confidence interval by
+multiplying the standard error and the F-statistic doesn&#8217;t work in this way.</p>
+
+<p>Winston Chang has developed a set of R functions based on Morey (2008) and Cousineau (2005) on his wiki that help deal with this problem, where the sample variance is
+computed for the normalized data, and then multiplied by the sample variances in each condition by M(M-1), where M is the
+number of within-subject conditions.</p>
+
+<p><a href="http://goo.gl/9rD3P">See his wiki here</a> for more info.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/01/17/using-figures-within-tables-in-latex/">Using Figures Within Tables in LaTeX</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-17T18:23:00-06:00" pubdate data-updated="true">Jan 17<span>th</span>, 2012</time>
+        
+         | <a href="/blog/2012/01/17/using-figures-within-tables-in-latex/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>By using LaTeX to author APA manuscripts, researchers can address many problems associated with formatting their results
+into tables and figures. For example, ANOVA tables can be readily generated using the
+<a href="http://cran.r-project.org/web/packages/xtable/index.html"><code>xtable</code></a> package in R, and graphs from
+<a href="http://cran.r-project.org/web/packages/ggplot2/index.html"><code>ggplot2</code></a> can be rendered <em>within</em> the manuscript using
+<code>Sweave</code> (see <a href="https://en.wikipedia.org/wiki/Sweave">Wikipedia</a>). However, more complicated layouts can be difficult to
+achieve.</p>
+
+<p>In order to make test items or stimuli easier to understand, researchers occasionally organize examples in a table or
+figure. Using the standard <code>\table</code> command in LaTeX, it&#8217;s possible to include figures in an individual table cell
+without breaking the <a href="http://ctan.org/pkg/apa6">APA6.cls</a> package. For example: </div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2012/01/17/using-figures-within-tables-in-latex/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/11/07/faster-tetrachoric-correlations/">Faster Tetrachoric Correlations</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/10/25/analyzing-student-exams-using-irt/">Analyze Student Exam Items using IRT</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/16/easy-sweaving-for-latex-and-r/">Easy Sweave for LaTeX and R</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/11/installing-r-in-linux/">Installing R in Linux</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/04/05/faster-sscc-access-using-bash/">Faster SSCC  Access using Bash</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/frenchja">@frenchja</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'frenchja',
+            count: 4,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/113717313588371204162?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <h1>Popular Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/01/17/using-figures-within-tables-in-latex/">Using Figures within Tables in LaTeX</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2/">Graphing Error Bars for Repeated-Measures Variables with ggplot2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/27/integrating-r-and-qualtrics/">Analyzing Qualtrics Data in R using Github Packages</a>
+      </li>
+    
+  </ul>
+</section>
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Jason A. French -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+<script type="text/javascript">
+var infolinks_pid = 1932344;
+var infolinks_wsid = 0;
+</script>
+<script type="text/javascript" src="http://resources.infolinks.com/js/infolinks_main.js"></script>
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'frenchja';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

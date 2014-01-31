@@ -1,0 +1,1037 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Multiple Regression in R - Jason A. French</title>
+  <meta name="author" content="Jason A. French">
+
+  
+  <meta name="description" content="Multiple Regression in R Mar 11th, 2013 This R Guide for multiple regression hypothesis testing was created by Jason A. French. Email him with any &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://frenchja.github.com/tutorials/regression.html">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Jason A. French" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<!-- MathJax -->
+<script type="text/javascript"
+  src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-29782432-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Jason A. French</a></h1>
+  
+    <h2>Northwestern University</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:frenchja.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/files/JFrenchCV.pdf">Curriculum Vitae</a></li>
+  <!-- <li><a href="http://www.sapa-project.org">Projects</a></li> -->
+  <li><a href="/pubs">Pubs</a></li>
+  <li><a href="http://www.personality-project.org/dev/pmc.html">Lab</a></li>
+  <li><a href="/tutorials">R Tutorials</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article role="article">
+  
+  <header>
+    <h1 class="entry-title">Multiple Regression in R</h1>
+    <p class="meta">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-03-11T18:50:00-05:00" pubdate data-updated="true">Mar 11<span>th</span>, 2013</time></p>
+  </header>
+  
+  <p>This R Guide for multiple regression hypothesis testing was created by <a href="mailto:frenchja@u.northwestern.edu">Jason A. French</a>.  Email him with any comments and suggestions.</p>
+
+<p>Before we begin, if you&#8217;re using this R Guide I&#8217;m assuming some previous knowledge:</p>
+
+<ol>
+<li><strong>You&#8217;re familiar with how to enter basic commands.</strong>  If not, there are plenty of tutorials regarding this, <a href="http://personality-project.org/r/">many of which</a> are written by my adviser, <a href="https://en.wikipedia.org/wiki/William_Revelle">Bill Revelle</a>.  I don&#8217;t want to redo what he has more successfully done.</li>
+<li><strong>The dataset was successfully entered into R.</strong>  If not, once again Bill comes to the rescue with <a href="http://personality-project.org/r/#getdata">his guide</a>.  I&#8217;m generally a fan of exporting my data as a .csv file and using the <a href="http://stat.ethz.ch/R-manual/R-patched/library/utils/html/read.table.html"><code>read.csv()</code></a> function (.e.g, <code>data &lt;- read.csv(mydata.csv)</code>).  However, if you&#8217;re a fan of Excel, you&#8217;ll find Bill&#8217;s <a href="http://www.personality-project.org/r/html/read.clipboard.html"><code>read.clipboard()</code></a> function in the <a href="http://cran.r-project.org/web/packages/psych/index.html"><code>psych</code></a> package helpful.</li>
+<li><strong>You understand basic equation notation.</strong>  Essentially, <code>Data = Model + Error</code>.  The parameters (or variables) in our model are often denoted by &beta;, and the error by &epsilon;.</li>
+<li><strong>You understand why we test hypotheses using two models.</strong>  If I want to look at the impact of Ability on Grades despite differences in family SES, I have to <em>control for</em> SES.  So our most basic model would be Grades ~ SES, and we test whether Grades ~ SES + Ability is a better model,</li>
+</ol>
+
+
+<p>Now that we&#8217;re up to speed, I&#8217;ve organized this tutorial as a series of realistic situations that one might encounter.  Part 1 shows how to specify your models to do hypothesis testing and does not require R.  The second and third parts demonstrate how to use R to test for an interaction, curvilinear effect, and finally test whether a <em>set</em> of variables are significant.</p>
+
+<h2>Part 1:  Hypothesis Testing</h2>
+
+<p>Using multiple regression in R involves testing specific models.  Unless your models are setup correctly, the significant difference between two models may not lead to the inference you think it does!  Unfortunately, the US learned this the hard way.  The fear of fat, which reached its height during the 1980s and 1990s, was due to a faulty regression submitted to the FDA.  The researcher tested whether levels of fat and sugar predicted rates of cardiovascular disease but never partialled out the effect of sugar (which was the real problem).  Thus, due to the witch hunt against fat, food manufacturers offered low-fat varieties of everything.  However, there are only so many things to get taste and calories from.  When you remove the fat from a food, you have to add a lot of sucrose/fructose to make up for the lack of flavor.  Thus, rates of heart disease continued to climb because of bad regression (see <a href="http://www.uctv.tv/search-details.aspx?showID=16717">Lustig&#8217;s 2009 colloquium</a>).</p>
+
+<p>Consider the following situation involving judgements about political candidates.  Here, I specify what the various models would be.  You can plug in your own variables from your data to follow along.</p>
+
+<h3>Political Candidates</h3>
+
+<p>A political scientist is interested in factors influencing judgments of political candidates. To explore these issues, he uses some national survey data collected from a randomly drawn sample of 989 voting age citizens. Data on each of the following five variables are available from each of these survey respondents:</p>
+
+<p><code>CAND</code>  : The respondent’s judgment of the liberalness/conservativeness of a particular candidate . Respondents make their judgments of the candidate on a seven point scale, with 1 defined as “very conservative” and 7 defined as “very liberal.”</p>
+
+<p><code>SELF</code> :  Respondent’s judgment of his or her own liberalness/conservativeness on the same seven point scale as for CAND.</p>
+
+<p><code>LIKE</code>  :  Respondent’s judgment of liking for the candidate. Judgments are on a 100 point scale with 0 indicating the respondent very much does not like the candidate and 100 indicating the respondent very much likes the candidate.</p>
+
+<p><code>TRUST</code>  :  Respondent’s judgment of the candidate’s trustworthiness on a seven-point scale where 1 indicates “very untrustworthy” and 7 indicates “very trustworthy.”</p>
+
+<p><code>Know</code>  :  A composite measure of the respondent’s political knowledge, ranging from 0 to 10, with a score of 10 indicating that the respondent is very knowledgeable about political issues and a score of 0 indicating that the respondent knows nothing about politics.</p>
+
+<p>Based on these data, I conduct analyses to answer each of the following questions. For each question, I indicate the compact and augmented models that should be compared to answer the question and state the null hypothesis being tested.</p>
+
+<p>In addition, indicated the degrees of freedom associated with the F* that would be used to evaluate each hypothesis. Some of these questions require we construct new variables out of the five that were measured.</p>
+
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD:source/regression/index.markdown
+<strong>Are judgments of liking for the candidate predictable from the respondent’s self judgment of liberalness/conservativeness?</strong></p>
+
+<p>Model C: Like<sub>i</sub> = &beta;<sub>0</sub> + &epsilon;<sub>i</sub></p>
+
+<h1>Model A:  Like<sub>i</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Self<sub>i</sub> + &epsilon;<sub>i</sub></h1>
+
+<p>Model C:  Like<sub>i</sub> = &beta;<sub>0</sub> + &#949;<sub>i</sub></p>
+
+<p>Model A:  Like<sub>i</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Self<sub>i</sub> + &#949;<sub>i</sub></p>
+
+<p>F<sup>*</sup><sub>{1,987}</sub> = H<sub>0</sub>: &beta;<sub>1</sub> = 0</p>
+
+<blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><p>Tutorials:source/tutorials/regression.markdown</p></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote>
+
+<p>F<sup>*<sub>{1,987}</sub></sup> = H<sub>0</sub>: &beta;<sub>1</sub> = 0</p>
+
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD:source/regression/index.markdown
+<strong>Are judgments of the candidate’s trustworthiness related to candidate evaluation even when controlling for the respondent’s own political persuasion?</strong></p>
+
+<p>Model C:  Like<sub>i</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Self<sub>i</sub> + &epsilon;<sub>i</sub></p>
+
+<h1>Model A:  Like<sub>i</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Self<sub>i</sub> + &beta;<sub>2</sub> Trust<sub>i</sub> + &epsilon;<sub>i</sub></h1>
+
+<p>Model C:  Like<sub>i</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Self<sub>i</sub> + &#949;<sub>i</sub></p>
+
+<p>Model A:  Like<sub>i</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Self<sub>i</sub> + &beta;<sub>2</sub> Trust<sub>i</sub> + &#949;<sub>i</sub></p>
+
+<p>F<sup>*<sub>{1,986}</sub></sup> = H<sub>0</sub>: &beta;<sub>2</sub> = 0</p>
+
+<blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><p>Tutorials:source/tutorials/regression.markdown</p></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote>
+
+<p>F<sup>*<sub>{1,986}</sub></sup> = H<sub>0</sub>: &beta;<sub>2</sub> = 0</p>
+
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD:source/regression/index.markdown
+<strong>Are judgments of how the candidate is evaluated predictable from trustworthiness judgments less strongly among politically knowledgeable respondents?</strong></p>
+
+<p>Model C:  Like<sub>i</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Trust<sub>i</sub> + &beta;<sub>2</sub> Know<sub>i</sub> + &epsilon;<sub>i</sub></p>
+
+<h1>Model A:  Like<sub>i</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Trust<sub>i</sub> + &beta;<sub>2</sub> Know<sub>i</sub> + &beta;<sub>3</sub> (Know<sub>i</sub>)(Trust<sub>i</sub>) + &epsilon;<sub>i</sub></h1>
+
+<p>Model C:  Like<sub>i</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Trust<sub>i</sub> + &beta;<sub>2</sub> Know<sub>i</sub> + &#949;<sub>i</sub></p>
+
+<p>Model A:  Like<sub>i</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Trust<sub>i</sub> + &beta;<sub>2</sub> Know<sub>i</sub> + &beta;<sub>3</sub> (Know<sub>i</sub>)(Trust<sub>i</sub>) + &#949;<sub>i</sub></p>
+
+<p>F<sup>*</sup><sub>{1,985}</sub> = H<sub>0</sub>: &beta;<sub>3</sub> = 0</p>
+
+<blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><p>Tutorials:source/tutorials/regression.markdown</p></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote>
+
+<p>F<sup>*<sub>{1,985}</sub></sup> = H<sub>0</sub>: &beta;<sub>3</sub> = 0</p>
+
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD:source/regression/index.markdown
+<strong>Do those respondents whose political views are relatively extreme in either a liberal or conservative direction, like the candidate less well than those who are more moderate, even controlling for the fact that liberals prefer the candidate to those who are more conservative?</strong></p>
+
+<p>Model C:  Like<sub>i</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Self<sub>i</sub> + &epsilon;<sub>i</sub></p>
+
+<h1>Model A:  Like<sub>i</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Self<sub>i</sub> + &beta;<sub>2</sub> Self<sup>2<sub>i</sub></sup> + &epsilon;<sub>i</sub></h1>
+
+<p>Model C:  Like<sub>i</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Self<sub>i</sub> + &#949;<sub>i</sub></p>
+
+<p>Model A:  Like<sub>i</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Self<sub>i</sub> + &beta;<sub>2</sub> Self<sup>2</sup><sub>i</sub> + &#949;<sub>i</sub></p>
+
+<p>F<sup>*</sup><sub>{1,986}</sub> = H<sub>0</sub>: &beta;<sub>2</sub> = 0</p>
+
+<blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><p>Tutorials:source/tutorials/regression.markdown</p></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote>
+
+<p>F<sup>*<sub>{1,986}</sub></sup> = H<sub>0</sub>: &beta;<sub>2</sub> = 0</p>
+
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD:source/regression/index.markdown
+<strong>On average, do respondents assimilate judgments of the candidate’s position to their own position? That is, the more liberal respondents are, the more they judge the candidate to be liberal. The more conservative respondents are, the more conservative they judge the candidate to be.</strong></p>
+
+<p>Model C:  Cand<sub>i</sub></sub> = &beta;<sub>0</sub> + &epsilon;<sub>i</sub></p>
+
+<h1>Model A:  Cand<sub>i</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Self<sub>i</sub> + &epsilon;<sub>i</sub></h1>
+
+<p>Model C:  Cand<sub>i</sub> = &beta;<sub>0</sub> + &#949;<sub>i</sub></p>
+
+<p>Model A:  Cand<sub>i</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Self<sub>i</sub> + &#949;<sub>i</sub></p>
+
+<p>F<sup>*</sup><sub>{1,987}</sub> = H<sub>0</sub>: &beta;<sub>1</sub> = 0</p>
+
+<blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><p>Tutorials:source/tutorials/regression.markdown</p></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote>
+
+<p>F<sup>*<sub>{1,987}</sub></sup> = H<sub>0</sub>: &beta;<sub>1</sub> = 0</p>
+
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD:source/regression/index.markdown
+<strong>Does the extent to which respondents assimilate judgments of the candidate’s position to their own depend on the degree to which they like or dislike the candidate? Those who relatively like the candidate assimilate the candidate’s position to their own more strongly than those who like the candidate less well.</strong></p>
+
+<p>Model C:  Cand<sub>i</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Self<sub>i</sub> + &beta;<sub>2</sub> Like<sub>i</sub> + &epsilon;<sub>i</sub></p>
+
+<p>Model A:  Cand<sub>i</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Self<sub>i</sub> + &beta;<sub>3</sub> Like<sub>i</sub> + &beta;<sub>3</sub> (Self<sub>i</sub>)(Like<sub>i</sub>) + &epsilon;<sub>i</sub></p>
+
+<p>F<sup>*<sub>{1,985}</sub></sup> = H<sub>0</sub>: &beta;<sub>3</sub> = 0</p>
+
+<p><strong>Is liking for the candidate predictable from knowledge of the absolute difference between the respondent’s judgment of his or her own political position and his or her judgment of the candidate’s political position?</strong></p>
+
+<p>First, create a new variable:  Diff<sub>i</sub> = |Self<sub>i</sub> - Cand<sub>i</sub>|</p>
+
+<h1>Model C:  Cand<sub>i</sub> = &beta;<sub>0</sub> + &epsilon;<sub>i</sub></h1>
+
+<p>Model C:  Cand<sub>i</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Self<sub>i</sub> + &beta;<sub>2</sub> Like<sub>i</sub> + &#949;<sub>i</sub></p>
+
+<p>Model A:  Cand<sub>i</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Self<sub>i</sub> + &beta;<sub>2</sub> Like<sub>i</sub> + &beta;<sub>3</sub> (Self<sub>i</sub>)(Like<sub>i</sub>) + &#949;<sub>i</sub></p>
+
+<p>F<sup>*<sub>{1,985}</sub></sup> = H<sub>0</sub>: &beta;<sub>3</sub> = 0</p>
+
+<h2>1.7</h2>
+
+<p>Is liking for the candidate predictable from knowledge of the absolute difference between the respondent’s judgment of his or her own political position and his or her judgment of the candidate’s political position?
+First, create a new variable:  Diff<sub>i</sub> = |Self<sub>i</sub> - Cand<sub>i</sub>|</p>
+
+<p>Model C:  Cand<sub>i</sub> = &beta;<sub>0</sub> + Error<sub>i</sub></p>
+
+<p>Model A:  Cand<sub>i</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Diff<sub>i</sub> + &#949;<sub>i</sub></p>
+
+<p>F<sup>*</sup><sub>{1,987}</sub> = H<sub>0</sub>: &beta;<sub>1</sub> = 0</p>
+
+<blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><p>Tutorials:source/tutorials/regression.markdown</p></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote>
+
+<p>Model A:  Cand<sub>i</sub> = &beta;<sub>0</sub> + &beta;<sub>1</sub> Diff<sub>i</sub> + &epsilon;<sub>i</sub></p>
+
+<p>F<sup>*<sub>{1,987}</sub></sup> = H<sub>0</sub>: &beta;<sub>1</sub> = 0</p>
+
+<h2>Part 2:  Testing for Interactions</h2>
+
+<h3>The Effect of Books and Attendance on Grades</h3>
+
+<p><a href="">Download</a> this example dataset.  In this section, we&#8217;ll look at the influence of Books and Attendance on one&#8217;s Grades.  However, one might hypothesize that the number of books you read has a larger impact on your grade if you bother attending lecture more often.  If we&#8217;re hypothesizing that people who attend class get more out of the books versus the students who don&#8217;t attend and use them to cram at the end of the quarter or semester, we need to test for an <em>interaction</em> of Books x Classes, over and above the <em>main effects</em> of <code>Books</code> and <code>Classes</code> on our dependant variable, <code>Grades</code>.</p>
+
+<p>Make sense?</p>
+
+<figure class='code'><figcaption><span>Running the regression</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="c1"># Load the psych library</span>
+</span><span class='line'>library<span class="p">(</span>psych<span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Since Excel files are garbage, convert it to a .csv file</span>
+</span><span class='line'>books.data <span class="o">&lt;-</span> read.csv<span class="p">(</span>file <span class="o">=</span> <span class="s">&quot;~/Desktop/Statslearninteractionexamp.csv&quot;</span><span class="p">,</span> header <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Now center the Attend and Book variables</span>
+</span><span class='line'>books.dataAttend <span class="o">&lt;-</span> scale<span class="p">(</span>books.dataAttend<span class="p">,</span> center <span class="o">=</span> <span class="kc">TRUE</span><span class="p">,</span> scale <span class="o">=</span> <span class="kc">FALSE</span><span class="p">)</span>
+</span><span class='line'>books.dataBooks <span class="o">&lt;-</span> scale<span class="p">(</span>books.dataBooks<span class="p">,</span> center <span class="o">=</span> <span class="kc">TRUE</span><span class="p">,</span> scale <span class="o">=</span> <span class="kc">FALSE</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Finally, use lm() to do the regression</span>
+</span><span class='line'>books.lm <span class="o">&lt;-</span> lm<span class="p">(</span>Grade <span class="o">~</span> Books <span class="o">+</span> Attend <span class="o">+</span> Books <span class="o">*</span> Attend<span class="p">,</span> data <span class="o">=</span> books.data<span class="p">)</span>
+</span><span class='line'>summary<span class="p">(</span>books.lm<span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Running the regression</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Call:</span>
+</span><span class='line'><span class="c1">## lm(formula = Grade ~ Books + Attend + Books * Attend, data = books.data)</span>
+</span><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Residuals:</span>
+</span><span class='line'><span class="c1">##    Min     1Q Median     3Q    Max </span>
+</span><span class='line'><span class="c1">## -24.84 -11.85   1.47   8.16  34.20 </span>
+</span><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Coefficients:</span>
+</span><span class='line'><span class="c1">##              Estimate Std. Error t value Pr(&gt;|t|)    </span>
+</span><span class='line'><span class="c1">## (Intercept)    61.602      2.319   26.57   &lt;2e-16 ***</span>
+</span><span class='line'><span class="c1">## Books           4.155      1.678    2.48    0.018 *  </span>
+</span><span class='line'><span class="c1">## Attend          1.333      0.562    2.37    0.023 *  </span>
+</span><span class='line'><span class="c1">## Books:Attend    0.735      0.349    2.10    0.042 *  </span>
+</span><span class='line'><span class="c1">## ---</span>
+</span><span class='line'><span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1 </span>
+</span><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Residual standard error: 13.4 on 36 degrees of freedom</span>
+</span><span class='line'><span class="c1">## Multiple R-squared: 0.402,    Adjusted R-squared: 0.352 </span>
+</span><span class='line'><span class="c1">## F-statistic: 8.07 on 3 and 36 DF,  p-value: 0.000306</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Test the parameters using the anova() function </span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>anova<span class="p">(</span>books.lm<span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Test the parameters using the anova() function </span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="c1">## Analysis of Variance Table</span>
+</span><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Response: Grade</span>
+</span><span class='line'><span class="c1">##              Df Sum Sq Mean Sq F value  Pr(&gt;F)    </span>
+</span><span class='line'><span class="c1">## Books         1   2634    2634   14.57 0.00051 ***</span>
+</span><span class='line'><span class="c1">## Attend        1    944     944    5.22 0.02827 *  </span>
+</span><span class='line'><span class="c1">## Books:Attend  1    800     800    4.43 0.04246 *  </span>
+</span><span class='line'><span class="c1">## Residuals    36   6506     181                    </span>
+</span><span class='line'><span class="c1">## ---</span>
+</span><span class='line'><span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In sum, we have signficant <em>main effects</em> of both Books (F(1,36) = 14.57, <em>p</em> &lt; 0.001) and Attendance (F(1,36) = 5.22, <em>p</em> &lt; .03).  However, this relation between Grades and Books depends on how many classes you attend (F(1,36) = 4.43, <em>p</em> &lt; .05).</p>
+
+<h3>Graphing the Interaction</h3>
+
+<p>Sometimes graphs can help us conceptualize what this interaction means.  I will graph the interaction as a series of simple relationships, which we&#8217;ll derive using a bit of math.  As our main equation is Grade&#770; = (61.60 + 1.333Attend<sub>0</sub>) + (4.155 x (0.735 x Attend<sub>0</sub>))Books<sub>0</sub>, we&#8217;ll plug in values for Attend to change the simple slope.</p>
+
+<p>I will graph <code>Grade</code> by the centered <code>Books</code> at 1) the centered <code>Attend</code>, 2) one standard deviation below from the average <code>Attend</code> (i.e., 4.278 days <em>missed</em>), and 3) one standard deviation above from the average <code>Attend</code> (4.278 days attended).  The three lines correspond to the three equations below:</p>
+
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD:source/regression/index.markdown</p>
+
+<h1>If we plug in three representative values of Attend<sub>0</sub>&#8230;</h1>
+
+<p>Grade&#770; = (61.60 + 1.333Attend<sub>0</sub>) + (4.155<em>(0.735</em>Attend<sub>0</sub>))Books<sub>0</sub></p>
+
+<blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><p>Tutorials:source/tutorials/regression.markdown</p></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote>
+
+<p>Attend<sub>0</sub> = -4.278</p>
+
+<p>Grade&#770; = (61.60 + 1.333 x -4.278) + (4.155 + (0.735 x -4.278))*Books<sub>0</sub></p>
+
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD:source/regression/index.markdown</p>
+
+<h1>Attend<sub>0</sub> =0</h1>
+
+<p>Grade&#770; = = (61.60 + 1.333<em>-4.278) + (4.155 + (0.735</em>-4.278))*Books<sub>0</sub></p>
+
+<blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><p>Tutorials:source/tutorials/regression.markdown</p></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote>
+
+<p>Grade&#770; = (61.60 + 1.333 x 0) +(4.155+(0.735 x 0)) x Books_0</p>
+
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD:source/regression/index.markdown</p>
+
+<h1>Attend<sub>0</sub> = 4.278</h1>
+
+<p>Grade&#770; = (61.60 + 1.333<em>0) +(4.155+(0.735</em>0))*Books<sub>0</sub></p>
+
+<blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><p>Tutorials:source/tutorials/regression.markdown</p></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote>
+
+<p>Grade&#770; = (61.60 + 1.333 x 4.278) + (4.155 + (0.735 x 4.278)) x Books<sub>0</sub></p>
+
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD:source/regression/index.markdown</p>
+
+<h3>Interpreting the interaction</h3>
+
+<p>=======
+Grade&#770; = (61.60 + 1.333<em>4.278) + (4.155 + (0.735</em>4.278))*Books<sub>0</sub></p>
+
+<blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><p>Tutorials:source/tutorials/regression.markdown</p></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote>
+
+<p>For the people who attended fewer classes than average, the number of textbooks they read was rather weakly related with their grade.  On the other hand, for the people who attended more classes than average, the number of textbooks they read had a strong positive relationship with their grade.</p>
+
+<figure class='code'><figcaption><span>Plotting the interaction as 3 simple relationships</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>library<span class="p">(</span>ggplot2<span class="p">)</span>
+</span><span class='line'>p <span class="o">&lt;-</span> qplot<span class="p">(</span>x <span class="o">=</span> Books<span class="p">,</span> y <span class="o">=</span> Grade<span class="p">,</span> data <span class="o">=</span> books.data<span class="p">,</span> main <span class="o">=</span> <span class="s">&quot;Grade ~ Books&quot;</span><span class="p">,</span>
+</span><span class='line'>    legend <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span>
+</span><span class='line'>p <span class="o">+</span> geom_abline<span class="p">(</span>intercept <span class="o">=</span> <span class="p">(</span><span class="m">61.6</span> <span class="o">+</span> <span class="m">1.333</span> <span class="o">*</span> <span class="m">-4.278</span><span class="p">),</span> slope <span class="o">=</span> <span class="p">(</span><span class="m">4.155</span> <span class="o">+</span> <span class="p">(</span><span class="m">0.735</span> <span class="o">*</span>
+</span><span class='line'>    <span class="m">-4.278</span><span class="p">)),</span> aes<span class="p">(</span>colour <span class="o">=</span> <span class="s">&quot;1&quot;</span><span class="p">))</span> <span class="o">+</span> geom_abline<span class="p">(</span>intercept <span class="o">=</span> <span class="p">(</span><span class="m">61.6</span> <span class="o">+</span> <span class="m">1.333</span> <span class="o">*</span> <span class="m">0</span><span class="p">),</span>
+</span><span class='line'>    slope <span class="o">=</span> <span class="p">(</span><span class="m">4.155</span> <span class="o">+</span> <span class="p">(</span><span class="m">0.735</span> <span class="o">*</span> <span class="m">0</span><span class="p">)),</span> aes<span class="p">(</span>colour <span class="o">=</span> <span class="s">&quot;2&quot;</span><span class="p">))</span> <span class="o">+</span> geom_abline<span class="p">(</span>intercept <span class="o">=</span> <span class="p">(</span><span class="m">61.6</span> <span class="o">+</span>
+</span><span class='line'>    <span class="m">1.333</span> <span class="o">*</span> <span class="m">4.278</span><span class="p">),</span> slope <span class="o">=</span> <span class="p">(</span><span class="m">4.155</span> <span class="o">+</span> <span class="p">(</span><span class="m">0.735</span> <span class="o">*</span> <span class="m">4.278</span><span class="p">)),</span> aes<span class="p">(</span>colour <span class="o">=</span> <span class="s">&quot;3&quot;</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/unnamed-chunk-2.png"></p>
+
+<h3>Testing for Curvilinear Effects</h3>
+
+<p>Next we test if either <code>Books</code> or <code>Classes</code> has a curvilinear (quadratic) effect in the prediction of <code>Grade</code>.  To help the reader, I provide graphs of these results.</p>
+
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD:source/regression/index.markdown</p>
+
+<h1><strong>Let&#8217;s do Grades ~ Attend first</strong></h1>
+
+<h3>Let&#8217;s do Grades ~ Attend first</h3>
+
+<p>Grade&#770; = b<sub>0</sub> + b<sub>1</sub> Attend + b<sub>2</sub> Attend<sup>2</sup></p>
+
+<blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><p>Tutorials:source/tutorials/regression.markdown</p></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote>
+
+<p>Grade&#770; = b<sub>0</sub> + b<sub>1</sub> Attend + b<sub>2</sub> Attend<sup>2</sup></p>
+
+<figure class='code'><figcaption><span>Regression of Grade ~ Attend + Attend^2</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>attend.lm <span class="o">&lt;-</span> lm<span class="p">(</span>Grade <span class="o">~</span> Attend <span class="o">+</span> I<span class="p">(</span>Attend<span class="o">^</span><span class="m">2</span><span class="p">),</span> data <span class="o">=</span> books.data<span class="p">)</span>
+</span><span class='line'>summary<span class="p">(</span>attend.lm<span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Regression of Grade ~ Attend + Attend^2</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Call:</span>
+</span><span class='line'><span class="c1">## lm(formula = Grade ~ Attend + I(Attend^2), data = books.data)</span>
+</span><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Residuals:</span>
+</span><span class='line'><span class="c1">##    Min     1Q Median     3Q    Max </span>
+</span><span class='line'><span class="c1">## -28.58 -10.09   2.09   9.93  33.84 </span>
+</span><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Coefficients:</span>
+</span><span class='line'><span class="c1">##             Estimate Std. Error t value Pr(&gt;|t|)    </span>
+</span><span class='line'><span class="c1">## (Intercept)   61.353      3.610   17.00   &lt;2e-16 ***</span>
+</span><span class='line'><span class="c1">## Attend         1.892      0.558    3.39   0.0017 ** </span>
+</span><span class='line'><span class="c1">## I(Attend^2)    0.123      0.153    0.80   0.4270    </span>
+</span><span class='line'><span class="c1">## ---</span>
+</span><span class='line'><span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1 </span>
+</span><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Residual standard error: 14.9 on 37 degrees of freedom</span>
+</span><span class='line'><span class="c1">## Multiple R-squared: 0.246,    Adjusted R-squared: 0.205 </span>
+</span><span class='line'><span class="c1">## F-statistic: 6.02 on 2 and 37 DF,  p-value: 0.00543</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Effect Tests for the Parameters</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>anova<span class="p">(</span>attend.lm<span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Effect Tests for the Parameters</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="c1">## Analysis of Variance Table</span>
+</span><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Response: Grade</span>
+</span><span class='line'><span class="c1">##             Df Sum Sq Mean Sq F value Pr(&gt;F)   </span>
+</span><span class='line'><span class="c1">## Attend       1   2531    2531   11.40 0.0017 **</span>
+</span><span class='line'><span class="c1">## I(Attend^2)  1    143     143    0.65 0.4270   </span>
+</span><span class='line'><span class="c1">## Residuals   37   8210     222                  </span>
+</span><span class='line'><span class="c1">## ---</span>
+</span><span class='line'><span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Plotting the Curvilinear Effect of Grade ~ Attend + Attend^2</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>p <span class="o">&lt;-</span> qplot<span class="p">(</span>x <span class="o">=</span> Attend<span class="p">,</span> y <span class="o">=</span> Grade<span class="p">,</span> data <span class="o">=</span> books.data<span class="p">,</span> main <span class="o">=</span> <span class="s">&quot;Polynomial Fit of Grade ~ Attend&quot;</span><span class="p">)</span>
+</span><span class='line'>p <span class="o">+</span> layer<span class="p">(</span>data <span class="o">=</span> books.data<span class="p">,</span> mapping <span class="o">=</span> aes<span class="p">(</span>x <span class="o">=</span> Attend<span class="p">,</span> y <span class="o">=</span> Grade<span class="p">),</span> stat <span class="o">=</span> <span class="s">&quot;smooth&quot;</span><span class="p">,</span>
+</span><span class='line'>    stat_params <span class="o">=</span> list<span class="p">(</span>method <span class="o">=</span> <span class="s">&quot;glm&quot;</span><span class="p">,</span> formula <span class="o">=</span> y <span class="o">~</span> poly<span class="p">(</span>x<span class="p">,</span> <span class="m">2</span><span class="p">)))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/unnamed-chunk-3.png"></p>
+
+<p><em>Attendance</em> does not have a curvilinear relationship with Grades, <em>p</em> = n.s.</p>
+
+<p><strong>Next, we&#8217;ll test Grades ~ Books</strong></p>
+
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD:source/regression/index.markdown</p>
+
+<h1>Grade&#770; = b<sub>0</sub> + b<sub>1</sub> Books + b<sub>2</sub> Books<sup>2</sup></h1>
+
+<p>Grade&#770; = b<sub>0</sub> + b<sub>1</sub> Books + b<sub>2</sub> Books<sup>2</sup></p>
+
+<blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><p>Tutorials:source/tutorials/regression.markdown</p></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote>
+
+<figure class='code'><figcaption><span>Regressing Grades ~ Books</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>books.lm2 <span class="o">&lt;-</span> lm<span class="p">(</span>Grade <span class="o">~</span> Books <span class="o">+</span> I<span class="p">(</span>Books<span class="o">^</span><span class="m">2</span><span class="p">),</span> data <span class="o">=</span> books.data<span class="p">)</span>
+</span><span class='line'>summary<span class="p">(</span>books.lm2<span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Regressing Grades ~ Books</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Call:</span>
+</span><span class='line'><span class="c1">## lm(formula = Grade ~ Books + I(Books^2), data = books.data)</span>
+</span><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Residuals:</span>
+</span><span class='line'><span class="c1">##    Min     1Q Median     3Q    Max </span>
+</span><span class='line'><span class="c1">## -27.61 -12.97  -1.49  10.84  33.04 </span>
+</span><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Coefficients:</span>
+</span><span class='line'><span class="c1">##             Estimate Std. Error t value Pr(&gt;|t|)    </span>
+</span><span class='line'><span class="c1">## (Intercept)   63.961      3.678   17.39   &lt;2e-16 ***</span>
+</span><span class='line'><span class="c1">## Books          5.738      1.669    3.44   0.0015 ** </span>
+</span><span class='line'><span class="c1">## I(Books^2)    -0.205      1.411   -0.15   0.8850    </span>
+</span><span class='line'><span class="c1">## ---</span>
+</span><span class='line'><span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1 </span>
+</span><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Residual standard error: 14.9 on 37 degrees of freedom</span>
+</span><span class='line'><span class="c1">## Multiple R-squared: 0.242,    Adjusted R-squared: 0.201 </span>
+</span><span class='line'><span class="c1">## F-statistic: 5.92 on 2 and 37 DF,  p-value: 0.00588</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Effects Tests for Parameters</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>anova<span class="p">(</span>books.lm2<span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Effects Tests for Parameters</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="c1">## Analysis of Variance Table</span>
+</span><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Response: Grade</span>
+</span><span class='line'><span class="c1">##            Df Sum Sq Mean Sq F value Pr(&gt;F)   </span>
+</span><span class='line'><span class="c1">## Books       1   2634    2634   11.82 0.0015 **</span>
+</span><span class='line'><span class="c1">## I(Books^2)  1      5       5    0.02 0.8850   </span>
+</span><span class='line'><span class="c1">## Residuals  37   8246     223                  </span>
+</span><span class='line'><span class="c1">## ---</span>
+</span><span class='line'><span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Plotting the Curvilinear Effect of Grades ~ Books + Books^2</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>p <span class="o">&lt;-</span> qplot<span class="p">(</span>x <span class="o">=</span> Books<span class="p">,</span> y <span class="o">=</span> Grade<span class="p">,</span> data <span class="o">=</span> books.data<span class="p">,</span> main <span class="o">=</span> <span class="s">&quot;Polynomial Fit of Grade ~ Books&quot;</span><span class="p">)</span>
+</span><span class='line'>p <span class="o">+</span> layer<span class="p">(</span>data <span class="o">=</span> books.data<span class="p">,</span> mapping <span class="o">=</span> aes<span class="p">(</span>x <span class="o">=</span> Books<span class="p">,</span> y <span class="o">=</span> Grade<span class="p">),</span> stat <span class="o">=</span> <span class="s">&quot;smooth&quot;</span><span class="p">,</span>
+</span><span class='line'>    stat_params <span class="o">=</span> list<span class="p">(</span>method <span class="o">=</span> <span class="s">&quot;glm&quot;</span><span class="p">,</span> formula <span class="o">=</span> y <span class="o">~</span> poly<span class="p">(</span>x<span class="p">,</span> <span class="m">2</span><span class="p">)))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images//unnamed-chunk-4.png"></p>
+
+<p><em>Books</em> do not have a curvilinear relationship with Grades, <em>p</em> = n.s.</p>
+
+<h2>The Final Countdown:  Testing sets of parameters</h2>
+
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD:source/regression/index.markdown
+Download the file <a href="">here</a>.  I test to see whether the set of predictors &#8220;Burglary&#8221; and &#8220;Auto&#8221;(Theft) add to the prediction of &#8220;Murder&#8221; once &#8220;Assault&#8221; and &#8220;Robbery&#8221; are taken into account (i.e., &#8220;over and above Assault and Robbery&#8221;).</p>
+
+<h1>Model C: Murder&#770; = b<sub>0</sub> + b<sub>1</sub> Assault + b<sub>2</sub> Robbery</h1>
+
+<p>Model C: Murder&#770; = b<sub>0</sub> + b<sub>1</sub> Assault + b<sub>2</sub> Robbery</p>
+
+<p>Model A: Murder&#770; = b<sub>0</sub> + b<sub>1</sub> Burglary + b<sub>2</sub> Auto + b<sub>3</sub> Assault + b<sub>4</sub> Robbery</p>
+
+<blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><p>Tutorials:source/tutorials/regression.markdown</p></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote>
+
+<p>Model A: Murder&#770; = b<sub>0</sub> + b<sub>1</sub> Burglary + b<sub>2</sub> Auto + b<sub>3</sub> Assault + b<sub>4</sub> Robbery</p>
+
+<figure class='code'><figcaption><span>Regressing Murder onto Assault and Robbery</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>murder.data <span class="o">&lt;-</span> read.csv<span class="p">(</span>header <span class="o">=</span> <span class="kc">TRUE</span><span class="p">,</span> file <span class="o">=</span> <span class="s">&quot;Crime.csv&quot;</span><span class="p">)</span>
+</span><span class='line'>modelC <span class="o">&lt;-</span> lm<span class="p">(</span>murder <span class="o">~</span> assault <span class="o">+</span> robbery<span class="p">,</span> data <span class="o">=</span> murder.data<span class="p">)</span>
+</span><span class='line'>summary<span class="p">(</span>modelC<span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Call:</span>
+</span><span class='line'><span class="c1">## lm(formula = murder ~ assault + robbery, data = murder.data)</span>
+</span><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Residuals:</span>
+</span><span class='line'><span class="c1">##    Min     1Q Median     3Q    Max </span>
+</span><span class='line'><span class="c1">## -5.124 -1.890 -0.511  1.807  7.780 </span>
+</span><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Coefficients:</span>
+</span><span class='line'><span class="c1">##             Estimate Std. Error t value Pr(&gt;|t|)    </span>
+</span><span class='line'><span class="c1">## (Intercept)  2.00024    0.98772    2.03  0.04856 *  </span>
+</span><span class='line'><span class="c1">## assault      0.02120    0.00506    4.19  0.00012 ***</span>
+</span><span class='line'><span class="c1">## robbery      0.00777    0.00574    1.35  0.18245    </span>
+</span><span class='line'><span class="c1">## ---</span>
+</span><span class='line'><span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1 </span>
+</span><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Residual standard error: 2.95 on 47 degrees of freedom</span>
+</span><span class='line'><span class="c1">## Multiple R-squared: 0.442,    Adjusted R-squared: 0.419 </span>
+</span><span class='line'><span class="c1">## F-statistic: 18.6 on 2 and 47 DF,  p-value: 1.1e-06</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Regressing Murder onto Assualt, Robbery, Theft, and Burglary</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>modelA <span class="o">&lt;-</span> lm<span class="p">(</span>murder <span class="o">~</span> assault <span class="o">+</span> robbery <span class="o">+</span> auto <span class="o">+</span> burglary<span class="p">,</span> data <span class="o">=</span> murder.data<span class="p">)</span>
+</span><span class='line'>summary<span class="p">(</span>modelA<span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Call:</span>
+</span><span class='line'><span class="c1">## lm(formula = murder ~ assault + robbery + auto + burglary, data = murder.data)</span>
+</span><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Residuals:</span>
+</span><span class='line'><span class="c1">##    Min     1Q Median     3Q    Max </span>
+</span><span class='line'><span class="c1">## -4.893 -1.780 -0.561  1.636  6.853 </span>
+</span><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Coefficients:</span>
+</span><span class='line'><span class="c1">##              Estimate Std. Error t value Pr(&gt;|t|)    </span>
+</span><span class='line'><span class="c1">## (Intercept)  3.493254   1.365820    2.56  0.01398 *  </span>
+</span><span class='line'><span class="c1">## assault      0.020749   0.005558    3.73  0.00053 ***</span>
+</span><span class='line'><span class="c1">## robbery      0.016065   0.006843    2.35  0.02334 *  </span>
+</span><span class='line'><span class="c1">## auto        -0.005637   0.002816   -2.00  0.05133 .  </span>
+</span><span class='line'><span class="c1">## burglary    -0.000231   0.001447   -0.16  0.87375    </span>
+</span><span class='line'><span class="c1">## ---</span>
+</span><span class='line'><span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1 </span>
+</span><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Residual standard error: 2.86 on 45 degrees of freedom</span>
+</span><span class='line'><span class="c1">## Multiple R-squared: 0.497,    Adjusted R-squared: 0.452 </span>
+</span><span class='line'><span class="c1">## F-statistic: 11.1 on 4 and 45 DF,  p-value: 2.34e-06</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Effects Tests for Parameters</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>anova<span class="p">(</span>modelC<span class="p">,</span> modelA<span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Effects Tests for Parameters</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="c1">## Analysis of Variance Table</span>
+</span><span class='line'><span class="c1">## </span>
+</span><span class='line'><span class="c1">## Model 1: murder ~ assault + robbery</span>
+</span><span class='line'><span class="c1">## Model 2: murder ~ assault + robbery + auto + burglary</span>
+</span><span class='line'><span class="c1">##   Res.Df RSS Df Sum of Sq    F Pr(&gt;F)  </span>
+</span><span class='line'><span class="c1">## 1     47 409                           </span>
+</span><span class='line'><span class="c1">## 2     45 368  2      40.1 2.45  0.098 .</span>
+</span><span class='line'><span class="c1">## ---</span>
+</span><span class='line'><span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The probability of the F-value corresponds to the probability that I would get had I calculated the proportion of reduced error (i.e., PRE) by hand:</p>
+
+<p>SSC = 408.56 [error for Model C above]</p>
+
+<p>SSA = 368.48 [error for Model A as above]</p>
+
+<p>PRE = (SSC – SSA)/SSC</p>
+
+<p>PRE = (408.56 – 368.48)/(408.56) = 0.098</p>
+
+<p>Because the observed PRE is less than the critical PRE (of .125), we fail to reject the null, and conclude that burglary and auto as a set of predictors do not significantly add to the prediction of murder above and beyond assault and robbery.</p>
+
+  
+    <footer>
+      <p class="meta">
+        
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-03-11T18:50:00-05:00" pubdate data-updated="true">Mar 11<span>th</span>, 2013</time>
+        
+      </p>
+      
+        <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://frenchja.github.com/tutorials/regression.html" data-via="" data-counturl="http://frenchja.github.com/tutorials/regression.html" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+      
+    </footer>
+  
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/11/07/faster-tetrachoric-correlations/">Faster Tetrachoric Correlations</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/10/25/analyzing-student-exams-using-irt/">Analyze Student Exam Items using IRT</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/16/easy-sweaving-for-latex-and-r/">Easy Sweave for LaTeX and R</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/11/installing-r-in-linux/">Installing R in Linux</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/04/05/faster-sscc-access-using-bash/">Faster SSCC  Access using Bash</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/frenchja">@frenchja</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'frenchja',
+            count: 4,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/113717313588371204162?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <h1>Popular Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/01/17/using-figures-within-tables-in-latex/">Using Figures within Tables in LaTeX</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2/">Graphing Error Bars for Repeated-Measures Variables with ggplot2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/27/integrating-r-and-qualtrics/">Analyzing Qualtrics Data in R using Github Packages</a>
+      </li>
+    
+  </ul>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Jason A. French -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+<script type="text/javascript">
+var infolinks_pid = 1932344;
+var infolinks_wsid = 0;
+</script>
+<script type="text/javascript" src="http://resources.infolinks.com/js/infolinks_main.js"></script>
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'frenchja';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://frenchja.github.com/tutorials/regression.html';
+        var disqus_url = 'http://frenchja.github.com/tutorials/regression.html';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
