@@ -69,7 +69,7 @@ figures to vertically align according to their center. Below, I surround each `\
 `\parbox{}` command, which centers it along 1 unit of measurement, set to 12 pts. in my apa6 class options.
 
 
-{% codeblock Center-Aligned Figures in LaTeX Tables lang:latex %}
+{% codeblock lang:latex Center-Aligned Figures in LaTeX Tables  %}
 \begin{table}
 	[ht] \caption{Stimuli Category Explanations} \label{tab:stimuli} 
 	\begin{tabular}
