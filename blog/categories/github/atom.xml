@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Github | Jason A. French]]></title>
-  <link href="http://frenchja.github.com/blog/categories/github/atom.xml" rel="self"/>
-  <link href="http://frenchja.github.com/"/>
-  <updated>2014-02-07T14:54:50-06:00</updated>
-  <id>http://frenchja.github.com/</id>
+  <link href="http://www.jason-french.com/blog/categories/github/atom.xml" rel="self"/>
+  <link href="http://www.jason-french.com/"/>
+  <updated>2014-02-07T15:25:29-06:00</updated>
+  <id>http://www.jason-french.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
     <email><![CDATA[frenchja@gmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Analyzing Qualtrics Data in R using Github Packages]]></title>
-    <link href="http://frenchja.github.com/blog/2012/03/27/integrating-r-and-qualtrics/"/>
+    <link href="http://www.jason-french.com/blog/2012/03/27/integrating-r-and-qualtrics/"/>
     <updated>2012-03-27T14:23:00-05:00</updated>
-    <id>http://frenchja.github.com/blog/2012/03/27/integrating-r-and-qualtrics</id>
+    <id>http://www.jason-french.com/blog/2012/03/27/integrating-r-and-qualtrics</id>
     <content type="html"><![CDATA[<p><a href="http://www.qualtrics.com/">Qualtrics</a> is an online survey platform similar to SurveyMonkey that is used by researchers to
 collect data.  Until recently, one had to manually download the data in either SPSS or .csv format, making ongoing data
 analysis difficult to check whether the trend of the incoming data supports the hypothesis.</p>

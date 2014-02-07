@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Sweave | Jason A. French]]></title>
-  <link href="http://frenchja.github.com/blog/categories/sweave/atom.xml" rel="self"/>
-  <link href="http://frenchja.github.com/"/>
-  <updated>2014-02-07T14:54:50-06:00</updated>
-  <id>http://frenchja.github.com/</id>
+  <link href="http://www.jason-french.com/blog/categories/sweave/atom.xml" rel="self"/>
+  <link href="http://www.jason-french.com/"/>
+  <updated>2014-02-07T15:25:29-06:00</updated>
+  <id>http://www.jason-french.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
     <email><![CDATA[frenchja@gmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Easy Sweave for LaTeX and R]]></title>
-    <link href="http://frenchja.github.com/blog/2013/08/16/easy-sweaving-for-latex-and-r/"/>
+    <link href="http://www.jason-french.com/blog/2013/08/16/easy-sweaving-for-latex-and-r/"/>
     <updated>2013-08-16T12:41:00-05:00</updated>
-    <id>http://frenchja.github.com/blog/2013/08/16/easy-sweaving-for-latex-and-r</id>
+    <id>http://www.jason-french.com/blog/2013/08/16/easy-sweaving-for-latex-and-r</id>
     <content type="html"><![CDATA[<p>When you're writing up reports using statistics from R, it can be tiresome
 to constantly copy and paste results from the R Console.  To get around this, many of us use Sweave, which allows us to <em>embed</em> R code in LaTeX files.
 <a href="https://en.wikipedia.org/wiki/Sweave">Sweave</a> is an R function that converts R code to LaTeX, a document typesetting language.  This enables accurate, shareable analyses as well as high-resolution graphs that are publication quality.</p>

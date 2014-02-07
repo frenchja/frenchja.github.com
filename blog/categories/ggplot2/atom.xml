@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: ggplot2 | Jason A. French]]></title>
-  <link href="http://frenchja.github.com/blog/categories/ggplot2/atom.xml" rel="self"/>
-  <link href="http://frenchja.github.com/"/>
-  <updated>2014-02-07T14:54:50-06:00</updated>
-  <id>http://frenchja.github.com/</id>
+  <link href="http://www.jason-french.com/blog/categories/ggplot2/atom.xml" rel="self"/>
+  <link href="http://www.jason-french.com/"/>
+  <updated>2014-02-07T15:25:29-06:00</updated>
+  <id>http://www.jason-french.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
     <email><![CDATA[frenchja@gmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Graphing Error Bars for Repeated-Measures Variables with ggplot2]]></title>
-    <link href="http://frenchja.github.com/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2/"/>
+    <link href="http://www.jason-french.com/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2/"/>
     <updated>2012-03-07T10:37:00-06:00</updated>
-    <id>http://frenchja.github.com/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2</id>
+    <id>http://www.jason-french.com/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2</id>
     <content type="html"><![CDATA[<p>When presenting data, confidence intervals and error bars let the audience know the amount of uncertainty in the data, and
 see how much of the variance is explained by the reported effect of an experiment.  While this is straightforward for
 between-subject variables, it's less clear for mixed- and repeated-measures designs.</p>
