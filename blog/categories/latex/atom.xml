@@ -4,7 +4,7 @@
   <title><![CDATA[Category: LaTeX | Jason A. French]]></title>
   <link href="http://frenchja.github.com/blog/categories/latex/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-02-07T13:59:02-06:00</updated>
+  <updated>2014-02-07T14:11:26-06:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -79,11 +79,11 @@ mv Sweave.engine ~/Library/TeXShop/Engines/
 chmod +x ~/Library/TeXShop/Engines/Sweave.engine
 </code></p>
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/sweaveengine.png"></p>
+<p><img src="/images/sweaveengine.png"></p>
 
 <p>Now restart TeXShop if it's running and you should see Sweave as an available option!</p>
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/sweave.png"></p>
+<p><img src="/images/sweave.png"></p>
 ]]></content>
   </entry>
   

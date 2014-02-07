@@ -202,7 +202,7 @@ into the effectiveness of a given exam and can help the researcher 1) eliminate 
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/grades.png"></p>
+<p><img src="/images/grades.png"></p>
 
 <p>Thus, we have some great items that have a lot of information about students of average and low content knowledge (e.g., V24, V17, V18), but not enough to distinguish the high-knowledge students.  In redesigning an exam for next semester or year, we might save the best performing questions while trying to rewrite the existing questions or trying new questions.</p>
 
@@ -213,7 +213,7 @@ into the effectiveness of a given exam and can help the researcher 1) eliminate 
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/test.png"></p>
+<p><img src="/images/test.png"></p>
 
 <p>The second plot shows the <em>test performance</em>.  We have great reliability for distinguishing who didn&#8217;t study (lowers end of our latent trait), but overall the test may have been too easy (opposite of my prediction).  It&#8217;s important that the test is not too difficult to discourage students, but the graph above suggests that we had very low information at how students that studied were different from eachother.  This is again reflected by the histogram plotted in the next section, where high scoring students seem to cluster together.</p>
 
@@ -239,7 +239,7 @@ those who studied well from those who didn&#8217;t), while scaling the sample di
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/raw.png"></p>
+<p><img src="/images/raw.png"></p>
 
 <p>The distribution has a mean 71.68 percent and a standard deviation of 15.54.  Given grade inflation,
 it may look like your students are doing poorly when in fact the distribution is similiar to other courses
@@ -249,12 +249,12 @@ being taught.  Next, we can rescale the grades, creating a mean of 87.5 and a st
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='r'><span class='line'>scaled.grades <span class="o">&lt;-</span> scale<span class="p">(</span>grades<span class="o">$</span>Total<span class="p">)</span> <span class="o">*</span> <span class="m">7.5</span> <span class="o">+</span> <span class="m">87.5</span>
-</span><span class='line'>qplot<span class="p">(</span>scaled.grades<span class="p">,</span>xlab<span class="o">=</span><span class="s">&#39;Scaled Grades&#39;</span><span class="p">,</span>
+</span><span class='line'>qplot<span class="p">(</span>scaled.grades<span class="p">,</span> xlab<span class="o">=</span><span class="s">&#39;Scaled Grades&#39;</span><span class="p">,</span>
 </span><span class='line'>  ylab<span class="o">=</span><span class="s">&#39;# of Students&#39;</span><span class="p">,</span>main<span class="o">=</span><span class="s">&#39;Distribution of student grades&#39;</span><span class="p">)</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/scaled.png"></p>
+<p><img src="/images/scaled.png"></p>
 
 <p>The second distribution may be preferred, depending on your needs.  With the raw distribution, we would have had 45% of the students receiving grades below a C-, assuming a normal distribution (for the curious, R can calculate these probabilites using the <code>pnorm</code> function: <code>pnorm(q=70,mean=71.68,sd=15.54)</code>).  Now, 0.9% of students would fall below the 70% cutoff.  Again, my mean and standard deviation chosen in the above example are arbitrary.</p>
 

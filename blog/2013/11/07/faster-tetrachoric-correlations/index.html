@@ -137,7 +137,7 @@
 
 <p>If we call <code>psych:::tetraBinBvn</code>, we see that most of the time spent computer the tetrachorics is using <code>pmvnorm</code> to estimate each of the 4 probabilities of the tetrachoric:</p>
 
-<p><img src="http://www.jason-french.com/images/tetra.png"></p>
+<p><img src="/images/tetra.png"></p>
 
 <p>The function says for each row <em>i</em> and each column <em>j</em>, optimize a probability based on the lower and upper bounds of the row cuts and column cuts.  <strong>But wait!</strong>  Since the sum of the probabilities in the tetrachoric 2x2 matrix add to 1, why not just use a bit of subtraction to figure it out?  That would avoid waiting on <code>pvnorm</code> to compute each cell.</p>
 
@@ -217,7 +217,7 @@
 
 <p>As you can see below, this resulted in a speed increase by a factor of N, where N = # of cpus you allocate.  Be warned, however, that memory consumption increases dramatically as well.</p>
 
-<p><img src="http://www.jason-french.com/images/polyspeed.png"></p>
+<p><img src="/images/polyspeed.png"></p>
 </div>
 
 

@@ -4,7 +4,7 @@
   <title><![CDATA[Jason A. French]]></title>
   <link href="http://frenchja.github.com/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-02-07T13:59:02-06:00</updated>
+  <updated>2014-02-07T14:11:26-06:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -43,7 +43,7 @@
 
 <p>If we call <code>psych:::tetraBinBvn</code>, we see that most of the time spent computer the tetrachorics is using <code>pmvnorm</code> to estimate each of the 4 probabilities of the tetrachoric:</p>
 
-<p><img src="http://www.jason-french.com/images/tetra.png"></p>
+<p><img src="http://frenchja.github.com/images/tetra.png"></p>
 
 <p>The function says for each row <em>i</em> and each column <em>j</em>, optimize a probability based on the lower and upper bounds of the row cuts and column cuts.  <strong>But wait!</strong>  Since the sum of the probabilities in the tetrachoric 2x2 matrix add to 1, why not just use a bit of subtraction to figure it out?  That would avoid waiting on <code>pvnorm</code> to compute each cell.</p>
 
@@ -123,7 +123,7 @@
 
 <p>As you can see below, this resulted in a speed increase by a factor of N, where N = # of cpus you allocate.  Be warned, however, that memory consumption increases dramatically as well.</p>
 
-<p><img src="http://www.jason-french.com/images/polyspeed.png"></p>
+<p><img src="http://frenchja.github.com/images/polyspeed.png"></p>
 ]]></content>
   </entry>
   
@@ -221,7 +221,7 @@ into the effectiveness of a given exam and can help the researcher 1) eliminate 
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/grades.png"></p>
+<p><img src="http://frenchja.github.com/images/grades.png"></p>
 
 <p>Thus, we have some great items that have a lot of information about students of average and low content knowledge (e.g., V24, V17, V18), but not enough to distinguish the high-knowledge students.  In redesigning an exam for next semester or year, we might save the best performing questions while trying to rewrite the existing questions or trying new questions.</p>
 
@@ -232,7 +232,7 @@ into the effectiveness of a given exam and can help the researcher 1) eliminate 
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/test.png"></p>
+<p><img src="http://frenchja.github.com/images/test.png"></p>
 
 <p>The second plot shows the <em>test performance</em>.  We have great reliability for distinguishing who didn&#8217;t study (lowers end of our latent trait), but overall the test may have been too easy (opposite of my prediction).  It&#8217;s important that the test is not too difficult to discourage students, but the graph above suggests that we had very low information at how students that studied were different from eachother.  This is again reflected by the histogram plotted in the next section, where high scoring students seem to cluster together.</p>
 
@@ -258,7 +258,7 @@ those who studied well from those who didn&#8217;t), while scaling the sample di
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/raw.png"></p>
+<p><img src="http://frenchja.github.com/images/raw.png"></p>
 
 <p>The distribution has a mean 71.68 percent and a standard deviation of 15.54.  Given grade inflation,
 it may look like your students are doing poorly when in fact the distribution is similiar to other courses
@@ -268,12 +268,12 @@ being taught.  Next, we can rescale the grades, creating a mean of 87.5 and a st
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='r'><span class='line'>scaled.grades <span class="o">&lt;-</span> scale<span class="p">(</span>grades<span class="o">$</span>Total<span class="p">)</span> <span class="o">*</span> <span class="m">7.5</span> <span class="o">+</span> <span class="m">87.5</span>
-</span><span class='line'>qplot<span class="p">(</span>scaled.grades<span class="p">,</span>xlab<span class="o">=</span><span class="s">&#39;Scaled Grades&#39;</span><span class="p">,</span>
+</span><span class='line'>qplot<span class="p">(</span>scaled.grades<span class="p">,</span> xlab<span class="o">=</span><span class="s">&#39;Scaled Grades&#39;</span><span class="p">,</span>
 </span><span class='line'>  ylab<span class="o">=</span><span class="s">&#39;# of Students&#39;</span><span class="p">,</span>main<span class="o">=</span><span class="s">&#39;Distribution of student grades&#39;</span><span class="p">)</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/scaled.png"></p>
+<p><img src="http://frenchja.github.com/images/scaled.png"></p>
 
 <p>The second distribution may be preferred, depending on your needs.  With the raw distribution, we would have had 45% of the students receiving grades below a C-, assuming a normal distribution (for the curious, R can calculate these probabilites using the <code>pnorm</code> function: <code>pnorm(q=70,mean=71.68,sd=15.54)</code>).  Now, 0.9% of students would fall below the 70% cutoff.  Again, my mean and standard deviation chosen in the above example are arbitrary.</p>
 
@@ -369,11 +369,11 @@ editor, TeXShop.  <a href="http://cameron.bracken.bz/sweave-for-texshop">Cameron
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/sweaveengine.png"></p>
+<p><img src="http://frenchja.github.com/images/sweaveengine.png"></p>
 
 <p>Now restart TeXShop if it&#8217;s running and you should see Sweave as an available option!</p>
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/sweave.png"></p>
+<p><img src="http://frenchja.github.com/images/sweave.png"></p>
 ]]></content>
   </entry>
   
@@ -451,7 +451,7 @@ versions of Debian, the CRAN
 <a href="http://cran.rstudio.com/bin/linux/debian/README.html">README file</a> for Debian
 points out:</p>
 
-<blockquote><p>After a release of Debian &#8220;stable&#8221;, no new packages get added by<br/>Debian to keep the release as &#8216;stable&#8217; as possible. This implies that the R<br/>release contained in the official Debian release will become outdated as time<br/>passes.</p><footer><strong>CRAN</strong> <cite><a href='http://cran.us.r-project.org/bin/linux/debian/README.html'>README</a></cite></footer></blockquote>
+<blockquote><p>After a release of Debian &#8220;stable&#8221;, no new packages get added by Debian to keep the release as &#8216;stable&#8217; as possible. This implies that the R release contained in the official Debian release will become outdated as time passes.</p><footer><strong>CRAN</strong> <cite><a href='http://cran.us.r-project.org/bin/linux/debian/README.html'>README</a></cite></footer></blockquote>
 
 
 <p>Thus, we&#8217;ll append the CRAN repository to the Debian list to update the available R version, just like
@@ -581,20 +581,20 @@ RStudio on our RedHat EL6 server easily.  The trick was to make this as seemless
 as possible from the user&#8217;s perspective.  To accomplish this, I saved the
 Bookmark to the Desktop.</p>
 
-<p><img class="right" src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/ppc-r-bookmark.png" title="R Bookmark" ></p>
+<p><img class="right" src="http://frenchja.github.com/images/ppc-r-bookmark.png" title="R Bookmark" ></p>
 
 <p>Next, I downloaded a large R icon using Google Images and edited the Bookmark&#8217;s
 icon to appear as if it were R.  To do this, just copy the R icon from within
 Preview, select the icon of the Bookmark by right-clicking and selecting Get
 Info, and pasting using <code>Command+V</code>.</p>
 
-<p><img class="left" src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/ppc-r-preview.png" width="300" title="R Preview" ></p>
+<p><img class="left" src="http://frenchja.github.com/images/ppc-r-preview.png" width="300" title="R Preview" ></p>
 
-<p><img class="left" src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/ppc-r-getinfo.png" title="Get Info" ></p>
+<p><img class="left" src="http://frenchja.github.com/images/ppc-r-getinfo.png" title="Get Info" ></p>
 
 <p>Finally, this was dragged to the OS X dock, appearing just as if it were R on the local machine, but without all the hassle and slow load times on PPC.</p>
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/ppc-r-dock.png" title="Fake Dock Icon" ></p>
+<p><img class="right" src="http://frenchja.github.com/images/ppc-r-dock.png" title="Fake Dock Icon" ></p>
 
 <p>It is worth noting that this solution is only important for users tied to OS X
 10.5.8.  I&#8217;ve had great success with using <a href="https://fedoraproject.org/wiki/Architectures/PowerPC?rd=Arch:PPC">Fedora&#8217;s PPC build</a>, which
