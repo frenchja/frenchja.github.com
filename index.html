@@ -127,9 +127,11 @@
 
 <p>At the <a href="https://sapa-project.org">SAPA Project</a>, the majority of our data is polytomous.  We ask you the degree to which you like to go to lively parties to estimate your score on latent <em>extraversion</em>.  Presently, we use <code>mixed.cor()</code>, which calls a combination of the <code>tetrachoric()</code> and <code>polychoric()</code> functions in the <code>psych</code> package (Revelle, W., 2013).</p>
 
-<p>However, each time we build a new dataset from the website&#8217;s SQL server, it takes <em>hours</em>.  And that&#8217;s <strong>if</strong> everything goes correctly.  If there&#8217;s an error in the code or a bug in a new function, it may take hours to hit the error, wasting your day.</p>
+<p>However, each time we build a new dataset from the website&#8217;s SQL server, it takes <em>hours</em>.  And that&#8217;s <strong>if</strong> everything goes well.  If there&#8217;s an error in the code or a bug in a new function, it may take hours to hit the error, wasting your day.</p>
 
 <p>After a bit of profiling, it was revealed that much of our time building the SAPA dataset was used estimating the tetrachoric and polychoric correlation coefficients.  When you do this for 250,000+ participants for 10,000+ variables, it takes <em>a long time</em>.  So Bill and I thought about how we could speed them up and feel others may benefit from our optimization.</p>
+
+<p>A serious speedup to tetrachoric and polychoric was initiated with the help of Bill Revelle. The increase in speed is roughly 1- (nc-1)<sup>2/nc<sup>2</sup></sup> where nc is the number of categories. Thus, for tetrachorics where nc=2, this is a 75% reduction, whereas for polychorics of 6 item responses this is just a 30% reduction.</p>
 
 </div>
   

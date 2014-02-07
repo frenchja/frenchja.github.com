@@ -4,7 +4,7 @@
   <title><![CDATA[Jason A. French]]></title>
   <link href="http://frenchja.github.com/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-02-07T13:26:18-06:00</updated>
+  <updated>2014-02-07T13:45:19-06:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -30,18 +30,24 @@
 
 <p>At the <a href="https://sapa-project.org">SAPA Project</a>, the majority of our data is polytomous.  We ask you the degree to which you like to go to lively parties to estimate your score on latent <em>extraversion</em>.  Presently, we use <code>mixed.cor()</code>, which calls a combination of the <code>tetrachoric()</code> and <code>polychoric()</code> functions in the <code>psych</code> package (Revelle, W., 2013).</p>
 
-<p>However, each time we build a new dataset from the website&#8217;s SQL server, it takes <em>hours</em>.  And that&#8217;s <strong>if</strong> everything goes correctly.  If there&#8217;s an error in the code or a bug in a new function, it may take hours to hit the error, wasting your day.</p>
+<p>However, each time we build a new dataset from the website&#8217;s SQL server, it takes <em>hours</em>.  And that&#8217;s <strong>if</strong> everything goes well.  If there&#8217;s an error in the code or a bug in a new function, it may take hours to hit the error, wasting your day.</p>
 
 <p>After a bit of profiling, it was revealed that much of our time building the SAPA dataset was used estimating the tetrachoric and polychoric correlation coefficients.  When you do this for 250,000+ participants for 10,000+ variables, it takes <em>a long time</em>.  So Bill and I thought about how we could speed them up and feel others may benefit from our optimization.</p>
+
+<p>A serious speedup to tetrachoric and polychoric was initiated with the help of Bill Revelle. The increase in speed is roughly 1- (nc-1)<sup>2/nc<sup>2</sup></sup> where nc is the number of categories. Thus, for tetrachorics where nc=2, this is a 75% reduction, whereas for polychorics of 6 item responses this is just a 30% reduction.</p>
 
 <!-- more -->
 
 
-<h3>Optimizing the existing function for a 300% speed up</h3>
+<h3>Optimizing the existing function</h3>
 
 <p>If we call <code>psych:::tetraBinBvn</code>, we see that most of the time spent computer the tetrachorics is using <code>pmvnorm</code> to estimate each of the 4 probabilities of the tetrachoric:</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p><img src="./images/tetra.png"></p>
+
+<p>The function says for each row <em>i</em> and each column <em>j</em>, optimize a probability based on the lower and upper bounds of the row cuts and column cuts.  <strong>But wait!</strong>  Since the sum of the probabilities in the tetrachoric 2x2 matrix add to 1, why not just use a bit of subtraction to figure it out?  That would avoid waiting on <code>pvnorm</code> to compute each cell.</p>
+
+<figure class='code'><figcaption><span>Old psych:::tetraBinBvn</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -56,10 +62,7 @@
 <span class='line-number'>13</span>
 <span class='line-number'>14</span>
 <span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'>psych<span class="o">:::</span>tetraBinBvn
-</span><span class='line'><span class="kr">function</span> <span class="p">(</span>rho<span class="p">,</span> rc<span class="p">,</span> cc<span class="p">)</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="kr">function</span> <span class="p">(</span>rho<span class="p">,</span> rc<span class="p">,</span> cc<span class="p">)</span>
 </span><span class='line'><span class="p">{</span>
 </span><span class='line'>    row.cuts <span class="o">&lt;-</span> c<span class="p">(</span><span class="o">-</span><span class="kc">Inf</span><span class="p">,</span> rc<span class="p">,</span> <span class="kc">Inf</span><span class="p">)</span>
 </span><span class='line'>    col.cuts <span class="o">&lt;-</span> c<span class="p">(</span><span class="o">-</span><span class="kc">Inf</span><span class="p">,</span> cc<span class="p">,</span> <span class="kc">Inf</span><span class="p">)</span>
@@ -74,71 +77,12 @@
 </span><span class='line'>    <span class="p">}</span>
 </span><span class='line'>    P
 </span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="o">&lt;</span>environment<span class="o">:</span> namespace<span class="o">:</span>psych<span class="o">&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/tetra.png"></p>
-
-<p>The function says for each row <em>i</em> and each column <em>j</em>, optimize a probability based on the lower and upper bounds of the row cuts and column cuts.  <strong>But wait!</strong>  Since the sum of the probabilities in the tetrachoric 2x2 matrix add to 1, why not just use a bit of subtraction to figure it out?  That would avoid waiting on <code>pvnorm</code> to compute each cell.</p>
-
-<p>This solution resulted in a speed up of <code>tetrachor()</code> by a factor of 3!  See our benchmarks below!</p>
-
-<p>Unfortunately, our trick doesn&#8217;t work for the <code>polychor()</code> function as well, since there are more degrees of freedom. However, we can eliminate calling <code>pvnorm()</code> for 11 cells in a hypothetical 6x6 matrix as we only need to find the values for 25 and can use subtraction to speed up the estimation of the remaining 11.  This results in a less impressive speed up for <code>polychor()</code> that I nonetheless hope will benefit researchers.</p>
-
-<h2>Testing our result</h2>
-
-<h3>Generate our hypothetical dataset</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'>library<span class="p">(</span>psych<span class="p">)</span>
-</span><span class='line'>data <span class="o">&lt;-</span> sim.irt<span class="p">(</span>nvar <span class="o">=</span> <span class="m">50</span><span class="p">,</span> n <span class="o">=</span> <span class="m">500</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Profiling old code</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'>system.time<span class="p">(</span>old <span class="o">&lt;-</span> polychoric<span class="p">(</span>data<span class="o">$</span>items<span class="p">))</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="c1">##    user  system elapsed </span>
-</span><span class='line'><span class="c1">##  16.733   0.097  17.286</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Profiling new code</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'>system.time<span class="p">(</span>new <span class="o">&lt;-</span> polychoric<span class="p">(</span>data<span class="o">$</span>items<span class="p">))</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="c1">##    user  system elapsed </span>
-</span><span class='line'><span class="c1">##   6.336   0.035   6.537</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Differences between new and old results</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'>round<span class="p">(</span>new<span class="o">$</span>rho <span class="o">-</span> old<span class="o">$</span>rho<span class="p">,</span> <span class="m">2</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>New psych:::tetraBinBvn</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -150,20 +94,36 @@
 <span class='line-number'>10</span>
 <span class='line-number'>11</span>
 <span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="c1">##       V1 V2    V3 V4 V5 V6 V7   V8 V9 V10 V11 V12 V13 V14 V15 V16 V17 V18</span>
-</span><span class='line'><span class="c1">## V1  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</span>
-</span><span class='line'><span class="c1">## V2  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</span>
-</span><span class='line'><span class="c1">## V3  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</span>
-</span><span class='line'><span class="c1">## V4  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</span>
-</span><span class='line'><span class="c1">## V5  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</span>
-</span><span class='line'><span class="c1">## V6  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</span>
-</span><span class='line'><span class="c1">## V7  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</span>
-</span><span class='line'><span class="c1">## V8  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</span>
-</span><span class='line'><span class="c1">## V9  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</span>
-</span><span class='line'><span class="c1">## V10 0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</span>
-</span><span class='line'><span class="kc">...</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="kr">function</span> <span class="p">(</span>rho<span class="p">,</span> rc<span class="p">,</span> cc<span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    row.cuts <span class="o">&lt;-</span> c<span class="p">(</span><span class="o">-</span><span class="kc">Inf</span><span class="p">,</span> rc<span class="p">,</span> <span class="kc">Inf</span><span class="p">)</span>
+</span><span class='line'>    col.cuts <span class="o">&lt;-</span> c<span class="p">(</span><span class="o">-</span><span class="kc">Inf</span><span class="p">,</span> cc<span class="p">,</span> <span class="kc">Inf</span><span class="p">)</span>
+</span><span class='line'>    P <span class="o">&lt;-</span> matrix<span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">2</span><span class="p">,</span> <span class="m">2</span><span class="p">)</span>
+</span><span class='line'>    R <span class="o">&lt;-</span> matrix<span class="p">(</span>c<span class="p">(</span><span class="m">1</span><span class="p">,</span> rho<span class="p">,</span> rho<span class="p">,</span> <span class="m">1</span><span class="p">),</span> <span class="m">2</span><span class="p">,</span> <span class="m">2</span><span class="p">)</span>
+</span><span class='line'>    P<span class="p">[</span><span class="m">1</span><span class="p">,</span> <span class="m">1</span><span class="p">]</span> <span class="o">&lt;-</span> pmvnorm<span class="p">(</span>lower <span class="o">=</span> c<span class="p">(</span>row.cuts<span class="p">[</span><span class="m">1</span><span class="p">],</span> col.cuts<span class="p">[</span><span class="m">1</span><span class="p">]),</span> upper <span class="o">=</span> c<span class="p">(</span>row.cuts<span class="p">[</span><span class="m">2</span><span class="p">],</span>
+</span><span class='line'>        col.cuts<span class="p">[</span><span class="m">2</span><span class="p">]),</span> corr <span class="o">=</span> R<span class="p">)</span>
+</span><span class='line'>    P<span class="p">[</span><span class="m">1</span><span class="p">,</span> <span class="m">2</span><span class="p">]</span> <span class="o">&lt;-</span> pnorm<span class="p">(</span>rc<span class="p">)</span> <span class="o">-</span> P<span class="p">[</span><span class="m">1</span><span class="p">,</span> <span class="m">1</span><span class="p">]</span>
+</span><span class='line'>    P<span class="p">[</span><span class="m">2</span><span class="p">,</span> <span class="m">1</span><span class="p">]</span> <span class="o">&lt;-</span> pnorm<span class="p">(</span>cc<span class="p">)</span> <span class="o">-</span> P<span class="p">[</span><span class="m">1</span><span class="p">,</span> <span class="m">1</span><span class="p">]</span>
+</span><span class='line'>    P<span class="p">[</span><span class="m">2</span><span class="p">,</span> <span class="m">2</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="m">1</span> <span class="o">-</span> pnorm<span class="p">(</span>rc<span class="p">)</span> <span class="o">-</span> P<span class="p">[</span><span class="m">2</span><span class="p">,</span> <span class="m">1</span><span class="p">]</span>
+</span><span class='line'>    P
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;</span>environment<span class="o">:</span> namespace<span class="o">:</span>psych<span class="o">&gt;</span>
 </span></code></pre></td></tr></table></div></figure>
 
+
+<p>This solution resulted in a speed up of <code>tetrachor()</code> by a factor of 3!</p>
+
+<p>Unfortunately, our trick doesn&#8217;t work for the <code>polychor()</code> function as well, since there are more degrees of freedom. However, we can eliminate calling <code>pvnorm()</code> for 11 cells in a hypothetical 6x6 matrix as we only need to find the values for 25 and can use subtraction to speed up the estimation of the remaining 11.  This results in a less impressive speed up for <code>polychor()</code> that I nonetheless hope will benefit researchers.</p>
+
+<h3>Writing a parallelized function</h3>
+
+<p>While we were happy with our initial speed increase, it didn&#8217;t have a noticeable impact on SAPA&#8217;s build time.  We then began to explore ways to parallelize our existing code.  While we attempted to use various packages (i.e., <code>foreach</code>), we settled on using <code>mcmapply</code> in the existing core parallel library to minimize our dependencies.</p>
+
+<p>As you can see below, this resulted in a speed increase by a factor of N, where N = # of cpus you allocate.  Be warned, however, that memory consumption increases dramatically as well.</p>
+
+<p><img src="http://www.jason-french.com/images/polyspeed.png"></p>
 ]]></content>
   </entry>
   
