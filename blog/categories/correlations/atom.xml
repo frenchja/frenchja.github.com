@@ -4,7 +4,7 @@
   <title><![CDATA[Category: correlations | Jason A. French]]></title>
   <link href="http://frenchja.github.com/blog/categories/correlations/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-02-07T13:45:19-06:00</updated>
+  <updated>2014-02-07T13:52:10-06:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -34,7 +34,7 @@
 
 <p>After a bit of profiling, it was revealed that much of our time building the SAPA dataset was used estimating the tetrachoric and polychoric correlation coefficients.  When you do this for 250,000+ participants for 10,000+ variables, it takes <em>a long time</em>.  So Bill and I thought about how we could speed them up and feel others may benefit from our optimization.</p>
 
-<p>A serious speedup to tetrachoric and polychoric was initiated with the help of Bill Revelle. The increase in speed is roughly 1- (nc-1)<sup>2/nc<sup>2</sup></sup> where nc is the number of categories. Thus, for tetrachorics where nc=2, this is a 75% reduction, whereas for polychorics of 6 item responses this is just a 30% reduction.</p>
+<p>A serious speedup to tetrachoric and polychoric was initiated with the help of Bill Revelle. The increase in speed is roughly 1- (nc-1)<sup>2</sup> / nc<sup>2</sup> where nc is the number of categories. Thus, for tetrachorics where nc=2, this is a 75% reduction, whereas for polychorics of 6 item responses this is just a 30% reduction.</p>
 
 <!-- more -->
 
