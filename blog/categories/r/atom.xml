@@ -4,7 +4,7 @@
   <title><![CDATA[Category: R | Jason A. French]]></title>
   <link href="http://frenchja.github.com/blog/categories/r/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-02-07T13:52:10-06:00</updated>
+  <updated>2014-02-07T13:59:02-06:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -43,7 +43,7 @@
 
 <p>If we call <code>psych:::tetraBinBvn</code>, we see that most of the time spent computer the tetrachorics is using <code>pmvnorm</code> to estimate each of the 4 probabilities of the tetrachoric:</p>
 
-<p><img src="./images/tetra.png"></p>
+<p><img src="http://www.jason-french.com/images/tetra.png"></p>
 
 <p>The function says for each row <em>i</em> and each column <em>j</em>, optimize a probability based on the lower and upper bounds of the row cuts and column cuts.  <strong>But wait!</strong>  Since the sum of the probabilities in the tetrachoric 2x2 matrix add to 1, why not just use a bit of subtraction to figure it out?  That would avoid waiting on <code>pvnorm</code> to compute each cell.</p>
 
