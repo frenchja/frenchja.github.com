@@ -62,8 +62,8 @@ mv Sweave.engine ~/Library/TeXShop/Engines/
 chmod +x ~/Library/TeXShop/Engines/Sweave.engine
 ```
 
-{% img http://gradstudents.wcas.northwestern.edu/~jaf502/images/sweaveengine.png %}
+{% img /images/sweaveengine.png %}
 
 Now restart TeXShop if it's running and you should see Sweave as an available option!
 
-{% img http://gradstudents.wcas.northwestern.edu/~jaf502/images/sweave.png %} 
+{% img /images/sweave.png %} 

@@ -60,10 +60,7 @@ versions of Debian, the CRAN
 points out: 
 
 {% blockquote CRAN http://cran.us.r-project.org/bin/linux/debian/README.html README %}
-After a release of Debian "stable", no new packages get added by
-Debian to keep the release as 'stable' as possible. This implies that the R
-release contained in the official Debian release will become outdated as time
-passes.
+After a release of Debian "stable", no new packages get added by Debian to keep the release as 'stable' as possible. This implies that the R release contained in the official Debian release will become outdated as time passes.
 {% endblockquote %}
 
 Thus, we'll append the CRAN repository to the Debian list to update the available R version, just like
@@ -171,7 +168,7 @@ RStudio on our RedHat EL6 server easily.  The trick was to make this as seemless
 as possible from the user's perspective.  To accomplish this, I saved the
 Bookmark to the Desktop.
 
-{% img right http://gradstudents.wcas.northwestern.edu/~jaf502/images/ppc-r-bookmark.png R Bookmark %}
+{% img right /images/ppc-r-bookmark.png R Bookmark %}
 
 Next, I downloaded a large R icon using Google Images and edited the Bookmark's
 icon to appear as if it were R.  To do this, just copy the R icon from within
@@ -179,13 +176,13 @@ Preview, select the icon of the Bookmark by right-clicking and selecting Get
 Info, and pasting using `Command+V`.
 
 
-{% img left http://gradstudents.wcas.northwestern.edu/~jaf502/images/ppc-r-preview.png 300 R Preview %}
+{% img left /images/ppc-r-preview.png 300 R Preview %}
 
-{% img left http://gradstudents.wcas.northwestern.edu/~jaf502/images/ppc-r-getinfo.png Get Info %}
+{% img left /images/ppc-r-getinfo.png Get Info %}
 
 Finally, this was dragged to the OS X dock, appearing just as if it were R on the local machine, but without all the hassle and slow load times on PPC.
 
-{% img http://gradstudents.wcas.northwestern.edu/~jaf502/images/ppc-r-dock.png Fake Dock Icon %}
+{% img right /images/ppc-r-dock.png Fake Dock Icon %}
 
 It is worth noting that this solution is only important for users tied to OS X
 10.5.8.  I've had great success with using [Fedora's PPC build](https://fedoraproject.org/wiki/Architectures/PowerPC?rd=Arch:PPC), which

@@ -66,7 +66,7 @@ grades.irt <- irt.fa(x = grades.poly, plot = TRUE)
 plot(grades.irt)
 ```
 
-{% img  http://gradstudents.wcas.northwestern.edu/~jaf502/images/grades.png %}
+{% img  /images/grades.png %}
 
 Thus, we have some great items that have a lot of information about students of average and low content knowledge (e.g., V24, V17, V18), but not enough to distinguish the high-knowledge students.  In redesigning an exam for next semester or year, we might save the best performing questions while trying to rewrite the existing questions or trying new questions.
 
@@ -76,7 +76,7 @@ Next, let's see what how well the test did *overall* at distinguishing students:
 plot.irt(type = "test", grades.irt)
 ```
 
-{% img http://gradstudents.wcas.northwestern.edu/~jaf502/images/test.png %} 
+{% img /images/test.png %} 
 
 The second plot shows the *test performance*.  We have great reliability for distinguishing who didn't study (lowers end of our latent trait), but overall the test may have been too easy (opposite of my prediction).  It's important that the test is not too difficult to discourage students, but the graph above suggests that we had very low information at how students that studied were different from eachother.  This is again reflected by the histogram plotted in the next section, where high scoring students seem to cluster together.
 
@@ -98,7 +98,7 @@ qplot((Total/91)*100, data=grades, geom="histogram",xlab='Raw Grades',
 	ylab='# of Students',main='Distribution of student grades')
 ```
 
-{% img http://gradstudents.wcas.northwestern.edu/~jaf502/images/raw.png %}
+{% img /images/raw.png %}
 
 The distribution has a mean 71.68 percent and a standard deviation of 15.54.  Given grade inflation, 
 it may look like your students are doing poorly when in fact the distribution is similiar to other courses 
@@ -106,11 +106,11 @@ being taught.  Next, we can rescale the grades, creating a mean of 87.5 and a st
 
 ```r
 scaled.grades <- scale(grades$Total) * 7.5 + 87.5
-qplot(scaled.grades,xlab='Scaled Grades',
+qplot(scaled.grades, xlab='Scaled Grades',
 	ylab='# of Students',main='Distribution of student grades')
 ```
 
-{% img  http://gradstudents.wcas.northwestern.edu/~jaf502/images/scaled.png %} 
+{% img  /images/scaled.png %} 
 
 The second distribution may be preferred, depending on your needs.  With the raw distribution, we would have had 45% of the students receiving grades below a C-, assuming a normal distribution (for the curious, R can calculate these probabilites using the `pnorm` function: ```pnorm(q=70,mean=71.68,sd=15.54)```).  Now, 0.9% of students would fall below the 70% cutoff.  Again, my mean and standard deviation chosen in the above example are arbitrary.
 
