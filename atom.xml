@@ -4,7 +4,7 @@
   <title><![CDATA[Jason A. French]]></title>
   <link href="http://www.jason-french.com/atom.xml" rel="self"/>
   <link href="http://www.jason-french.com/"/>
-  <updated>2014-02-25T16:44:22-06:00</updated>
+  <updated>2014-02-26T09:52:08-06:00</updated>
   <id>http://www.jason-french.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -123,7 +123,7 @@
 
 <p>As you can see below, this resulted in a speed increase by a factor of N, where N = # of cpus you allocate.  Be warned, however, that memory consumption increases dramatically as well.</p>
 
-<p><img src="http://www.jason-french.com/images/polyspeed.png"></p>
+<p>Error processing input, expected syntax: {% img [class name(s)] [http[s]:/]/path/to/image [width [height]] [title text | &#8220;title text&#8221; [&#8220;alt text&#8221;]] %}</p>
 ]]></content>
   </entry>
   
