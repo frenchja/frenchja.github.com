@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Jason A. French]]></title>
-  <link href="http://frenchja.github.com/atom.xml" rel="self"/>
-  <link href="http://frenchja.github.com/"/>
-  <updated>2014-01-30T15:37:36-06:00</updated>
-  <id>http://frenchja.github.com/</id>
+  <link href="http://www.jason-french.com/atom.xml" rel="self"/>
+  <link href="http://www.jason-french.com/"/>
+  <updated>2014-02-26T09:54:16-06:00</updated>
+  <id>http://www.jason-french.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
     <email><![CDATA[frenchja@gmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Faster Tetrachoric Correlations]]></title>
-    <link href="http://frenchja.github.com/blog/2013/11/07/faster-tetrachoric-correlations/"/>
+    <link href="http://www.jason-french.com/blog/2013/11/07/faster-tetrachoric-correlations/"/>
     <updated>2013-11-07T16:48:00-06:00</updated>
-    <id>http://frenchja.github.com/blog/2013/11/07/faster-tetrachoric-correlations</id>
+    <id>http://www.jason-french.com/blog/2013/11/07/faster-tetrachoric-correlations</id>
     <content type="html"><![CDATA[<h2>What are tetra- and polychoric correlations?</h2>
 
 <p>Polychoric correlations estimate the correlation between two theorized normal distributions given two ordinal variables.  In psychological research, much of our data fits this definition.  For example, many survey studies used with introductory psychology pools use Likert scale items.  The responses to these items typically range from 1 (Strongly disagree) to 6 (Strongly agree).  However, we don&#8217;t <em>really</em> think that person&#8217;s relationship to the item is actually polytomous.  Instead, it&#8217;s an imperfect approximation.</p>
@@ -30,18 +30,24 @@
 
 <p>At the <a href="https://sapa-project.org">SAPA Project</a>, the majority of our data is polytomous.  We ask you the degree to which you like to go to lively parties to estimate your score on latent <em>extraversion</em>.  Presently, we use <code>mixed.cor()</code>, which calls a combination of the <code>tetrachoric()</code> and <code>polychoric()</code> functions in the <code>psych</code> package (Revelle, W., 2013).</p>
 
-<p>However, each time we build a new dataset from the website&#8217;s SQL server, it takes <em>hours</em>.  And that&#8217;s <strong>if</strong> everything goes correctly.  If there&#8217;s an error in the code or a bug in a new function, it may take hours to hit the error, wasting your day.</p>
+<p>However, each time we build a new dataset from the website&#8217;s SQL server, it takes <em>hours</em>.  And that&#8217;s <strong>if</strong> everything goes well.  If there&#8217;s an error in the code or a bug in a new function, it may take hours to hit the error, wasting your day.</p>
 
 <p>After a bit of profiling, it was revealed that much of our time building the SAPA dataset was used estimating the tetrachoric and polychoric correlation coefficients.  When you do this for 250,000+ participants for 10,000+ variables, it takes <em>a long time</em>.  So Bill and I thought about how we could speed them up and feel others may benefit from our optimization.</p>
+
+<p>A serious speedup to tetrachoric and polychoric was initiated with the help of Bill Revelle. The increase in speed is roughly 1- (nc-1)<sup>2</sup> / nc<sup>2</sup> where nc is the number of categories. Thus, for tetrachorics where nc=2, this is a 75% reduction, whereas for polychorics of 6 item responses this is just a 30% reduction.</p>
 
 <!-- more -->
 
 
-<h3>Optimizing the existing function for a 300% speed up</h3>
+<h3>Optimizing the existing function</h3>
 
 <p>If we call <code>psych:::tetraBinBvn</code>, we see that most of the time spent computer the tetrachorics is using <code>pmvnorm</code> to estimate each of the 4 probabilities of the tetrachoric:</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p><img src="http://www.jason-french.com/images/tetra.png"></p>
+
+<p>The function says for each row <em>i</em> and each column <em>j</em>, optimize a probability based on the lower and upper bounds of the row cuts and column cuts.  <strong>But wait!</strong>  Since the sum of the probabilities in the tetrachoric 2x2 matrix add to 1, why not just use a bit of subtraction to figure it out?  That would avoid waiting on <code>pvnorm</code> to compute each cell.</p>
+
+<figure class='code'><figcaption><span>Old psych:::tetraBinBvn</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -56,10 +62,7 @@
 <span class='line-number'>13</span>
 <span class='line-number'>14</span>
 <span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'>psych<span class="o">:::</span>tetraBinBvn
-</span><span class='line'><span class="kr">function</span> <span class="p">(</span>rho<span class="p">,</span> rc<span class="p">,</span> cc<span class="p">)</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="kr">function</span> <span class="p">(</span>rho<span class="p">,</span> rc<span class="p">,</span> cc<span class="p">)</span>
 </span><span class='line'><span class="p">{</span>
 </span><span class='line'>    row.cuts <span class="o">&lt;-</span> c<span class="p">(</span><span class="o">-</span><span class="kc">Inf</span><span class="p">,</span> rc<span class="p">,</span> <span class="kc">Inf</span><span class="p">)</span>
 </span><span class='line'>    col.cuts <span class="o">&lt;-</span> c<span class="p">(</span><span class="o">-</span><span class="kc">Inf</span><span class="p">,</span> cc<span class="p">,</span> <span class="kc">Inf</span><span class="p">)</span>
@@ -74,71 +77,12 @@
 </span><span class='line'>    <span class="p">}</span>
 </span><span class='line'>    P
 </span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="o">&lt;</span>environment<span class="o">:</span> namespace<span class="o">:</span>psych<span class="o">&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/tetra.png"></p>
-
-<p>The function says for each row <em>i</em> and each column <em>j</em>, optimize a probability based on the lower and upper bounds of the row cuts and column cuts.  <strong>But wait!</strong>  Since the sum of the probabilities in the tetrachoric 2x2 matrix add to 1, why not just use a bit of subtraction to figure it out?  That would avoid waiting on <code>pvnorm</code> to compute each cell.</p>
-
-<p>This solution resulted in a speed up of <code>tetrachor()</code> by a factor of 3!  See our benchmarks below!</p>
-
-<p>Unfortunately, our trick doesn&#8217;t work for the <code>polychor()</code> function as well, since there are more degrees of freedom. However, we can eliminate calling <code>pvnorm()</code> for 11 cells in a hypothetical 6x6 matrix as we only need to find the values for 25 and can use subtraction to speed up the estimation of the remaining 11.  This results in a less impressive speed up for <code>polychor()</code> that I nonetheless hope will benefit researchers.</p>
-
-<h2>Testing our result</h2>
-
-<h3>Generate our hypothetical dataset</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'>library<span class="p">(</span>psych<span class="p">)</span>
-</span><span class='line'>data <span class="o">&lt;-</span> sim.irt<span class="p">(</span>nvar <span class="o">=</span> <span class="m">50</span><span class="p">,</span> n <span class="o">=</span> <span class="m">500</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Profiling old code</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'>system.time<span class="p">(</span>old <span class="o">&lt;-</span> polychoric<span class="p">(</span>data<span class="o">$</span>items<span class="p">))</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="c1">##    user  system elapsed </span>
-</span><span class='line'><span class="c1">##  16.733   0.097  17.286</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Profiling new code</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'>system.time<span class="p">(</span>new <span class="o">&lt;-</span> polychoric<span class="p">(</span>data<span class="o">$</span>items<span class="p">))</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="c1">##    user  system elapsed </span>
-</span><span class='line'><span class="c1">##   6.336   0.035   6.537</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Differences between new and old results</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'>round<span class="p">(</span>new<span class="o">$</span>rho <span class="o">-</span> old<span class="o">$</span>rho<span class="p">,</span> <span class="m">2</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span>New psych:::tetraBinBvn</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -150,28 +94,44 @@
 <span class='line-number'>10</span>
 <span class='line-number'>11</span>
 <span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="c1">##       V1 V2    V3 V4 V5 V6 V7   V8 V9 V10 V11 V12 V13 V14 V15 V16 V17 V18</span>
-</span><span class='line'><span class="c1">## V1  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</span>
-</span><span class='line'><span class="c1">## V2  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</span>
-</span><span class='line'><span class="c1">## V3  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</span>
-</span><span class='line'><span class="c1">## V4  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</span>
-</span><span class='line'><span class="c1">## V5  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</span>
-</span><span class='line'><span class="c1">## V6  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</span>
-</span><span class='line'><span class="c1">## V7  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</span>
-</span><span class='line'><span class="c1">## V8  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</span>
-</span><span class='line'><span class="c1">## V9  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</span>
-</span><span class='line'><span class="c1">## V10 0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</span>
-</span><span class='line'><span class="kc">...</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="kr">function</span> <span class="p">(</span>rho<span class="p">,</span> rc<span class="p">,</span> cc<span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    row.cuts <span class="o">&lt;-</span> c<span class="p">(</span><span class="o">-</span><span class="kc">Inf</span><span class="p">,</span> rc<span class="p">,</span> <span class="kc">Inf</span><span class="p">)</span>
+</span><span class='line'>    col.cuts <span class="o">&lt;-</span> c<span class="p">(</span><span class="o">-</span><span class="kc">Inf</span><span class="p">,</span> cc<span class="p">,</span> <span class="kc">Inf</span><span class="p">)</span>
+</span><span class='line'>    P <span class="o">&lt;-</span> matrix<span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">2</span><span class="p">,</span> <span class="m">2</span><span class="p">)</span>
+</span><span class='line'>    R <span class="o">&lt;-</span> matrix<span class="p">(</span>c<span class="p">(</span><span class="m">1</span><span class="p">,</span> rho<span class="p">,</span> rho<span class="p">,</span> <span class="m">1</span><span class="p">),</span> <span class="m">2</span><span class="p">,</span> <span class="m">2</span><span class="p">)</span>
+</span><span class='line'>    P<span class="p">[</span><span class="m">1</span><span class="p">,</span> <span class="m">1</span><span class="p">]</span> <span class="o">&lt;-</span> pmvnorm<span class="p">(</span>lower <span class="o">=</span> c<span class="p">(</span>row.cuts<span class="p">[</span><span class="m">1</span><span class="p">],</span> col.cuts<span class="p">[</span><span class="m">1</span><span class="p">]),</span> upper <span class="o">=</span> c<span class="p">(</span>row.cuts<span class="p">[</span><span class="m">2</span><span class="p">],</span>
+</span><span class='line'>        col.cuts<span class="p">[</span><span class="m">2</span><span class="p">]),</span> corr <span class="o">=</span> R<span class="p">)</span>
+</span><span class='line'>    P<span class="p">[</span><span class="m">1</span><span class="p">,</span> <span class="m">2</span><span class="p">]</span> <span class="o">&lt;-</span> pnorm<span class="p">(</span>rc<span class="p">)</span> <span class="o">-</span> P<span class="p">[</span><span class="m">1</span><span class="p">,</span> <span class="m">1</span><span class="p">]</span>
+</span><span class='line'>    P<span class="p">[</span><span class="m">2</span><span class="p">,</span> <span class="m">1</span><span class="p">]</span> <span class="o">&lt;-</span> pnorm<span class="p">(</span>cc<span class="p">)</span> <span class="o">-</span> P<span class="p">[</span><span class="m">1</span><span class="p">,</span> <span class="m">1</span><span class="p">]</span>
+</span><span class='line'>    P<span class="p">[</span><span class="m">2</span><span class="p">,</span> <span class="m">2</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="m">1</span> <span class="o">-</span> pnorm<span class="p">(</span>rc<span class="p">)</span> <span class="o">-</span> P<span class="p">[</span><span class="m">2</span><span class="p">,</span> <span class="m">1</span><span class="p">]</span>
+</span><span class='line'>    P
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;</span>environment<span class="o">:</span> namespace<span class="o">:</span>psych<span class="o">&gt;</span>
 </span></code></pre></td></tr></table></div></figure>
 
+
+<p>This solution resulted in a speed up of <code>tetrachor()</code> by a factor of 3!</p>
+
+<p>Unfortunately, our trick doesn&#8217;t work for the <code>polychor()</code> function as well, since there are more degrees of freedom. However, we can eliminate calling <code>pvnorm()</code> for 11 cells in a hypothetical 6x6 matrix as we only need to find the values for 25 and can use subtraction to speed up the estimation of the remaining 11.  This results in a less impressive speed up for <code>polychor()</code> that I nonetheless hope will benefit researchers.</p>
+
+<h3>Writing a parallelized function</h3>
+
+<p>While we were happy with our initial speed increase, it didn&#8217;t have a noticeable impact on SAPA&#8217;s build time.  We then began to explore ways to parallelize our existing code.  While we attempted to use various packages (i.e., <code>foreach</code>), we settled on using <code>mcmapply</code> in the existing core parallel library to minimize our dependencies.</p>
+
+<p>As you can see below, this resulted in a speed increase by a factor of N, where N = # of cpus you allocate.  Be warned, however, that memory consumption increases dramatically as well.</p>
+
+<p><img src="http://www.jason-french.com/images/polyspeed.png"></p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[Analyze Student Exam Items using IRT]]></title>
-    <link href="http://frenchja.github.com/blog/2013/10/25/analyzing-student-exams-using-irt/"/>
+    <link href="http://www.jason-french.com/blog/2013/10/25/analyzing-student-exams-using-irt/"/>
     <updated>2013-10-25T14:26:00-05:00</updated>
-    <id>http://frenchja.github.com/blog/2013/10/25/analyzing-student-exams-using-irt</id>
+    <id>http://www.jason-french.com/blog/2013/10/25/analyzing-student-exams-using-irt</id>
     <content type="html"><![CDATA[<p>I&#8217;ve cross-posted this at the <a href="http://sapa-project.org/blog/">SAPA Project&#8217;s blog</a>.</p>
 
 <p><a href="https://en.wikipedia.org/wiki/Item_response_theory">Item Response Theory</a> can be used to evaluate the effectiveness of
@@ -261,7 +221,7 @@ into the effectiveness of a given exam and can help the researcher 1) eliminate 
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/grades.png"></p>
+<p><img src="http://www.jason-french.com/images/grades.png"></p>
 
 <p>Thus, we have some great items that have a lot of information about students of average and low content knowledge (e.g., V24, V17, V18), but not enough to distinguish the high-knowledge students.  In redesigning an exam for next semester or year, we might save the best performing questions while trying to rewrite the existing questions or trying new questions.</p>
 
@@ -272,7 +232,7 @@ into the effectiveness of a given exam and can help the researcher 1) eliminate 
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/test.png"></p>
+<p><img src="http://www.jason-french.com/images/test.png"></p>
 
 <p>The second plot shows the <em>test performance</em>.  We have great reliability for distinguishing who didn&#8217;t study (lowers end of our latent trait), but overall the test may have been too easy (opposite of my prediction).  It&#8217;s important that the test is not too difficult to discourage students, but the graph above suggests that we had very low information at how students that studied were different from eachother.  This is again reflected by the histogram plotted in the next section, where high scoring students seem to cluster together.</p>
 
@@ -298,7 +258,7 @@ those who studied well from those who didn&#8217;t), while scaling the sample di
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/raw.png"></p>
+<p><img src="http://www.jason-french.com/images/raw.png"></p>
 
 <p>The distribution has a mean 71.68 percent and a standard deviation of 15.54.  Given grade inflation,
 it may look like your students are doing poorly when in fact the distribution is similiar to other courses
@@ -308,12 +268,12 @@ being taught.  Next, we can rescale the grades, creating a mean of 87.5 and a st
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='r'><span class='line'>scaled.grades <span class="o">&lt;-</span> scale<span class="p">(</span>grades<span class="o">$</span>Total<span class="p">)</span> <span class="o">*</span> <span class="m">7.5</span> <span class="o">+</span> <span class="m">87.5</span>
-</span><span class='line'>qplot<span class="p">(</span>scaled.grades<span class="p">,</span>xlab<span class="o">=</span><span class="s">&#39;Scaled Grades&#39;</span><span class="p">,</span>
+</span><span class='line'>qplot<span class="p">(</span>scaled.grades<span class="p">,</span> xlab<span class="o">=</span><span class="s">&#39;Scaled Grades&#39;</span><span class="p">,</span>
 </span><span class='line'>  ylab<span class="o">=</span><span class="s">&#39;# of Students&#39;</span><span class="p">,</span>main<span class="o">=</span><span class="s">&#39;Distribution of student grades&#39;</span><span class="p">)</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/scaled.png"></p>
+<p><img src="http://www.jason-french.com/images/scaled.png"></p>
 
 <p>The second distribution may be preferred, depending on your needs.  With the raw distribution, we would have had 45% of the students receiving grades below a C-, assuming a normal distribution (for the curious, R can calculate these probabilites using the <code>pnorm</code> function: <code>pnorm(q=70,mean=71.68,sd=15.54)</code>).  Now, 0.9% of students would fall below the 70% cutoff.  Again, my mean and standard deviation chosen in the above example are arbitrary.</p>
 
@@ -330,9 +290,9 @@ being taught.  Next, we can rescale the grades, creating a mean of 87.5 and a st
   
   <entry>
     <title type="html"><![CDATA[Easy Sweave for LaTeX and R]]></title>
-    <link href="http://frenchja.github.com/blog/2013/08/16/easy-sweaving-for-latex-and-r/"/>
+    <link href="http://www.jason-french.com/blog/2013/08/16/easy-sweaving-for-latex-and-r/"/>
     <updated>2013-08-16T12:41:00-05:00</updated>
-    <id>http://frenchja.github.com/blog/2013/08/16/easy-sweaving-for-latex-and-r</id>
+    <id>http://www.jason-french.com/blog/2013/08/16/easy-sweaving-for-latex-and-r</id>
     <content type="html"><![CDATA[<p>When you&#8217;re writing up reports using statistics from R, it can be tiresome
 to constantly copy and paste results from the R Console.  To get around this, many of us use Sweave, which allows us to <em>embed</em> R code in LaTeX files.
 <a href="https://en.wikipedia.org/wiki/Sweave">Sweave</a> is an R function that converts R code to LaTeX, a document typesetting language.  This enables accurate, shareable analyses as well as high-resolution graphs that are publication quality.</p>
@@ -409,19 +369,19 @@ editor, TeXShop.  <a href="http://cameron.bracken.bz/sweave-for-texshop">Cameron
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/sweaveengine.png"></p>
+<p><img src="http://www.jason-french.com/images/sweaveengine.png"></p>
 
 <p>Now restart TeXShop if it&#8217;s running and you should see Sweave as an available option!</p>
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/sweave.png"></p>
+<p><img src="http://www.jason-french.com/images/sweave.png"></p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[Installing R in Linux]]></title>
-    <link href="http://frenchja.github.com/blog/2013/03/11/installing-r-in-linux/"/>
+    <link href="http://www.jason-french.com/blog/2013/03/11/installing-r-in-linux/"/>
     <updated>2013-03-11T17:18:00-05:00</updated>
-    <id>http://frenchja.github.com/blog/2013/03/11/installing-r-in-linux</id>
+    <id>http://www.jason-french.com/blog/2013/03/11/installing-r-in-linux</id>
     <content type="html"><![CDATA[<p>This guide is intended to faciliate the installation of up-to-date R packages
 for users new to either R or Linux.  Unlike Windows binaries or Mac packages,
 Linux software is often distributed as source-code and then compiled by package
@@ -491,7 +451,7 @@ versions of Debian, the CRAN
 <a href="http://cran.rstudio.com/bin/linux/debian/README.html">README file</a> for Debian
 points out:</p>
 
-<blockquote><p>After a release of Debian &#8220;stable&#8221;, no new packages get added by<br/>Debian to keep the release as &#8216;stable&#8217; as possible. This implies that the R<br/>release contained in the official Debian release will become outdated as time<br/>passes.</p><footer><strong>CRAN</strong> <cite><a href='http://cran.us.r-project.org/bin/linux/debian/README.html'>README</a></cite></footer></blockquote>
+<blockquote><p>After a release of Debian &#8220;stable&#8221;, no new packages get added by Debian to keep the release as &#8216;stable&#8217; as possible. This implies that the R release contained in the official Debian release will become outdated as time passes.</p><footer><strong>CRAN</strong> <cite><a href='http://cran.us.r-project.org/bin/linux/debian/README.html'>README</a></cite></footer></blockquote>
 
 
 <p>Thus, we&#8217;ll append the CRAN repository to the Debian list to update the available R version, just like
@@ -621,20 +581,20 @@ RStudio on our RedHat EL6 server easily.  The trick was to make this as seemless
 as possible from the user&#8217;s perspective.  To accomplish this, I saved the
 Bookmark to the Desktop.</p>
 
-<p><img class="right" src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/ppc-r-bookmark.png" title="R Bookmark" ></p>
+<p><img class="right" src="http://www.jason-french.com/images/ppc-r-bookmark.png" title="R Bookmark" ></p>
 
 <p>Next, I downloaded a large R icon using Google Images and edited the Bookmark&#8217;s
 icon to appear as if it were R.  To do this, just copy the R icon from within
 Preview, select the icon of the Bookmark by right-clicking and selecting Get
 Info, and pasting using <code>Command+V</code>.</p>
 
-<p><img class="left" src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/ppc-r-preview.png" width="300" title="R Preview" ></p>
+<p><img class="left" src="http://www.jason-french.com/images/ppc-r-preview.png" width="300" title="R Preview" ></p>
 
-<p><img class="left" src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/ppc-r-getinfo.png" title="Get Info" ></p>
+<p><img class="left" src="http://www.jason-french.com/images/ppc-r-getinfo.png" title="Get Info" ></p>
 
 <p>Finally, this was dragged to the OS X dock, appearing just as if it were R on the local machine, but without all the hassle and slow load times on PPC.</p>
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/ppc-r-dock.png" title="Fake Dock Icon" ></p>
+<p><img class="right" src="http://www.jason-french.com/images/ppc-r-dock.png" title="Fake Dock Icon" ></p>
 
 <p>It is worth noting that this solution is only important for users tied to OS X
 10.5.8.  I&#8217;ve had great success with using <a href="https://fedoraproject.org/wiki/Architectures/PowerPC?rd=Arch:PPC">Fedora&#8217;s PPC build</a>, which
@@ -653,9 +613,9 @@ many users, I chose to install RStudio Server on our lab server.</p>
   
   <entry>
     <title type="html"><![CDATA[Faster SSCC  Access using Bash]]></title>
-    <link href="http://frenchja.github.com/blog/2012/04/05/faster-sscc-access-using-bash/"/>
+    <link href="http://www.jason-french.com/blog/2012/04/05/faster-sscc-access-using-bash/"/>
     <updated>2012-04-05T19:08:00-05:00</updated>
-    <id>http://frenchja.github.com/blog/2012/04/05/faster-sscc-access-using-bash</id>
+    <id>http://www.jason-french.com/blog/2012/04/05/faster-sscc-access-using-bash</id>
     <content type="html"><![CDATA[<p>I use SSH regularly to login remotely to servers for experiments and
 data analysis.  For instance, <a href="http://www.it.northwestern.edu/research/sscc/">Northwestern&#8217;s Social Sciences Computing
 Cluster</a> is available with an
@@ -746,9 +706,9 @@ using Ethernet.</p>
   
   <entry>
     <title type="html"><![CDATA[Analyzing Qualtrics Data in R using Github Packages]]></title>
-    <link href="http://frenchja.github.com/blog/2012/03/27/integrating-r-and-qualtrics/"/>
+    <link href="http://www.jason-french.com/blog/2012/03/27/integrating-r-and-qualtrics/"/>
     <updated>2012-03-27T14:23:00-05:00</updated>
-    <id>http://frenchja.github.com/blog/2012/03/27/integrating-r-and-qualtrics</id>
+    <id>http://www.jason-french.com/blog/2012/03/27/integrating-r-and-qualtrics</id>
     <content type="html"><![CDATA[<p><a href="http://www.qualtrics.com/">Qualtrics</a> is an online survey platform similar to SurveyMonkey that is used by researchers to
 collect data.  Until recently, one had to manually download the data in either SPSS or .csv format, making ongoing data
 analysis difficult to check whether the trend of the incoming data supports the hypothesis.</p>
@@ -821,10 +781,10 @@ analyses in R.  I&#8217;ll demonstrate the use of this package below.</p>
 
 <h2>Pulling Data from Qualtrics</h2>
 
-<p><img class="right" src="http://frenchja.github.com/images/qualtricsid2.png">
+<p><img class="right" src="http://www.jason-french.com/images/qualtricsid2.png">
 First, you&#8217;ll need to find the Survey ID of the associated study on Qualtrics.  Access your <code>Account Settings</code> and click on
 <code>Qualtrics IDs</code>.  From here, copy the entire ID into your R code (e.g., <code>SV_blahblah</code>).
-<img class="center" src="http://frenchja.github.com/images/qualtricsid1.png"></p>
+<img class="center" src="http://www.jason-french.com/images/qualtricsid1.png"></p>
 
 <p>Next, load the <code>qualtrics</code> package in R and pull the data using <code>getSurveyResults()</code>. <em>If you receive an error in R
 regarding API permissions, you may need to email support@qualtrics.com and request API access.  The
@@ -939,9 +899,9 @@ as executable:</p>
   
   <entry>
     <title type="html"><![CDATA[Graphing Error Bars for Repeated-Measures Variables with ggplot2]]></title>
-    <link href="http://frenchja.github.com/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2/"/>
+    <link href="http://www.jason-french.com/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2/"/>
     <updated>2012-03-07T10:37:00-06:00</updated>
-    <id>http://frenchja.github.com/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2</id>
+    <id>http://www.jason-french.com/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2</id>
     <content type="html"><![CDATA[<p>When presenting data, confidence intervals and error bars let the audience know the amount of uncertainty in the data, and
 see how much of the variance is explained by the reported effect of an experiment.  While this is straightforward for
 between-subject variables, it&#8217;s less clear for mixed- and repeated-measures designs.</p>
@@ -978,9 +938,9 @@ intervals in within‐subject designs.</em></p>
   
   <entry>
     <title type="html"><![CDATA[Using Figures within Tables in LaTeX]]></title>
-    <link href="http://frenchja.github.com/blog/2012/01/17/using-figures-within-tables-in-latex/"/>
+    <link href="http://www.jason-french.com/blog/2012/01/17/using-figures-within-tables-in-latex/"/>
     <updated>2012-01-17T18:23:00-06:00</updated>
-    <id>http://frenchja.github.com/blog/2012/01/17/using-figures-within-tables-in-latex</id>
+    <id>http://www.jason-french.com/blog/2012/01/17/using-figures-within-tables-in-latex</id>
     <content type="html"><![CDATA[<p>By using LaTeX to author APA manuscripts, researchers can address many problems associated with formatting their results
 into tables and figures. For example, ANOVA tables can be readily generated using the
 <a href="http://cran.r-project.org/web/packages/xtable/index.html"><code>xtable</code></a> package in R, and graphs from
@@ -1176,7 +1136,7 @@ figures to vertically align according to their center. Below, I surround each <c
 
 
 <p>Output:
-<img class="center" src="http://frenchja.github.com/images/origins.png" title="'Broken LaTeX Table'" ></p>
+<img class="center" src="http://www.jason-french.com/images/origins.png" title="'Broken LaTeX Table'" ></p>
 
 <p>By using <code>\parbox</code>, figures are now vertically aligned with text cells. However, with the addition of figures the table
 is too long and we must span the table across 2-pages. To solve this, split the information across two tables. In this

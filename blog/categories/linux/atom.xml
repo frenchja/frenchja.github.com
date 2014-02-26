@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Linux | Jason A. French]]></title>
-  <link href="http://frenchja.github.com/blog/categories/linux/atom.xml" rel="self"/>
-  <link href="http://frenchja.github.com/"/>
-  <updated>2014-01-30T15:37:36-06:00</updated>
-  <id>http://frenchja.github.com/</id>
+  <link href="http://www.jason-french.com/blog/categories/linux/atom.xml" rel="self"/>
+  <link href="http://www.jason-french.com/"/>
+  <updated>2014-02-26T09:54:16-06:00</updated>
+  <id>http://www.jason-french.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
     <email><![CDATA[frenchja@gmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Installing R in Linux]]></title>
-    <link href="http://frenchja.github.com/blog/2013/03/11/installing-r-in-linux/"/>
+    <link href="http://www.jason-french.com/blog/2013/03/11/installing-r-in-linux/"/>
     <updated>2013-03-11T17:18:00-05:00</updated>
-    <id>http://frenchja.github.com/blog/2013/03/11/installing-r-in-linux</id>
+    <id>http://www.jason-french.com/blog/2013/03/11/installing-r-in-linux</id>
     <content type="html"><![CDATA[<p>This guide is intended to faciliate the installation of up-to-date R packages
 for users new to either R or Linux.  Unlike Windows binaries or Mac packages,
 Linux software is often distributed as source-code and then compiled by package
@@ -75,7 +75,7 @@ versions of Debian, the CRAN
 <a href="http://cran.rstudio.com/bin/linux/debian/README.html">README file</a> for Debian
 points out:</p>
 
-<p><blockquote><p>After a release of Debian "stable", no new packages get added by<br/>Debian to keep the release as 'stable' as possible. This implies that the R<br/>release contained in the official Debian release will become outdated as time<br/>passes.</p><footer><strong>CRAN</strong> <cite><a href='http://cran.us.r-project.org/bin/linux/debian/README.html'>README</a></cite></footer></blockquote></p>
+<p><blockquote><p>After a release of Debian "stable", no new packages get added by Debian to keep the release as 'stable' as possible. This implies that the R release contained in the official Debian release will become outdated as time passes.</p><footer><strong>CRAN</strong> <cite><a href='http://cran.us.r-project.org/bin/linux/debian/README.html'>README</a></cite></footer></blockquote></p>
 
 <p>Thus, we'll append the CRAN repository to the Debian list to update the available R version, just like
 we did for Ubuntu:</p>
@@ -186,20 +186,20 @@ RStudio on our RedHat EL6 server easily.  The trick was to make this as seemless
 as possible from the user's perspective.  To accomplish this, I saved the
 Bookmark to the Desktop.</p>
 
-<p><img class="right" src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/ppc-r-bookmark.png" title="R Bookmark" ></p>
+<p><img class="right" src="/images/ppc-r-bookmark.png" title="R Bookmark" ></p>
 
 <p>Next, I downloaded a large R icon using Google Images and edited the Bookmark's
 icon to appear as if it were R.  To do this, just copy the R icon from within
 Preview, select the icon of the Bookmark by right-clicking and selecting Get
 Info, and pasting using <code>Command+V</code>.</p>
 
-<p><img class="left" src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/ppc-r-preview.png" width="300" title="R Preview" ></p>
+<p><img class="left" src="/images/ppc-r-preview.png" width="300" title="R Preview" ></p>
 
-<p><img class="left" src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/ppc-r-getinfo.png" title="Get Info" ></p>
+<p><img class="left" src="/images/ppc-r-getinfo.png" title="Get Info" ></p>
 
 <p>Finally, this was dragged to the OS X dock, appearing just as if it were R on the local machine, but without all the hassle and slow load times on PPC.</p>
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/ppc-r-dock.png" title="Fake Dock Icon" ></p>
+<p><img class="right" src="/images/ppc-r-dock.png" title="Fake Dock Icon" ></p>
 
 <p>It is worth noting that this solution is only important for users tied to OS X
 10.5.8.  I've had great success with using <a href="https://fedoraproject.org/wiki/Architectures/PowerPC?rd=Arch:PPC">Fedora's PPC build</a>, which

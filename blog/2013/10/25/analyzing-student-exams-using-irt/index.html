@@ -19,7 +19,7 @@ exams given to &hellip;">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://frenchja.github.com/blog/2013/10/25/analyzing-student-exams-using-irt/">
+  <link rel="canonical" href="http://www.jason-french.com/blog/2013/10/25/analyzing-student-exams-using-irt/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -36,12 +36,15 @@ exams given to &hellip;">
   
   <script type="text/javascript">
     var _gaq = _gaq || [];
+    var pluginUrl =
+     '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+    _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
     _gaq.push(['_setAccount', 'UA-29782432-1']);
     _gaq.push(['_trackPageview']);
 
     (function() {
       var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
       var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
     })();
   </script>
@@ -65,7 +68,7 @@ exams given to &hellip;">
   
 <form action="http://google.com/search" method="get">
   <fieldset role="search">
-    <input type="hidden" name="q" value="site:frenchja.github.com" />
+    <input type="hidden" name="q" value="site:www.jason-french.com" />
     <input class="search" type="text" name="q" results="0" placeholder="Search"/>
   </fieldset>
 </form>
@@ -73,10 +76,10 @@ exams given to &hellip;">
 <ul class="main-navigation">
   <li><a href="/">Blog</a></li>
   <li><a href="/blog/archives">Archives</a></li>
-  <li><a href="/files/JFrenchCV.pdf">Curriculum Vitae</a></li>
-  <!-- <li><a href="http://www.sapa-project.org">Projects</a></li> -->
+  <li><a href="/files/JFrenchCV.pdf">CV</a></li>
+  <li><a href="https://sapa-project.org">Projects</a></li>
   <li><a href="/pubs">Pubs</a></li>
-  <li><a href="http://www.personality-project.org/dev/pmc.html">Lab</a></li>
+  <li><a href="https://personality-project.org/pmc.html">Lab</a></li>
   <li><a href="/tutorials">R Tutorials</a></li>
 </ul>
 
@@ -202,7 +205,7 @@ into the effectiveness of a given exam and can help the researcher 1) eliminate 
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/grades.png"></p>
+<p><img src="/images/grades.png"></p>
 
 <p>Thus, we have some great items that have a lot of information about students of average and low content knowledge (e.g., V24, V17, V18), but not enough to distinguish the high-knowledge students.  In redesigning an exam for next semester or year, we might save the best performing questions while trying to rewrite the existing questions or trying new questions.</p>
 
@@ -213,7 +216,7 @@ into the effectiveness of a given exam and can help the researcher 1) eliminate 
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/test.png"></p>
+<p><img src="/images/test.png"></p>
 
 <p>The second plot shows the <em>test performance</em>.  We have great reliability for distinguishing who didn&#8217;t study (lowers end of our latent trait), but overall the test may have been too easy (opposite of my prediction).  It&#8217;s important that the test is not too difficult to discourage students, but the graph above suggests that we had very low information at how students that studied were different from eachother.  This is again reflected by the histogram plotted in the next section, where high scoring students seem to cluster together.</p>
 
@@ -239,7 +242,7 @@ those who studied well from those who didn&#8217;t), while scaling the sample di
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/raw.png"></p>
+<p><img src="/images/raw.png"></p>
 
 <p>The distribution has a mean 71.68 percent and a standard deviation of 15.54.  Given grade inflation,
 it may look like your students are doing poorly when in fact the distribution is similiar to other courses
@@ -249,12 +252,12 @@ being taught.  Next, we can rescale the grades, creating a mean of 87.5 and a st
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='r'><span class='line'>scaled.grades <span class="o">&lt;-</span> scale<span class="p">(</span>grades<span class="o">$</span>Total<span class="p">)</span> <span class="o">*</span> <span class="m">7.5</span> <span class="o">+</span> <span class="m">87.5</span>
-</span><span class='line'>qplot<span class="p">(</span>scaled.grades<span class="p">,</span>xlab<span class="o">=</span><span class="s">&#39;Scaled Grades&#39;</span><span class="p">,</span>
+</span><span class='line'>qplot<span class="p">(</span>scaled.grades<span class="p">,</span> xlab<span class="o">=</span><span class="s">&#39;Scaled Grades&#39;</span><span class="p">,</span>
 </span><span class='line'>  ylab<span class="o">=</span><span class="s">&#39;# of Students&#39;</span><span class="p">,</span>main<span class="o">=</span><span class="s">&#39;Distribution of student grades&#39;</span><span class="p">)</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/scaled.png"></p>
+<p><img src="/images/scaled.png"></p>
 
 <p>The second distribution may be preferred, depending on your needs.  With the raw distribution, we would have had 45% of the students receiving grades below a C-, assuming a normal distribution (for the curious, R can calculate these probabilites using the <code>pnorm</code> function: <code>pnorm(q=70,mean=71.68,sd=15.54)</code>).  Now, 0.9% of students would fall below the 70% cutoff.  Again, my mean and standard deviation chosen in the above example are arbitrary.</p>
 
@@ -302,7 +305,7 @@ being taught.  Next, we can rescale the grades, creating a mean of 87.5 and a st
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://frenchja.github.com/blog/2013/10/25/analyzing-student-exams-using-irt/" data-via="" data-counturl="http://frenchja.github.com/blog/2013/10/25/analyzing-student-exams-using-irt/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://www.jason-french.com/blog/2013/10/25/analyzing-student-exams-using-irt/" data-via="" data-counturl="http://www.jason-french.com/blog/2013/10/25/analyzing-student-exams-using-irt/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -431,11 +434,6 @@ being taught.  Next, we can rescale the grades, creating a mean of 87.5 and a st
   Copyright &copy; 2014 - Jason A. French -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
-<script type="text/javascript">
-var infolinks_pid = 1932344;
-var infolinks_wsid = 0;
-</script>
-<script type="text/javascript" src="http://resources.infolinks.com/js/infolinks_main.js"></script>
 </footer>
   
 
@@ -444,8 +442,8 @@ var infolinks_wsid = 0;
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://frenchja.github.com/blog/2013/10/25/analyzing-student-exams-using-irt/';
-        var disqus_url = 'http://frenchja.github.com/blog/2013/10/25/analyzing-student-exams-using-irt/';
+        var disqus_identifier = 'http://www.jason-french.com/blog/2013/10/25/analyzing-student-exams-using-irt/';
+        var disqus_url = 'http://www.jason-french.com/blog/2013/10/25/analyzing-student-exams-using-irt/';
         var disqus_script = 'embed.js';
       
     (function () {

@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: X11 | Jason A. French]]></title>
-  <link href="http://frenchja.github.com/blog/categories/x11/atom.xml" rel="self"/>
-  <link href="http://frenchja.github.com/"/>
-  <updated>2014-01-30T15:37:36-06:00</updated>
-  <id>http://frenchja.github.com/</id>
+  <link href="http://www.jason-french.com/blog/categories/x11/atom.xml" rel="self"/>
+  <link href="http://www.jason-french.com/"/>
+  <updated>2014-02-26T09:54:16-06:00</updated>
+  <id>http://www.jason-french.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
     <email><![CDATA[frenchja@gmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Faster SSCC  Access using Bash]]></title>
-    <link href="http://frenchja.github.com/blog/2012/04/05/faster-sscc-access-using-bash/"/>
+    <link href="http://www.jason-french.com/blog/2012/04/05/faster-sscc-access-using-bash/"/>
     <updated>2012-04-05T19:08:00-05:00</updated>
-    <id>http://frenchja.github.com/blog/2012/04/05/faster-sscc-access-using-bash</id>
+    <id>http://www.jason-french.com/blog/2012/04/05/faster-sscc-access-using-bash</id>
     <content type="html"><![CDATA[<p>I use SSH regularly to login remotely to servers for experiments and
 data analysis.  For instance, <a href="http://www.it.northwestern.edu/research/sscc/">Northwestern's Social Sciences Computing
 Cluster</a> is available with an

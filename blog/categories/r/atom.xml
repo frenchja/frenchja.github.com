@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: R | Jason A. French]]></title>
-  <link href="http://frenchja.github.com/blog/categories/r/atom.xml" rel="self"/>
-  <link href="http://frenchja.github.com/"/>
-  <updated>2014-01-30T15:37:36-06:00</updated>
-  <id>http://frenchja.github.com/</id>
+  <link href="http://www.jason-french.com/blog/categories/r/atom.xml" rel="self"/>
+  <link href="http://www.jason-french.com/"/>
+  <updated>2014-02-26T09:54:16-06:00</updated>
+  <id>http://www.jason-french.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
     <email><![CDATA[frenchja@gmail.com]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Faster Tetrachoric Correlations]]></title>
-    <link href="http://frenchja.github.com/blog/2013/11/07/faster-tetrachoric-correlations/"/>
+    <link href="http://www.jason-french.com/blog/2013/11/07/faster-tetrachoric-correlations/"/>
     <updated>2013-11-07T16:48:00-06:00</updated>
-    <id>http://frenchja.github.com/blog/2013/11/07/faster-tetrachoric-correlations</id>
+    <id>http://www.jason-french.com/blog/2013/11/07/faster-tetrachoric-correlations</id>
     <content type="html"><![CDATA[<h2>What are tetra- and polychoric correlations?</h2>
 
 <p>Polychoric correlations estimate the correlation between two theorized normal distributions given two ordinal variables.  In psychological research, much of our data fits this definition.  For example, many survey studies used with introductory psychology pools use Likert scale items.  The responses to these items typically range from 1 (Strongly disagree) to 6 (Strongly agree).  However, we don't <em>really</em> think that person's relationship to the item is actually polytomous.  Instead, it's an imperfect approximation.</p>
@@ -30,19 +30,24 @@
 
 <p>At the <a href="https://sapa-project.org">SAPA Project</a>, the majority of our data is polytomous.  We ask you the degree to which you like to go to lively parties to estimate your score on latent <em>extraversion</em>.  Presently, we use <code>mixed.cor()</code>, which calls a combination of the <code>tetrachoric()</code> and <code>polychoric()</code> functions in the <code>psych</code> package (Revelle, W., 2013).</p>
 
-<p>However, each time we build a new dataset from the website's SQL server, it takes <em>hours</em>.  And that's <strong>if</strong> everything goes correctly.  If there's an error in the code or a bug in a new function, it may take hours to hit the error, wasting your day.</p>
+<p>However, each time we build a new dataset from the website's SQL server, it takes <em>hours</em>.  And that's <strong>if</strong> everything goes well.  If there's an error in the code or a bug in a new function, it may take hours to hit the error, wasting your day.</p>
 
 <p>After a bit of profiling, it was revealed that much of our time building the SAPA dataset was used estimating the tetrachoric and polychoric correlation coefficients.  When you do this for 250,000+ participants for 10,000+ variables, it takes <em>a long time</em>.  So Bill and I thought about how we could speed them up and feel others may benefit from our optimization.</p>
+
+<p>A serious speedup to tetrachoric and polychoric was initiated with the help of Bill Revelle. The increase in speed is roughly 1- (nc-1)<sup>2</sup> / nc<sup>2</sup> where nc is the number of categories. Thus, for tetrachorics where nc=2, this is a 75% reduction, whereas for polychorics of 6 item responses this is just a 30% reduction.</p>
 
 <!-- more -->
 
 
-<h3>Optimizing the existing function for a 300% speed up</h3>
+<h3>Optimizing the existing function</h3>
 
 <p>If we call <code>psych:::tetraBinBvn</code>, we see that most of the time spent computer the tetrachorics is using <code>pmvnorm</code> to estimate each of the 4 probabilities of the tetrachoric:</p>
 
-<p>```r
-psych:::tetraBinBvn
+<p><img src="/images/tetra.png"></p>
+
+<p>The function says for each row <em>i</em> and each column <em>j</em>, optimize a probability based on the lower and upper bounds of the row cuts and column cuts.  <strong>But wait!</strong>  Since the sum of the probabilities in the tetrachoric 2x2 matrix add to 1, why not just use a bit of subtraction to figure it out?  That would avoid waiting on <code>pvnorm</code> to compute each cell.</p>
+
+<p>```r Old psych:::tetraBinBvn
 function (rho, rc, cc)
 {</p>
 
@@ -61,94 +66,47 @@ P
 </code></pre>
 
 <p>}
+```</p>
+
+<p>```r New psych:::tetraBinBvn
+function (rho, rc, cc)
+{</p>
+
+<pre><code>row.cuts &lt;- c(-Inf, rc, Inf)
+col.cuts &lt;- c(-Inf, cc, Inf)
+P &lt;- matrix(0, 2, 2)
+R &lt;- matrix(c(1, rho, rho, 1), 2, 2)
+P[1, 1] &lt;- pmvnorm(lower = c(row.cuts[1], col.cuts[1]), upper = c(row.cuts[2], 
+    col.cuts[2]), corr = R)
+P[1, 2] &lt;- pnorm(rc) - P[1, 1]
+P[2, 1] &lt;- pnorm(cc) - P[1, 1]
+P[2, 2] &lt;- 1 - pnorm(rc) - P[2, 1]
+P
+</code></pre>
+
+<p>}
 &lt;environment: namespace:psych>
 ```</p>
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/tetra.png"></p>
-
-<p>The function says for each row <em>i</em> and each column <em>j</em>, optimize a probability based on the lower and upper bounds of the row cuts and column cuts.  <strong>But wait!</strong>  Since the sum of the probabilities in the tetrachoric 2x2 matrix add to 1, why not just use a bit of subtraction to figure it out?  That would avoid waiting on <code>pvnorm</code> to compute each cell.</p>
-
-<p>This solution resulted in a speed up of <code>tetrachor()</code> by a factor of 3!  See our benchmarks below!</p>
+<p>This solution resulted in a speed up of <code>tetrachor()</code> by a factor of 3!</p>
 
 <p>Unfortunately, our trick doesn't work for the <code>polychor()</code> function as well, since there are more degrees of freedom. However, we can eliminate calling <code>pvnorm()</code> for 11 cells in a hypothetical 6x6 matrix as we only need to find the values for 25 and can use subtraction to speed up the estimation of the remaining 11.  This results in a less impressive speed up for <code>polychor()</code> that I nonetheless hope will benefit researchers.</p>
 
-<h2>Testing our result</h2>
+<h3>Writing a parallelized function</h3>
 
-<h3>Generate our hypothetical dataset</h3>
+<p>While we were happy with our initial speed increase, it didn't have a noticeable impact on SAPA's build time.  We then began to explore ways to parallelize our existing code.  While we attempted to use various packages (i.e., <code>foreach</code>), we settled on using <code>mcmapply</code> in the existing core parallel library to minimize our dependencies.</p>
 
-<p><code>r
-library(psych)
-data &lt;- sim.irt(nvar = 50, n = 500)
-</code></p>
+<p>As you can see below, this resulted in a speed increase by a factor of N, where N = # of cpus you allocate.  Be warned, however, that memory consumption increases dramatically as well.</p>
 
-<h3>Profiling old code</h3>
-
-<p><code>r
-system.time(old &lt;- polychoric(data$items))
-</code></p>
-
-<p>```</p>
-
-<h2>user  system elapsed</h2>
-
-<h2>16.733   0.097  17.286</h2>
-
-<p>```</p>
-
-<h3>Profiling new code</h3>
-
-<p><code>r
-system.time(new &lt;- polychoric(data$items))
-</code></p>
-
-<p>```</p>
-
-<h2>user  system elapsed</h2>
-
-<h2>6.336   0.035   6.537</h2>
-
-<p>```</p>
-
-<h3>Differences between new and old results</h3>
-
-<p><code>r
-round(new$rho - old$rho, 2)
-</code></p>
-
-<p>```</p>
-
-<h2>V1 V2    V3 V4 V5 V6 V7   V8 V9 V10 V11 V12 V13 V14 V15 V16 V17 V18</h2>
-
-<h2>V1  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</h2>
-
-<h2>V2  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</h2>
-
-<h2>V3  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</h2>
-
-<h2>V4  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</h2>
-
-<h2>V5  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</h2>
-
-<h2>V6  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</h2>
-
-<h2>V7  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</h2>
-
-<h2>V8  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</h2>
-
-<h2>V9  0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</h2>
-
-<h2>V10 0.00  0  0.00  0  0  0  0 0.00  0   0   0   0   0   0   0   0   0   0</h2>
-
-<p>...
-```</p>
+<p><img src="/images/polyspeed.png"></p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[Analyze Student Exam Items using IRT]]></title>
-    <link href="http://frenchja.github.com/blog/2013/10/25/analyzing-student-exams-using-irt/"/>
+    <link href="http://www.jason-french.com/blog/2013/10/25/analyzing-student-exams-using-irt/"/>
     <updated>2013-10-25T14:26:00-05:00</updated>
-    <id>http://frenchja.github.com/blog/2013/10/25/analyzing-student-exams-using-irt</id>
+    <id>http://www.jason-french.com/blog/2013/10/25/analyzing-student-exams-using-irt</id>
     <content type="html"><![CDATA[<p>I've cross-posted this at the <a href="http://sapa-project.org/blog/">SAPA Project's blog</a>.</p>
 
 <p><a href="https://en.wikipedia.org/wiki/Item_response_theory">Item Response Theory</a> can be used to evaluate the effectiveness of
@@ -236,7 +194,7 @@ head(grades)
 <p>plot(grades.irt)
 ```</p>
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/grades.png"></p>
+<p><img src="/images/grades.png"></p>
 
 <p>Thus, we have some great items that have a lot of information about students of average and low content knowledge (e.g., V24, V17, V18), but not enough to distinguish the high-knowledge students.  In redesigning an exam for next semester or year, we might save the best performing questions while trying to rewrite the existing questions or trying new questions.</p>
 
@@ -246,7 +204,7 @@ head(grades)
 plot.irt(type = "test", grades.irt)
 </code></p>
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/test.png"></p>
+<p><img src="/images/test.png"></p>
 
 <p>The second plot shows the <em>test performance</em>.  We have great reliability for distinguishing who didn't study (lowers end of our latent trait), but overall the test may have been too easy (opposite of my prediction).  It's important that the test is not too difficult to discourage students, but the graph above suggests that we had very low information at how students that studied were different from eachother.  This is again reflected by the histogram plotted in the next section, where high scoring students seem to cluster together.</p>
 
@@ -274,7 +232,7 @@ those who studied well from those who didn't), while scaling the sample distribu
 
 <p>```</p>
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/raw.png"></p>
+<p><img src="/images/raw.png"></p>
 
 <p>The distribution has a mean 71.68 percent and a standard deviation of 15.54.  Given grade inflation,
 it may look like your students are doing poorly when in fact the distribution is similiar to other courses
@@ -282,14 +240,14 @@ being taught.  Next, we can rescale the grades, creating a mean of 87.5 and a st
 
 <p>```r
 scaled.grades &lt;- scale(grades$Total) * 7.5 + 87.5
-qplot(scaled.grades,xlab='Scaled Grades',</p>
+qplot(scaled.grades, xlab='Scaled Grades',</p>
 
 <pre><code>ylab='# of Students',main='Distribution of student grades')
 </code></pre>
 
 <p>```</p>
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/scaled.png"></p>
+<p><img src="/images/scaled.png"></p>
 
 <p>The second distribution may be preferred, depending on your needs.  With the raw distribution, we would have had 45% of the students receiving grades below a C-, assuming a normal distribution (for the curious, R can calculate these probabilites using the <code>pnorm</code> function: <code>pnorm(q=70,mean=71.68,sd=15.54)</code>).  Now, 0.9% of students would fall below the 70% cutoff.  Again, my mean and standard deviation chosen in the above example are arbitrary.</p>
 
@@ -306,9 +264,9 @@ qplot(scaled.grades,xlab='Scaled Grades',</p>
   
   <entry>
     <title type="html"><![CDATA[Easy Sweave for LaTeX and R]]></title>
-    <link href="http://frenchja.github.com/blog/2013/08/16/easy-sweaving-for-latex-and-r/"/>
+    <link href="http://www.jason-french.com/blog/2013/08/16/easy-sweaving-for-latex-and-r/"/>
     <updated>2013-08-16T12:41:00-05:00</updated>
-    <id>http://frenchja.github.com/blog/2013/08/16/easy-sweaving-for-latex-and-r</id>
+    <id>http://www.jason-french.com/blog/2013/08/16/easy-sweaving-for-latex-and-r</id>
     <content type="html"><![CDATA[<p>When you're writing up reports using statistics from R, it can be tiresome
 to constantly copy and paste results from the R Console.  To get around this, many of us use Sweave, which allows us to <em>embed</em> R code in LaTeX files.
 <a href="https://en.wikipedia.org/wiki/Sweave">Sweave</a> is an R function that converts R code to LaTeX, a document typesetting language.  This enables accurate, shareable analyses as well as high-resolution graphs that are publication quality.</p>
@@ -370,19 +328,19 @@ mv Sweave.engine ~/Library/TeXShop/Engines/
 chmod +x ~/Library/TeXShop/Engines/Sweave.engine
 </code></p>
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/sweaveengine.png"></p>
+<p><img src="/images/sweaveengine.png"></p>
 
 <p>Now restart TeXShop if it's running and you should see Sweave as an available option!</p>
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/sweave.png"></p>
+<p><img src="/images/sweave.png"></p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[Installing R in Linux]]></title>
-    <link href="http://frenchja.github.com/blog/2013/03/11/installing-r-in-linux/"/>
+    <link href="http://www.jason-french.com/blog/2013/03/11/installing-r-in-linux/"/>
     <updated>2013-03-11T17:18:00-05:00</updated>
-    <id>http://frenchja.github.com/blog/2013/03/11/installing-r-in-linux</id>
+    <id>http://www.jason-french.com/blog/2013/03/11/installing-r-in-linux</id>
     <content type="html"><![CDATA[<p>This guide is intended to faciliate the installation of up-to-date R packages
 for users new to either R or Linux.  Unlike Windows binaries or Mac packages,
 Linux software is often distributed as source-code and then compiled by package
@@ -440,7 +398,7 @@ versions of Debian, the CRAN
 <a href="http://cran.rstudio.com/bin/linux/debian/README.html">README file</a> for Debian
 points out:</p>
 
-<p><blockquote><p>After a release of Debian "stable", no new packages get added by<br/>Debian to keep the release as 'stable' as possible. This implies that the R<br/>release contained in the official Debian release will become outdated as time<br/>passes.</p><footer><strong>CRAN</strong> <cite><a href='http://cran.us.r-project.org/bin/linux/debian/README.html'>README</a></cite></footer></blockquote></p>
+<p><blockquote><p>After a release of Debian "stable", no new packages get added by Debian to keep the release as 'stable' as possible. This implies that the R release contained in the official Debian release will become outdated as time passes.</p><footer><strong>CRAN</strong> <cite><a href='http://cran.us.r-project.org/bin/linux/debian/README.html'>README</a></cite></footer></blockquote></p>
 
 <p>Thus, we'll append the CRAN repository to the Debian list to update the available R version, just like
 we did for Ubuntu:</p>
@@ -551,20 +509,20 @@ RStudio on our RedHat EL6 server easily.  The trick was to make this as seemless
 as possible from the user's perspective.  To accomplish this, I saved the
 Bookmark to the Desktop.</p>
 
-<p><img class="right" src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/ppc-r-bookmark.png" title="R Bookmark" ></p>
+<p><img class="right" src="/images/ppc-r-bookmark.png" title="R Bookmark" ></p>
 
 <p>Next, I downloaded a large R icon using Google Images and edited the Bookmark's
 icon to appear as if it were R.  To do this, just copy the R icon from within
 Preview, select the icon of the Bookmark by right-clicking and selecting Get
 Info, and pasting using <code>Command+V</code>.</p>
 
-<p><img class="left" src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/ppc-r-preview.png" width="300" title="R Preview" ></p>
+<p><img class="left" src="/images/ppc-r-preview.png" width="300" title="R Preview" ></p>
 
-<p><img class="left" src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/ppc-r-getinfo.png" title="Get Info" ></p>
+<p><img class="left" src="/images/ppc-r-getinfo.png" title="Get Info" ></p>
 
 <p>Finally, this was dragged to the OS X dock, appearing just as if it were R on the local machine, but without all the hassle and slow load times on PPC.</p>
 
-<p><img src="http://gradstudents.wcas.northwestern.edu/~jaf502/images/ppc-r-dock.png" title="Fake Dock Icon" ></p>
+<p><img class="right" src="/images/ppc-r-dock.png" title="Fake Dock Icon" ></p>
 
 <p>It is worth noting that this solution is only important for users tied to OS X
 10.5.8.  I've had great success with using <a href="https://fedoraproject.org/wiki/Architectures/PowerPC?rd=Arch:PPC">Fedora's PPC build</a>, which
@@ -583,9 +541,9 @@ many users, I chose to install RStudio Server on our lab server.</p>
   
   <entry>
     <title type="html"><![CDATA[Faster SSCC  Access using Bash]]></title>
-    <link href="http://frenchja.github.com/blog/2012/04/05/faster-sscc-access-using-bash/"/>
+    <link href="http://www.jason-french.com/blog/2012/04/05/faster-sscc-access-using-bash/"/>
     <updated>2012-04-05T19:08:00-05:00</updated>
-    <id>http://frenchja.github.com/blog/2012/04/05/faster-sscc-access-using-bash</id>
+    <id>http://www.jason-french.com/blog/2012/04/05/faster-sscc-access-using-bash</id>
     <content type="html"><![CDATA[<p>I use SSH regularly to login remotely to servers for experiments and
 data analysis.  For instance, <a href="http://www.it.northwestern.edu/research/sscc/">Northwestern's Social Sciences Computing
 Cluster</a> is available with an
