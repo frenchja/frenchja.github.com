@@ -13,3 +13,7 @@ footer: true
 
  - Tare, M., **French, J.**, Frazier, B. N., Diamond, J., & Evans, E. M. (2011). *Explanatory parent–child conversation predominates at an evolution exhibit*. Science Education, 95(4), 720-744. [[PDF](../files/TareFrench2011.pdf)]
 
+Selected Presentations
+----------------------
+
+- **French, J. A.**, Tumuluru, S., Walco, D. K., Sozzer, F., & Rosengren, K. S. (June, 2012). *Age Differences in Young Children’s Attempts to Grasp Photos*. International Conference on Infant Studies. Minneapolis, MN. [[PDF](../files/FrenchTumuluru2012.pdf)]
