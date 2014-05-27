@@ -17,13 +17,13 @@ with other experimental data collected in the lab and, by running an Rscript as 
 analyses in R.  I'll demonstrate the use of this package below.
 <!-- more -->
 ## Installing the Qualtrics Package from Github
-{% codeblock Installing Qualtrics lang:r %}
+{% codeblock Installing Qualtrics on Mac/Linux lang:r %}
 #!/usr/bin/env Rscript
 # Authors:  Jason A. French
 # Email:    frenchja@u.northwestern.edu
 install.packages('devtools',dependencies=TRUE)
-require(devtools)
-install_github(repo='qualtrics',username='jbryer')
+# install.packages('RTools') # May be needed for some Windows versions.
+devtools:::install_github(repo='qualtrics',username='jbryer')
 require(qualtrics)
 {% endcodeblock %}
 
@@ -36,7 +36,7 @@ If you wanted to distribute the Rscript to colleagues with different setups, you
 if (!require(devtools)) {
     warning('devtools not found. Attempting to install!')
     install.packages('devtools',dependencies=TRUE)
-    require(devtools,character.only=TRUE)        
+    require(devtools,character.only=TRUE)
 }
 
 # Check Qualtrics Package from Github
@@ -61,6 +61,32 @@ R function accesses your survey using XML.*
 qualtrics.data <- getSurveyResults(username=qualtrics.user,
                       password=qualtrics.pass,
                       surveyid='SV_blahblah')
+{% endcodeblock %}
+
+However, readers have pointed out that the resulting data doesn't have your variable names.  Alternatively, Trevor Kvaran points out that you can modify the getSurveyResults function to export the variable names by appending "&ExportTags=1" to the url:
+
+{% codeblock Modifying getSurveyResults to pull variable names lang:r %}
+getSurveyResults <- function (username, password, surveyid, truncNames = 20, startDate = NULL, endDate = NULL)
+{
+    url = paste("http://eu.qualtrics.com/Server...", username,
+                "&Password=", password,
+                "&SurveyID=", surveyid,
+                "&ExportTags=1",
+                "&Format=CSV",
+                ifelse(is.null(startDate), "", paste("&StartDate=", startDate, sep = "")), ifelse(is.null(endDate), "", paste("&EndDate=", endDate, sep = "")), sep = "")
+    
+    t = read.csv(url)
+    t<-t[-1,]
+    t$X = NULL
+    n = strsplit(names(t), "....", fixed = TRUE)
+    for (i in 1:ncol(t)) {
+        names(t)[i] = n[[i]][length(n[[i]])]
+        if (nchar(names(t)[i]) > truncNames) {
+            names(t)[i] = substr(names(t)[i], 1, truncNames)
+        }
+    }
+    t
+}
 {% endcodeblock %}
 
 Again, if you are distributing the analysis to collaborators, you may want to use a setup like below, which reads the user and 

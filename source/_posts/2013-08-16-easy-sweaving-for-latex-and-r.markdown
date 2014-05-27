@@ -49,7 +49,7 @@ Using a text editor, paste in the following syntax and save the file as Sweave.e
 export PATH=$PATH:/usr/texbin:/usr/local/bin
 R CMD Sweave "$1"
 pdflatex "${1%.*}"
-bibtex "${1%.aux}"
+bibtex "${1%.*}.aux"
 pdflatex "${1%.*}"
 # If you run pdflatex again you get citations
 pdflatex "${1%.*}"
