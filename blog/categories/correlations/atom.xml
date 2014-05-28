@@ -2,22 +2,22 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: correlations | Jason A. French]]></title>
-  <link href="http://www.jason-french.com/blog/categories/correlations/atom.xml" rel="self"/>
-  <link href="http://www.jason-french.com/"/>
-  <updated>2014-05-28T13:46:34-05:00</updated>
-  <id>http://www.jason-french.com/</id>
+  <link href="http://frenchja.github.com/blog/categories/correlations/atom.xml" rel="self"/>
+  <link href="http://frenchja.github.com/"/>
+  <updated>2014-05-28T14:12:56-05:00</updated>
+  <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
-    <email><![CDATA[frenchja@gmail.com]]></email>
+    
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
   
   <entry>
     <title type="html"><![CDATA[Faster Tetrachoric Correlations]]></title>
-    <link href="http://www.jason-french.com/blog/2013/11/07/faster-tetrachoric-correlations/"/>
+    <link href="http://frenchja.github.com/blog/2013/11/07/faster-tetrachoric-correlations/"/>
     <updated>2013-11-07T16:48:00-06:00</updated>
-    <id>http://www.jason-french.com/blog/2013/11/07/faster-tetrachoric-correlations</id>
+    <id>http://frenchja.github.com/blog/2013/11/07/faster-tetrachoric-correlations</id>
     <content type="html"><![CDATA[<h2>What are tetra- and polychoric correlations?</h2>
 
 <p>Polychoric correlations estimate the correlation between two theorized normal distributions given two ordinal variables.  In psychological research, much of our data fits this definition.  For example, many survey studies used with introductory psychology pools use Likert scale items.  The responses to these items typically range from 1 (Strongly disagree) to 6 (Strongly agree).  However, we don't <em>really</em> think that person's relationship to the item is actually polytomous.  Instead, it's an imperfect approximation.</p>

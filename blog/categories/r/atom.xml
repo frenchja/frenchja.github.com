@@ -2,22 +2,22 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: R | Jason A. French]]></title>
-  <link href="http://www.jason-french.com/blog/categories/r/atom.xml" rel="self"/>
-  <link href="http://www.jason-french.com/"/>
-  <updated>2014-05-28T13:46:34-05:00</updated>
-  <id>http://www.jason-french.com/</id>
+  <link href="http://frenchja.github.com/blog/categories/r/atom.xml" rel="self"/>
+  <link href="http://frenchja.github.com/"/>
+  <updated>2014-05-28T14:12:56-05:00</updated>
+  <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
-    <email><![CDATA[frenchja@gmail.com]]></email>
+    
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
   
   <entry>
-    <title type="html"><![CDATA[Fixing knitr: Formatting statistcal output to 2 digits in R]]></title>
-    <link href="http://www.jason-french.com/blog/2014/04/25/formatting-sweave-and-knitr-output-for-2-digits/"/>
+    <title type="html"><![CDATA[Fixing knitr: Formatting statistical output to 2 digits in R]]></title>
+    <link href="http://frenchja.github.com/blog/2014/04/25/formatting-sweave-and-knitr-output-for-2-digits/"/>
     <updated>2014-04-25T16:53:00-05:00</updated>
-    <id>http://www.jason-french.com/blog/2014/04/25/formatting-sweave-and-knitr-output-for-2-digits</id>
+    <id>http://frenchja.github.com/blog/2014/04/25/formatting-sweave-and-knitr-output-for-2-digits</id>
     <content type="html"><![CDATA[<h3>Overview of reproducible research</h3>
 
 <p>Reproducible research is a phrase that describes an academic paper or manuscript that contains the code and data in addition to what is usually published - the researcher's interpretation.  In doing so, the experimental design and method of analysis is easily replicated by unaffiliated labs and critiqued by reviewers as the full analysis used to produce the results is submitted along with the final paper.  One way of producing reproducible research is to use <a href="http://r-project.org">R code</a> directly inside your LaTeX document. In order to faciliate the combination of statistical code and manuscript writing, two R packages in particular have arisen:  <a href="">Sweave</a> and <a href="">knitr</a>. knitr is an R package designed as a replacement for Sweave, but both packages combine your R analysis with your <a href="https://en.wikipedia.org/wiki/LaTeX">LaTeX</a> manuscript (i.e., knitr = R + LaTeX).</p>
@@ -280,9 +280,9 @@ paste(res, collapse = ", ")
   
   <entry>
     <title type="html"><![CDATA[Faster Tetrachoric Correlations]]></title>
-    <link href="http://www.jason-french.com/blog/2013/11/07/faster-tetrachoric-correlations/"/>
+    <link href="http://frenchja.github.com/blog/2013/11/07/faster-tetrachoric-correlations/"/>
     <updated>2013-11-07T16:48:00-06:00</updated>
-    <id>http://www.jason-french.com/blog/2013/11/07/faster-tetrachoric-correlations</id>
+    <id>http://frenchja.github.com/blog/2013/11/07/faster-tetrachoric-correlations</id>
     <content type="html"><![CDATA[<h2>What are tetra- and polychoric correlations?</h2>
 
 <p>Polychoric correlations estimate the correlation between two theorized normal distributions given two ordinal variables.  In psychological research, much of our data fits this definition.  For example, many survey studies used with introductory psychology pools use Likert scale items.  The responses to these items typically range from 1 (Strongly disagree) to 6 (Strongly agree).  However, we don't <em>really</em> think that person's relationship to the item is actually polytomous.  Instead, it's an imperfect approximation.</p>
@@ -369,9 +369,9 @@ P
   
   <entry>
     <title type="html"><![CDATA[Analyze Student Exam Items using IRT]]></title>
-    <link href="http://www.jason-french.com/blog/2013/10/25/analyzing-student-exams-using-irt/"/>
+    <link href="http://frenchja.github.com/blog/2013/10/25/analyzing-student-exams-using-irt/"/>
     <updated>2013-10-25T14:26:00-05:00</updated>
-    <id>http://www.jason-french.com/blog/2013/10/25/analyzing-student-exams-using-irt</id>
+    <id>http://frenchja.github.com/blog/2013/10/25/analyzing-student-exams-using-irt</id>
     <content type="html"><![CDATA[<p>I've cross-posted this at the <a href="http://sapa-project.org/blog/">SAPA Project's blog</a>.</p>
 
 <p><a href="https://en.wikipedia.org/wiki/Item_response_theory">Item Response Theory</a> can be used to evaluate the effectiveness of
@@ -529,9 +529,9 @@ qplot(scaled.grades, xlab='Scaled Grades',</p>
   
   <entry>
     <title type="html"><![CDATA[Easy Sweave for LaTeX and R]]></title>
-    <link href="http://www.jason-french.com/blog/2013/08/16/easy-sweaving-for-latex-and-r/"/>
+    <link href="http://frenchja.github.com/blog/2013/08/16/easy-sweaving-for-latex-and-r/"/>
     <updated>2013-08-16T12:41:00-05:00</updated>
-    <id>http://www.jason-french.com/blog/2013/08/16/easy-sweaving-for-latex-and-r</id>
+    <id>http://frenchja.github.com/blog/2013/08/16/easy-sweaving-for-latex-and-r</id>
     <content type="html"><![CDATA[<p>When you're writing up reports using statistics from R, it can be tiresome
 to constantly copy and paste results from the R Console.  To get around this, many of us use Sweave, which allows us to <em>embed</em> R code in LaTeX files.
 <a href="https://en.wikipedia.org/wiki/Sweave">Sweave</a> is an R function that converts R code to LaTeX, a document typesetting language.  This enables accurate, shareable analyses as well as high-resolution graphs that are publication quality.</p>
@@ -603,9 +603,9 @@ chmod +x ~/Library/TeXShop/Engines/Sweave.engine
   
   <entry>
     <title type="html"><![CDATA[Installing R in Linux]]></title>
-    <link href="http://www.jason-french.com/blog/2013/03/11/installing-r-in-linux/"/>
+    <link href="http://frenchja.github.com/blog/2013/03/11/installing-r-in-linux/"/>
     <updated>2013-03-11T17:18:00-05:00</updated>
-    <id>http://www.jason-french.com/blog/2013/03/11/installing-r-in-linux</id>
+    <id>http://frenchja.github.com/blog/2013/03/11/installing-r-in-linux</id>
     <content type="html"><![CDATA[<p>This guide is intended to faciliate the installation of up-to-date R packages
 for users new to either R or Linux.  Unlike Windows binaries or Mac packages,
 Linux software is often distributed as source-code and then compiled by package

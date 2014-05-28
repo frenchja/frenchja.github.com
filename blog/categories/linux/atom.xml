@@ -2,22 +2,22 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Linux | Jason A. French]]></title>
-  <link href="http://www.jason-french.com/blog/categories/linux/atom.xml" rel="self"/>
-  <link href="http://www.jason-french.com/"/>
-  <updated>2014-05-28T13:46:34-05:00</updated>
-  <id>http://www.jason-french.com/</id>
+  <link href="http://frenchja.github.com/blog/categories/linux/atom.xml" rel="self"/>
+  <link href="http://frenchja.github.com/"/>
+  <updated>2014-05-28T14:12:56-05:00</updated>
+  <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
-    <email><![CDATA[frenchja@gmail.com]]></email>
+    
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
   
   <entry>
     <title type="html"><![CDATA[Installing R in Linux]]></title>
-    <link href="http://www.jason-french.com/blog/2013/03/11/installing-r-in-linux/"/>
+    <link href="http://frenchja.github.com/blog/2013/03/11/installing-r-in-linux/"/>
     <updated>2013-03-11T17:18:00-05:00</updated>
-    <id>http://www.jason-french.com/blog/2013/03/11/installing-r-in-linux</id>
+    <id>http://frenchja.github.com/blog/2013/03/11/installing-r-in-linux</id>
     <content type="html"><![CDATA[<p>This guide is intended to faciliate the installation of up-to-date R packages
 for users new to either R or Linux.  Unlike Windows binaries or Mac packages,
 Linux software is often distributed as source-code and then compiled by package
