@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: correlations | Jason A. French]]></title>
+  <link href="http://www.jason-french.com/blog/categories/correlations/atom.xml" rel="self"/>
+  <link href="http://www.jason-french.com/"/>
+  <updated>2014-05-28T13:46:34-05:00</updated>
+  <id>http://www.jason-french.com/</id>
+  <author>
+    <name><![CDATA[Jason A. French]]></name>
+    <email><![CDATA[frenchja@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Faster Tetrachoric Correlations]]></title>
+    <link href="http://www.jason-french.com/blog/2013/11/07/faster-tetrachoric-correlations/"/>
+    <updated>2013-11-07T16:48:00-06:00</updated>
+    <id>http://www.jason-french.com/blog/2013/11/07/faster-tetrachoric-correlations</id>
+    <content type="html"><![CDATA[<h2>What are tetra- and polychoric correlations?</h2>
+
+<p>Polychoric correlations estimate the correlation between two theorized normal distributions given two ordinal variables.  In psychological research, much of our data fits this definition.  For example, many survey studies used with introductory psychology pools use Likert scale items.  The responses to these items typically range from 1 (Strongly disagree) to 6 (Strongly agree).  However, we don't <em>really</em> think that person's relationship to the item is actually polytomous.  Instead, it's an imperfect approximation.</p>
+
+<p>Similarly, tetrachorics are special cases of polychoric crrelations when the variable of interest is dichotomous. The participant may have gotten the item either correct (i.e., 1) or incorrect (i.e., 0), but the underlying knowledge that led to the items' response is probably a continuous distribution.</p>
+
+<p>When you have polytomous rating scales but want to disattenuate the correlations to more accurately estimate the correlation betwen the latent continuous variables, one way of doing this is to use a tetrachoric or polychoric correlation coefficient.</p>
+
+<h2>The problem</h2>
+
+<p>At the <a href="https://sapa-project.org">SAPA Project</a>, the majority of our data is polytomous.  We ask you the degree to which you like to go to lively parties to estimate your score on latent <em>extraversion</em>.  Presently, we use <code>mixed.cor()</code>, which calls a combination of the <code>tetrachoric()</code> and <code>polychoric()</code> functions in the <code>psych</code> package (Revelle, W., 2013).</p>
+
+<p>However, each time we build a new dataset from the website's SQL server, it takes <em>hours</em>.  And that's <strong>if</strong> everything goes well.  If there's an error in the code or a bug in a new function, it may take hours to hit the error, wasting your day.</p>
+
+<p>After a bit of profiling, it was revealed that much of our time building the SAPA dataset was used estimating the tetrachoric and polychoric correlation coefficients.  When you do this for 250,000+ participants for 10,000+ variables, it takes <em>a long time</em>.  So Bill and I thought about how we could speed them up and feel others may benefit from our optimization.</p>
+
+<p>A serious speedup to tetrachoric and polychoric was initiated with the help of Bill Revelle. The increase in speed is roughly 1- (nc-1)<sup>2</sup> / nc<sup>2</sup> where nc is the number of categories. Thus, for tetrachorics where nc=2, this is a 75% reduction, whereas for polychorics of 6 item responses this is just a 30% reduction.</p>
+
+<!-- more -->
+
+
+<h3>Optimizing the existing function</h3>
+
+<p>If we call <code>psych:::tetraBinBvn</code>, we see that most of the time spent computer the tetrachorics is using <code>pmvnorm</code> to estimate each of the 4 probabilities of the tetrachoric:</p>
+
+<p><img src="/images/tetra.png"></p>
+
+<p>The function says for each row <em>i</em> and each column <em>j</em>, optimize a probability based on the lower and upper bounds of the row cuts and column cuts.  <strong>But wait!</strong>  Since the sum of the probabilities in the tetrachoric 2x2 matrix add to 1, why not just use a bit of subtraction to figure it out?  That would avoid waiting on <code>pvnorm</code> to compute each cell.</p>
+
+<p>```r Old psych:::tetraBinBvn
+function (rho, rc, cc)
+{</p>
+
+<pre><code>row.cuts &lt;- c(-Inf, rc, Inf)
+col.cuts &lt;- c(-Inf, cc, Inf)
+P &lt;- matrix(0, 2, 2)
+R &lt;- matrix(c(1, rho, rho, 1), 2, 2)
+for (i in 1:2) {
+    for (j in 1:2) {
+        P[i, j] &lt;- pmvnorm(lower = c(row.cuts[i], col.cuts[j]), 
+            upper = c(row.cuts[i + 1], col.cuts[j + 1]), 
+            corr = R)
+    }
+}
+P
+</code></pre>
+
+<p>}
+```</p>
+
+<p>```r New psych:::tetraBinBvn
+function (rho, rc, cc)
+{</p>
+
+<pre><code>row.cuts &lt;- c(-Inf, rc, Inf)
+col.cuts &lt;- c(-Inf, cc, Inf)
+P &lt;- matrix(0, 2, 2)
+R &lt;- matrix(c(1, rho, rho, 1), 2, 2)
+P[1, 1] &lt;- pmvnorm(lower = c(row.cuts[1], col.cuts[1]), upper = c(row.cuts[2], 
+    col.cuts[2]), corr = R)
+P[1, 2] &lt;- pnorm(rc) - P[1, 1]
+P[2, 1] &lt;- pnorm(cc) - P[1, 1]
+P[2, 2] &lt;- 1 - pnorm(rc) - P[2, 1]
+P
+</code></pre>
+
+<p>}
+&lt;environment: namespace:psych>
+```</p>
+
+<p>This solution resulted in a speed up of <code>tetrachor()</code> by a factor of 3!</p>
+
+<p>Unfortunately, our trick doesn't work for the <code>polychor()</code> function as well, since there are more degrees of freedom. However, we can eliminate calling <code>pvnorm()</code> for 11 cells in a hypothetical 6x6 matrix as we only need to find the values for 25 and can use subtraction to speed up the estimation of the remaining 11.  This results in a less impressive speed up for <code>polychor()</code> that I nonetheless hope will benefit researchers.</p>
+
+<h3>Writing a parallelized function</h3>
+
+<p>While we were happy with our initial speed increase, it didn't have a noticeable impact on SAPA's build time.  We then began to explore ways to parallelize our existing code.  While we attempted to use various packages (i.e., <code>foreach</code>), we settled on using <code>mcmapply</code> in the existing core parallel library to minimize our dependencies.</p>
+
+<p>As you can see below, this resulted in a speed increase by a factor of N, where N = # of cpus you allocate.  Be warned, however, that memory consumption increases dramatically as well.</p>
+
+<p><img src="/images/polyspeed.png"></p>
+]]></content>
+  </entry>
+  
+</feed>

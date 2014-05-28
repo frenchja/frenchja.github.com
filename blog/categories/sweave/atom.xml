@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Sweave | Jason A. French]]></title>
+  <link href="http://www.jason-french.com/blog/categories/sweave/atom.xml" rel="self"/>
+  <link href="http://www.jason-french.com/"/>
+  <updated>2014-05-28T13:46:34-05:00</updated>
+  <id>http://www.jason-french.com/</id>
+  <author>
+    <name><![CDATA[Jason A. French]]></name>
+    <email><![CDATA[frenchja@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Fixing knitr: Formatting statistcal output to 2 digits in R]]></title>
+    <link href="http://www.jason-french.com/blog/2014/04/25/formatting-sweave-and-knitr-output-for-2-digits/"/>
+    <updated>2014-04-25T16:53:00-05:00</updated>
+    <id>http://www.jason-french.com/blog/2014/04/25/formatting-sweave-and-knitr-output-for-2-digits</id>
+    <content type="html"><![CDATA[<h3>Overview of reproducible research</h3>
+
+<p>Reproducible research is a phrase that describes an academic paper or manuscript that contains the code and data in addition to what is usually published - the researcher's interpretation.  In doing so, the experimental design and method of analysis is easily replicated by unaffiliated labs and critiqued by reviewers as the full analysis used to produce the results is submitted along with the final paper.  One way of producing reproducible research is to use <a href="http://r-project.org">R code</a> directly inside your LaTeX document. In order to faciliate the combination of statistical code and manuscript writing, two R packages in particular have arisen:  <a href="">Sweave</a> and <a href="">knitr</a>. knitr is an R package designed as a replacement for Sweave, but both packages combine your R analysis with your <a href="https://en.wikipedia.org/wiki/LaTeX">LaTeX</a> manuscript (i.e., knitr = R + LaTeX).</p>
+
+<p>One advantage of knitr is that the researcher can easily create ANOVA and demographic tables directly from the data without messing around in Excel.  However, as we'll see, both knitr and Sweave can run into problems when formatting your table values to 2 decimal points.  In this post, I'll detail my proposed method of fixing that which can be applied to your entire mansucript by editing the beginning of your knitr preamble.</p>
+
+<!-- more -->
+
+
+<p>The basic example below contains the beginning of a hypothetical Methods section of a manuscript. We want to take the values from an R table, which has the breakdown of participants by gender and ethnicity, and display them as numbers in our manuscript.</p>
+
+<p>```tex Basic knitr.Rnw Example
+\documentclass[12pt]{article}
+\usepackage[sc]{mathpazo}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\usepackage{url}
+\usepackage[unicode=true,pdfusetitle,
+ bookmarks=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=2,
+ breaklinks=false,pdfborder={0 0 1},backref=false,colorlinks=false]
+ {hyperref}
+\hypersetup{
+ pdfstartview={XYZ null null 1}}
+\usepackage{breakurl}
+\begin{document}</p>
+
+<p>&lt;&lt;setup, include=FALSE, cache=FALSE>>=
+library(knitr)</p>
+
+<h1>set global chunk options</h1>
+
+<p>opts_chunk$set(fig.path='figure/minimal-', fig.align='center', fig.show='hold')
+options(replace.assign=TRUE,width=90)
+@</p>
+
+<p>\title{A Minimal Demo of knitr}
+\author{Jason A. French}
+\maketitle</p>
+
+<p>&lt;&lt;random-ethnicity, include=FALSE>>=</p>
+
+<h1>Create data.frame of random ethnicities</h1>
+
+<p>x &lt;- data.frame(Ethnicity = sample(as.factor(
+  rep(x = c('White','African American','Asian American', 'Latino', 'Pacific Islander')</p>
+
+<pre><code>)
+</code></pre>
+
+<p>  ),size = 100, replace = TRUE),
+  Gender=rep(c('Male', 'Female'),100))
+x.table &lt;- table(x)
+@</p>
+
+<p>\section{Methods}
+We recruited \Sexpr{sum(x.table)} university undergraduates from an introductory psychology class. Participants were drawn from various genders and ethnic groups across the Chicago area (see Table~\ref{tab:ethnicity})...</p>
+
+<p>&lt;&lt;ethnicity-table, echo = FALSE, results = 'asis'>>=
+library(xtable)
+xtable(x.table, caption = 'Participant Ethnicities', label='tab:ethnicity')
+@</p>
+
+<p>\end{document}
+```</p>
+
+<p>As we see below, running the <code>knit()</code> command on our knitr manuscript inside R produces a regular LaTeX file that can be compiled with to a PDF using pdflatex or <a href="http://pages.uoregon.edu/koch/texshop/">TeX Shop</a>. <em>Notice that the R table objects have been replaced with LaTeX tables.</em></p>
+
+<p><code>r Running knit() knitr.Rnw inside R
+library(knitr)
+knit(input = 'knitr.Rnw', output = 'knitr.tex')
+</code></p>
+
+<p>```tex Resulting knitr.tex LaTeX document
+\documentclass[12pt]{article}\usepackage[]{graphicx}\usepackage[]{color}
+\makeatletter
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}</p>
+
+<p>\usepackage{framed}</p>
+
+<p>\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX</p>
+
+<p>\usepackage{alltt}
+\usepackage[sc]{mathpazo}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\usepackage{url}
+\usepackage[unicode=true,pdfusetitle,
+ bookmarks=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=2,
+ breaklinks=false,pdfborder={0 0 1},backref=false,colorlinks=false]
+ {hyperref}
+\hypersetup{
+ pdfstartview={XYZ null null 1}}
+\usepackage{breakurl}
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}</p>
+
+<p>\title{A Minimal Demo of knitr}
+\author{Jason A. French}
+\maketitle</p>
+
+<p>\section{Methods}
+We recruited 200 university undergraduates from an introductory psychology class. Participants were drawn from various genders and ethnic groups across the Chicago area (see Table~\ref{tab:ethnicity})...</p>
+
+<p>\begin{table}[ht]
+\centering
+\begin{tabular}{rrr}
+\hline
+ &amp; Female &amp; Male \
+\hline
+African American &amp;  22 &amp;  16 \
+Asian American &amp;  26 &amp;  30 \
+Latino &amp;  14 &amp;  30 \
+Pacific Islander &amp;  18 &amp;  14 \
+White &amp;  20 &amp;  10 \
+\hline
+\end{tabular}
+\caption{Participant Ethnicities}
+\label{tab:ethnicity}
+\end{table}
+\end{document}
+```</p>
+
+<p>Last, after compiling our LaTeX file using TeX Shop, we're greeted with the final product below:</p>
+
+<p><img src="/images/knitr-example.png"></p>
+
+<h3>Summary thus far</h3>
+
+<p>The example above used data from R directly in a sentence in the Methods section (i.e., "We recruited 200 university undergraduates from an introductory psychology class.") and did so using the <code>\Sexpr{}</code> command in the <a href="https://en.wikipedia.org/wiki/LaTeX">knitr</a> manuscript (i.e., knitr.Rnw).  The <code>\Sexpr{}</code> command contained an <code>R</code> expression to calculate the total number participants.  This expression was evaluated and converted to LaTeX code when we ran the <code>knit()</code> function on the .Rnw file, which produces a .tex document. The .tex document contained no R code and was therefore ready to be compiled to a PDF using TeX Shop or pdf2latex in Terminal.app.</p>
+
+<h2>Forcing knitr to round to 2 decimal places</h2>
+
+<p>The default behavior of knitr works well <em>most</em> of the time. However, what if we didn't have whole numbers in our data table?  What if we had percentages that we wanted to round down to 2 digits, as required by many journals?  For example, the value <code>\Sexpr{pi}</code> would be evaluated and replaced with 3.141593 in the LaTeX file.  One common problem, and part of <a href="https://stackoverflow.com/questions/11062497/how-to-avoid-using-round-in-every-sexpr">Yihui's motivation</a> for replacing Sweave with <a href="http://yihui.name/knitr/"><code>knitr</code></a>, is that <code>\Sexpr{}</code> doesn't automatically round digits.</p>
+
+<p>In Sweave (i.e., knitr's predecessor), <em>each</em> value of pi would have to be encased in <code>round(pi,2)</code>.  Thus, we end up with <code>\Sexpr{round(pi,2)}</code>.  Yihui fixed this problem by automatically rounding digits, the length of which is set with <code>options(digits=2)</code> in the knitr preamble in your .Rnw document.  See below:</p>
+
+<p><code>tex Typical knitr preamble
+&lt;&lt;&gt;&gt;=
+library(knitr)
+options(digits=2)
+@
+</code></p>
+
+<p>The default rounding behavior of knitr works well <em>until</em> a value contains a 0 after rounding, such as 123.10.  Running the expression <code>round(123.10,2)</code> outputs 123.1. In this case, every other value in the manuscript table would be aligned at the decimal place <em>except</em> for the unlucky value - sticking out like a sore thumb. To fix this, you <em>could</em> use <code>sprintf("%.2f", pi)</code> every time you have to call <code>\Sexpr{}</code> in the manuscript - but then what's the advantage of using <a href="http://yihui.name/knitr/">knitr</a>? This hack unnecessarily complicates the manuscript and distracts from the writing process.</p>
+
+<h3>Modify the default inline_hook for knitr</h3>
+
+<p>After seeing a <a href="https://stackoverflow.com/questions/11062497/how-to-avoid-using-round-in-every-sexpr">StackOverflow answer by Josh O'Brien</a>, I realized that the default inline_hook function for knitr could be easily modified to use the <a href="http://stat.ethz.ch/R-manual/R-devel/library/base/html/sprintf.html"><code>sprintf()</code></a> command instead of <a href="http://stat.ethz.ch/R-manual/R-devel/library/base/html/Round.html"><code>round()</code></a>.  The minute change will forcibly output all manuscript values to 2 decimal places. Below, we see the default behavior for knitr when processing inline R expressions:</p>
+
+<p><code>r knitr's Default Hook
+library(knitr)
+knit_hooks$get("inline")
+</code></p>
+
+<p>```
+function (x)
+{</p>
+
+<pre><code>if (is.numeric(x)) 
+    x = round(x, getOption("digits"))
+paste(as.character(x), collapse = ", ")
+</code></pre>
+
+<p>}
+```</p>
+
+<p><em>Note:</em> My original code for this post used the <a href="http://stat.ethz.ch/R-manual/R-patched/library/base/html/format.html"><code>format()</code></a> command.  <a href="https://github.com/wch">Winston Chang</a> pointed out that this could lead to unreliable output and tweaked the code to use <a href="http://stat.ethz.ch/R-manual/R-devel/library/base/html/sprintf.html"><code>sprintf()</code></a>. The credit for the more efficient function below goes to him.  Below, we add out improved <code>inline_hook</code> to the preamble of our knitr document:</p>
+
+<p>```tex Improving the inline_hook
+&lt;&lt;>>=
+library(knitr)
+inline_hook &lt;- function (x) {
+  if (is.numeric(x)) {</p>
+
+<pre><code># ifelse does a vectorized comparison
+# If integer, print without decimal; otherwise print two places
+res &lt;- ifelse(x == round(x),
+  sprintf("%d", x),
+  sprintf("%.2f", x)
+)
+paste(res, collapse = ", ")
+</code></pre>
+
+<p>  }
+}
+knit_hooks$set(inline = inline_hook)
+@
+```</p>
+
+<h3>Working Example</h3>
+
+<p>Let's put it all together!  The following is a working example of the the suggested knitr inline_hook function, which <em>should</em> give more reliable output by rounding inline values to 2 decimal places.</p>
+
+<p>```tex Winston's Example
+\documentclass[12pt]{article}
+\begin{document}</p>
+
+<p>&lt;&lt;load, include=FALSE, echo=FALSE>>=
+library(knitr)</p>
+
+<p>inline_hook &lt;- function (x) {
+  if (is.numeric(x)) {</p>
+
+<pre><code># ifelse does a vectorized comparison
+# If integer, print without decimal; otherwise print two places
+res &lt;- ifelse(x == round(x),
+  sprintf("%d", x),
+  sprintf("%.2f", x)
+)
+paste(res, collapse = ", ")
+</code></pre>
+
+<p>  }
+}</p>
+
+<p>knit_hooks$set(inline = inline_hook)
+@</p>
+
+<p>Inline code looks like \Sexpr{123}, \Sexpr{123.4}, \Sexpr{123.45}, \Sexpr{123.456}.</p>
+
+<p>And with vectors: \Sexpr{c(123, 123.4, 123.45, 123.456)}.</p>
+
+<p>Regular output is not affected by the inline hook:</p>
+
+<p>&lt;&lt;>>=
+123
+123.4
+123.45
+123.456</p>
+
+<p>c(123, 123.4, 123.45, 123.456)</p>
+
+<p>getOption('digits')
+@
+\end{document}
+```</p>
+
+<p><img src="/images/example.png"></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Easy Sweave for LaTeX and R]]></title>
+    <link href="http://www.jason-french.com/blog/2013/08/16/easy-sweaving-for-latex-and-r/"/>
+    <updated>2013-08-16T12:41:00-05:00</updated>
+    <id>http://www.jason-french.com/blog/2013/08/16/easy-sweaving-for-latex-and-r</id>
+    <content type="html"><![CDATA[<p>When you're writing up reports using statistics from R, it can be tiresome
+to constantly copy and paste results from the R Console.  To get around this, many of us use Sweave, which allows us to <em>embed</em> R code in LaTeX files.
+<a href="https://en.wikipedia.org/wiki/Sweave">Sweave</a> is an R function that converts R code to LaTeX, a document typesetting language.  This enables accurate, shareable analyses as well as high-resolution graphs that are publication quality.</p>
+
+<p>Needless to say, the marriage of statistics with documents makes writing up APA-style reports a bit easier, especially with Brian Beitzel's amazing <a href="http://www.ctan.org/pkg/apa6"><code>apa6</code> class for LaTeX</a>.</p>
+
+<!-- more -->
+
+
+<h2>Making Sweave Available Systemwide</h2>
+
+<p>However, Sweave doesn't always work correctly.  One common complaint that you'll get after Sweaving a file is <code>Sweave.sty not found!</code>. While Sweave.sty is a LaTeX package, it doesn't <em>live</em> with the rest of the LaTeX packages because it's installed using R.  Many people try to solve this by copying and pasting Sweave.sty into every document directory, but I'm sharing a better way below.</p>
+
+<p>Using <a href="https://en.wikipedia.org/wiki/Terminal_%28OS_X%29">Terminal.app</a>:
+<code>bash Go to the MacTeX or TeX Live local directory.
+cd /usr/local/texlive/texmf-local/tex/latex
+</code></p>
+
+<p><code>bash Form a link between the R Sweave.sty files and MacTeX
+sudo ln -s /Library/Frameworks/R.framework/Resources/share/texmf/ Sweave
+</code></p>
+
+<p><code>bash Tell MacTeX/TeX Live to recognize the file and rebuild the database
+sudo mktexlsr
+</code></p>
+
+<p>If using <code>mktexlsr</code> results in a <code>command not found</code> error, the TeX Live distribution probably isn't in your <a href="https://en.wikipedia.org/wiki/PATH_%28variable%29">$PATH</a>, but you can hunt for the program anyway.  For example, if you're using MacTeX 2013, the program will be found in a directory similar to this:</p>
+
+<p><code>bash
+sudo /usr/local/texlive/2013/bin/x86_64-darwin/mktexlsr
+</code></p>
+
+<h2>Using Sweave in TeXShop</h2>
+
+<p>When you're getting started with LaTeX, many Mac users prefer the bundled
+editor, TeXShop.  <a href="http://cameron.bracken.bz/sweave-for-texshop">Cameron Bracken</a> gives us a helpful piece of code that allows easy Sweaving straight from TeXShop.  TeXShop uses various <em>engines</em> that allow it to render LaTeX.  Using a bit of <a href="https://en.wikipedia.org/wiki/Bash_%28Unix_shell%29"><code>BASH</code></a> scripting, we can write our own Sweave engine and make it available right within TeXShop.  I have adapted Cameron's original engine to accomodate Bibtex citations (<a href="https://en.wikibooks.org/wiki/LaTeX/Bibliography_Management#Why_won.27t_LaTeX_generate_any_output.3F">see here</a>).</p>
+
+<p>Using a text editor, paste in the following syntax and save the file as Sweave.engine:</p>
+
+<p>```bash Sweave.engine</p>
+
+<h1>!/bin/env bash</h1>
+
+<p>export PATH=$PATH:/usr/texbin:/usr/local/bin
+R CMD Sweave "$1"
+pdflatex "${1%.<em>}"
+bibtex "${1%.</em>}.aux"
+pdflatex "${1%.*}"</p>
+
+<h1>If you run pdflatex again you get citations</h1>
+
+<p>pdflatex "${1%.*}"
+```</p>
+
+<p>Next, in Terminal.app, move the file to the TeXShop engines folder:</p>
+
+<p><code>bash Enable the Sweave.engine
+mv Sweave.engine ~/Library/TeXShop/Engines/
+chmod +x ~/Library/TeXShop/Engines/Sweave.engine
+</code></p>
+
+<p><img src="/images/sweaveengine.png"></p>
+
+<p>Now restart TeXShop if it's running and you should see Sweave as an available option!</p>
+
+<p><img src="/images/sweave.png"></p>
+]]></content>
+  </entry>
+  
+</feed>

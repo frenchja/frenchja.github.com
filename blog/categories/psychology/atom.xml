@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: psychology | Jason A. French]]></title>
+  <link href="http://www.jason-french.com/blog/categories/psychology/atom.xml" rel="self"/>
+  <link href="http://www.jason-french.com/"/>
+  <updated>2014-05-28T13:46:34-05:00</updated>
+  <id>http://www.jason-french.com/</id>
+  <author>
+    <name><![CDATA[Jason A. French]]></name>
+    <email><![CDATA[frenchja@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Analyze Student Exam Items using IRT]]></title>
+    <link href="http://www.jason-french.com/blog/2013/10/25/analyzing-student-exams-using-irt/"/>
+    <updated>2013-10-25T14:26:00-05:00</updated>
+    <id>http://www.jason-french.com/blog/2013/10/25/analyzing-student-exams-using-irt</id>
+    <content type="html"><![CDATA[<p>I've cross-posted this at the <a href="http://sapa-project.org/blog/">SAPA Project's blog</a>.</p>
+
+<p><a href="https://en.wikipedia.org/wiki/Item_response_theory">Item Response Theory</a> can be used to evaluate the effectiveness of
+exams given to students.  One distinguishing feature from other paradigms is that it does not assume that every question
+is equally difficult (or that the difficulty is tied to what the researcher said).  In this way, it is an empirical investigation
+into the effectiveness of a given exam and can help the researcher 1) eliminate bad or problematic items and 2) judge whether the test was too difficult or the students simply didn't study.</p>
+
+<p>In the following tutorial, we'll use <a href="http://www.r-project.org/">R</a> (R Core Team, 2013) along with the <a href="http://cran.r-project.org/web/packages/psych/index.html"><code>psych</code></a> package (Revelle, W., 2013) to look at a hypothetical exam.</p>
+
+<!-- more -->
+
+
+<p>Before we get started, remember that <code>R</code> is a programming language.  In the examples below, I perform operations on data using <a href="https://en.wikipedia.org/wiki/Function_%28computer_science%29"><em>functions</em></a> like <a href="http://stat.ethz.ch/R-manual/R-patched/library/stats/html/cor.html"><code>cor</code></a> and <a href="http://stat.ethz.ch/R-manual/R-devel/library/utils/html/read.table.html"><code>read.csv</code></a>.  We can also save the output as <a href="https://en.wikipedia.org/wiki/Object_%28computer_science%29"><em>objects</em></a> using the assignment arrow, <code>&lt;-</code>. It's a bit different from a point-and-click program like SPSS, but you <em>don't</em> need to know how to program to analyze exams and questions using IRT!</p>
+
+<p>First, load the the <code>psych</code> package.  Next, load the students' grades into R using <code>read.csv()</code> from the <code>psych</code> package.</p>
+
+<p>```r</p>
+
+<h1>Load the psych package</h1>
+
+<p>library(psych)</p>
+
+<h1>Read the csv file and save it as grades</h1>
+
+<p>grades &lt;- read.csv(file = "~/Downloads/Grades.csv")
+```</p>
+
+<p>Notice that we are using item-level grades, where each row is a given student and each cell is the number of points received on that question.  In my example, V1, V2, etc. correspond to exam questions.  Your matrix or data frame should look like this:</p>
+
+<p><code>r
+head(grades)
+</code></p>
+
+<p>```</p>
+
+<h2>V1 V2 V3 V4 V5 V6 V7 V8 V9 V10 V11 V12 V13 V14 V15 V16 V17 V18 V19 V20</h2>
+
+<h2>1  2  2  2  2  4  2  3  2  4   2   2   3   5   3   6   2   4   4   4   3</h2>
+
+<h2>2  2  0  2  2  0  0  3  0  4   2   0   1   3   0   0   2   2   1   0   0</h2>
+
+<h2>3  2  2  2  2  0  2  3  2  4   0   0   3   5   0   5   2   4   2   4   2</h2>
+
+<h2>4  2  1  2  2  3  0  0  2  4   2   2   3   1   1   2   0   4   1   4   3</h2>
+
+<h2>5  2  2  2  2  4  2  3  2  4   2   2   3   5   3   4   2   4   4   4   3</h2>
+
+<h2>6  1  0  2  2  0  2  0  2  0   2   1   2   5   0   3   2   4   2   4   3</h2>
+
+<h2>V21 V22 V23 V24 V25 V26 V27 Total</h2>
+
+<h2>1   2   2   4   4   6   6   6    91</h2>
+
+<h2>2   0   0   0   3   3   6   6    42</h2>
+
+<h2>3   2   1   2   4   6   5   6    72</h2>
+
+<h2>4   0   2   4   4   0   0   0    49</h2>
+
+<h2>5   2   2   4   4   5   6   6    88</h2>
+
+<h2>6   0   0   4   4   6   4   3    58</h2>
+
+<p>```</p>
+
+<p>Next, compute the <a href="https://en.wikipedia.org/wiki/Polychoric_correlation">polychoric correlations</a> on the raw grades (not including the Total column).  By using polychoric correlations, we estimate the normal distribution of latent content knowledge, which can be underestimated if Pearson correlations are instead used on polytomous items (see  Lee, Poon &amp; Bentler, 1995).</p>
+
+<p>```r</p>
+
+<h1>Perform a polychoric correlation on grades and save it as grades.poly</h1>
+
+<p>grades.poly &lt;- polychoric(x = grades[, 1:27], polycor = TRUE)
+```</p>
+
+<p>Now that we have the polychoric correlations, we can run <code>irt.fa()</code> on the dataset to see the item difficulties and information.</p>
+
+<p>```r</p>
+
+<h1>Using grades.poly, perform an irt and save it as grades.irt</h1>
+
+<p>grades.irt &lt;- irt.fa(x = grades.poly, plot = TRUE)</p>
+
+<h1>Plot the output from grades.irt</h1>
+
+<p>plot(grades.irt)
+```</p>
+
+<p><img src="/images/grades.png"></p>
+
+<p>Thus, we have some great items that have a lot of information about students of average and low content knowledge (e.g., V24, V17, V18), but not enough to distinguish the high-knowledge students.  In redesigning an exam for next semester or year, we might save the best performing questions while trying to rewrite the existing questions or trying new questions.</p>
+
+<p>Next, let's see what how well the test did <em>overall</em> at distinguishing students:</p>
+
+<p><code>r
+plot.irt(type = "test", grades.irt)
+</code></p>
+
+<p><img src="/images/test.png"></p>
+
+<p>The second plot shows the <em>test performance</em>.  We have great reliability for distinguishing who didn't study (lowers end of our latent trait), but overall the test may have been too easy (opposite of my prediction).  It's important that the test is not too difficult to discourage students, but the graph above suggests that we had very low information at how students that studied were different from eachother.  This is again reflected by the histogram plotted in the next section, where high scoring students seem to cluster together.</p>
+
+<h2>Rescaling the test</h2>
+
+<p>While many students in our hypothetical dataset did very well on the exam, instructors may
+need to rescale their exam so that the mean grade is an 85% or 87.5%.  Using the <code>scale()</code> function (see also <a href="http://personality-project.org/r/psych/help/rescale.html"><code>rescale()</code></a> in <code>psych</code> package), we
+can ensure that the <a href="https://en.wikipedia.org/wiki/Ranking#Ranking_in_statistics?s">rank-order</a> distribution of the students is preserved (allowing us to distinguish
+those who studied well from those who didn't), while scaling the sample distribution to fit in with other classes in your department.</p>
+
+<p>Currently, our scores are in cumulative raw points.  Notice that we divide the Total points column by 91 to convert the histogram into grade percentages.  Let's plot a histogram to see the distribution of scores.</p>
+
+<p>```r</p>
+
+<h1>Load the ggplot2 library</h1>
+
+<p>library(ggplot2)</p>
+
+<h1>Plot a histogram</h1>
+
+<p>qplot((Total/91)*100, data=grades, geom="histogram",xlab='Raw Grades',</p>
+
+<pre><code>ylab='# of Students',main='Distribution of student grades')
+</code></pre>
+
+<p>```</p>
+
+<p><img src="/images/raw.png"></p>
+
+<p>The distribution has a mean 71.68 percent and a standard deviation of 15.54.  Given grade inflation,
+it may look like your students are doing poorly when in fact the distribution is similiar to other courses
+being taught.  Next, we can rescale the grades, creating a mean of 87.5 and a standard deviation of 7.5.  These numbers are arbitrary so use your best judgement.</p>
+
+<p>```r
+scaled.grades &lt;- scale(grades$Total) * 7.5 + 87.5
+qplot(scaled.grades, xlab='Scaled Grades',</p>
+
+<pre><code>ylab='# of Students',main='Distribution of student grades')
+</code></pre>
+
+<p>```</p>
+
+<p><img src="/images/scaled.png"></p>
+
+<p>The second distribution may be preferred, depending on your needs.  With the raw distribution, we would have had 45% of the students receiving grades below a C-, assuming a normal distribution (for the curious, R can calculate these probabilites using the <code>pnorm</code> function: <code>pnorm(q=70,mean=71.68,sd=15.54)</code>).  Now, 0.9% of students would fall below the 70% cutoff.  Again, my mean and standard deviation chosen in the above example are arbitrary.</p>
+
+<h2>References</h2>
+
+<ul>
+<li><p>Lee, S. Y., Poon, W. Y., &amp; Bentler, P. M. (1995). <em>A two‐stage estimation of structural equation models with continuous and polytomous variables</em>. British Journal of Mathematical and Statistical Psychology, 48(2), 339-358.</p></li>
+<li><p>R Core Team (2013). <em>R: A language and environment for statistical computing</em>. R Foundation for Statistical Computing, Vienna, Austria. <a href="http://www.R-project.org/">http://www.R-project.org/</a>.</p></li>
+<li><p>Revelle, W. (2013). <em>psych: Procedures for Personality and Psychological Research</em>. Northwestern University, Evanston, Illinois, USA. <a href="http://CRAN.R-project.org/package=psych">http://CRAN.R-project.org/package=psych</a>. Version = 1.3.10.</p></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

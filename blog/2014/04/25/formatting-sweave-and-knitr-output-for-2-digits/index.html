@@ -1,0 +1,762 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Fixing knitr: Formatting statistcal output to 2 digits in R - Jason A. French</title>
+  <meta name="author" content="Jason A. French">
+
+  
+  <meta name="description" content="Overview of reproducible research Reproducible research is a phrase that describes an academic paper or manuscript that contains the code and data in &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://www.jason-french.com/blog/2014/04/25/formatting-sweave-and-knitr-output-for-2-digits/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Jason A. French" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<!-- MathJax -->
+<script type="text/javascript"
+  src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    var pluginUrl =
+     '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+    _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+    _gaq.push(['_setAccount', 'UA-29782432-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Jason A. French</a></h1>
+  
+    <h2>Northwestern University</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:www.jason-french.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/files/JFrenchCV.pdf">CV</a></li>
+  <li><a href="https://sapa-project.org">Projects</a></li>
+  <li><a href="/pubs">Pubs</a></li>
+  <li><a href="https://personality-project.org/pmc.html">Lab</a></li>
+  <li><a href="/tutorials">R Tutorials</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Fixing Knitr: Formatting Statistcal Output to 2 Digits in R</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-25T16:53:00-05:00" pubdate data-updated="true">Apr 25<span>th</span>, 2014</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h3>Overview of reproducible research</h3>
+
+<p>Reproducible research is a phrase that describes an academic paper or manuscript that contains the code and data in addition to what is usually published - the researcher&#8217;s interpretation.  In doing so, the experimental design and method of analysis is easily replicated by unaffiliated labs and critiqued by reviewers as the full analysis used to produce the results is submitted along with the final paper.  One way of producing reproducible research is to use <a href="http://r-project.org">R code</a> directly inside your LaTeX document. In order to faciliate the combination of statistical code and manuscript writing, two R packages in particular have arisen:  <a href="">Sweave</a> and <a href="">knitr</a>. knitr is an R package designed as a replacement for Sweave, but both packages combine your R analysis with your <a href="https://en.wikipedia.org/wiki/LaTeX">LaTeX</a> manuscript (i.e., knitr = R + LaTeX).</p>
+
+<p>One advantage of knitr is that the researcher can easily create ANOVA and demographic tables directly from the data without messing around in Excel.  However, as we&#8217;ll see, both knitr and Sweave can run into problems when formatting your table values to 2 decimal points.  In this post, I&#8217;ll detail my proposed method of fixing that which can be applied to your entire mansucript by editing the beginning of your knitr preamble.</p>
+
+<!-- more -->
+
+
+<p>The basic example below contains the beginning of a hypothetical Methods section of a manuscript. We want to take the values from an R table, which has the breakdown of participants by gender and ethnicity, and display them as numbers in our manuscript.</p>
+
+<figure class='code'><figcaption><span>Basic knitr.Rnw Example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+</pre></td><td class='code'><pre><code class='tex'><span class='line'><span class="k">\documentclass</span><span class="na">[12pt]</span><span class="nb">{</span>article<span class="nb">}</span>
+</span><span class='line'><span class="k">\usepackage</span><span class="na">[sc]</span><span class="nb">{</span>mathpazo<span class="nb">}</span>
+</span><span class='line'><span class="k">\usepackage</span><span class="na">[T1]</span><span class="nb">{</span>fontenc<span class="nb">}</span>
+</span><span class='line'><span class="k">\usepackage</span><span class="nb">{</span>geometry<span class="nb">}</span>
+</span><span class='line'><span class="k">\geometry</span><span class="nb">{</span>verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm<span class="nb">}</span>
+</span><span class='line'><span class="k">\setcounter</span><span class="nb">{</span>secnumdepth<span class="nb">}{</span>2<span class="nb">}</span>
+</span><span class='line'><span class="k">\setcounter</span><span class="nb">{</span>tocdepth<span class="nb">}{</span>2<span class="nb">}</span>
+</span><span class='line'><span class="k">\usepackage</span><span class="nb">{</span>url<span class="nb">}</span>
+</span><span class='line'><span class="k">\usepackage</span>[unicode=true,pdfusetitle,
+</span><span class='line'> bookmarks=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=2,
+</span><span class='line'> breaklinks=false,pdfborder=<span class="nb">{</span>0 0 1<span class="nb">}</span>,backref=false,colorlinks=false]
+</span><span class='line'> <span class="nb">{</span>hyperref<span class="nb">}</span>
+</span><span class='line'><span class="k">\hypersetup</span><span class="nb">{</span>
+</span><span class='line'> pdfstartview=<span class="nb">{</span>XYZ null null 1<span class="nb">}}</span>
+</span><span class='line'><span class="k">\usepackage</span><span class="nb">{</span>breakurl<span class="nb">}</span>
+</span><span class='line'><span class="k">\begin</span><span class="nb">{</span>document<span class="nb">}</span>
+</span><span class='line'>
+</span><span class='line'>&lt;&lt;setup, include=FALSE, cache=FALSE&gt;&gt;=
+</span><span class='line'>library(knitr)
+</span><span class='line'># set global chunk options
+</span><span class='line'>opts<span class="nb">_</span>chunk<span class="s">$</span><span class="nb">set</span><span class="o">(</span><span class="nb">fig.path</span><span class="o">=</span><span class="nb">&#39;figure</span><span class="o">/</span><span class="nb">minimal</span><span class="o">-</span><span class="nb">&#39;, fig.align</span><span class="o">=</span><span class="nb">&#39;center&#39;, fig.show</span><span class="o">=</span><span class="nb">&#39;hold&#39;</span><span class="o">)</span><span class="nb"></span>
+</span><span class='line'><span class="nb">options</span><span class="o">(</span><span class="nb">replace.assign</span><span class="o">=</span><span class="nb">TRUE,width</span><span class="o">=</span><span class="m">90</span><span class="o">)</span><span class="nb"></span>
+</span><span class='line'><span class="nb">@</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">\title</span><span class="nb">{A Minimal Demo of knitr}</span>
+</span><span class='line'><span class="nv">\author</span><span class="nb">{Jason A. French}</span>
+</span><span class='line'><span class="nv">\maketitle</span><span class="nb"></span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="nb">&lt;&lt;random</span><span class="o">-</span><span class="nb">ethnicity, include</span><span class="o">=</span><span class="nb">FALSE&gt;&gt;</span><span class="o">=</span><span class="nb"></span>
+</span><span class='line'><span class="nb"># Create data.frame of random ethnicities</span>
+</span><span class='line'><span class="nb">x &lt;</span><span class="o">-</span><span class="nb"> data.frame</span><span class="o">(</span><span class="nb">Ethnicity </span><span class="o">=</span><span class="nb"> sample</span><span class="o">(</span><span class="nb">as.factor</span><span class="o">(</span><span class="nb"></span>
+</span><span class='line'><span class="nb">  rep</span><span class="o">(</span><span class="nb">x </span><span class="o">=</span><span class="nb"> c</span><span class="o">(</span><span class="nb">&#39;White&#39;,&#39;African American&#39;,&#39;Asian American&#39;, &#39;Latino&#39;, &#39;Pacific Islander&#39;</span><span class="o">)</span><span class="nb"></span>
+</span><span class='line'><span class="nb">    </span><span class="o">)</span><span class="nb"></span>
+</span><span class='line'><span class="nb">  </span><span class="o">)</span><span class="nb">,size </span><span class="o">=</span><span class="nb"> </span><span class="m">100</span><span class="nb">, replace </span><span class="o">=</span><span class="nb"> TRUE</span><span class="o">)</span><span class="nb">,</span>
+</span><span class='line'><span class="nb">  Gender</span><span class="o">=</span><span class="nb">rep</span><span class="o">(</span><span class="nb">c</span><span class="o">(</span><span class="nb">&#39;Male&#39;, &#39;Female&#39;</span><span class="o">)</span><span class="nb">,</span><span class="m">100</span><span class="o">))</span><span class="nb"></span>
+</span><span class='line'><span class="nb">x.table &lt;</span><span class="o">-</span><span class="nb"> table</span><span class="o">(</span><span class="nb">x</span><span class="o">)</span><span class="nb"></span>
+</span><span class='line'><span class="nb">@</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">\section</span><span class="nb">{Methods}</span>
+</span><span class='line'><span class="nb">We recruited </span><span class="nv">\Sexpr</span><span class="nb">{sum</span><span class="o">(</span><span class="nb">x.table</span><span class="o">)</span><span class="nb">} university undergraduates from an introductory psychology class. Participants were drawn from various genders and ethnic groups across the Chicago area </span><span class="o">(</span><span class="nb">see Table~</span><span class="nv">\ref</span><span class="nb">{tab:ethnicity}</span><span class="o">)</span><span class="nb">...</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">&lt;&lt;ethnicity</span><span class="o">-</span><span class="nb">table, echo </span><span class="o">=</span><span class="nb"> FALSE, results </span><span class="o">=</span><span class="nb"> &#39;asis&#39;&gt;&gt;</span><span class="o">=</span><span class="nb"></span>
+</span><span class='line'><span class="nb">library</span><span class="o">(</span><span class="nb">xtable</span><span class="o">)</span><span class="nb"></span>
+</span><span class='line'><span class="nb">xtable</span><span class="o">(</span><span class="nb">x.table, caption </span><span class="o">=</span><span class="nb"> &#39;Participant Ethnicities&#39;, label</span><span class="o">=</span><span class="nb">&#39;tab:ethnicity&#39;</span><span class="o">)</span><span class="nb"></span>
+</span><span class='line'><span class="nb">@</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">\end</span><span class="nb">{document}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As we see below, running the <code>knit()</code> command on our knitr manuscript inside R produces a regular LaTeX file that can be compiled with to a PDF using pdflatex or <a href="http://pages.uoregon.edu/koch/texshop/">TeX Shop</a>. <em>Notice that the R table objects have been replaced with LaTeX tables.</em></p>
+
+<figure class='code'><figcaption><span>Running knit() knitr.Rnw inside R</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>library<span class="p">(</span>knitr<span class="p">)</span>
+</span><span class='line'>knit<span class="p">(</span>input <span class="o">=</span> <span class="s">&#39;knitr.Rnw&#39;</span><span class="p">,</span> output <span class="o">=</span> <span class="s">&#39;knitr.tex&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Resulting knitr.tex LaTeX document</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+</pre></td><td class='code'><pre><code class='tex'><span class='line'><span class="k">\documentclass</span><span class="na">[12pt]</span><span class="nb">{</span>article<span class="nb">}</span><span class="k">\usepackage</span><span class="na">[]</span><span class="nb">{</span>graphicx<span class="nb">}</span><span class="k">\usepackage</span><span class="na">[]</span><span class="nb">{</span>color<span class="nb">}</span>
+</span><span class='line'><span class="k">\makeatletter</span>
+</span><span class='line'><span class="k">\definecolor</span><span class="nb">{</span>fgcolor<span class="nb">}{</span>rgb<span class="nb">}{</span>0.345, 0.345, 0.345<span class="nb">}</span>
+</span><span class='line'><span class="k">\newcommand</span><span class="nb">{</span><span class="k">\hlnum</span><span class="nb">}</span>[1]<span class="nb">{</span><span class="k">\textcolor</span><span class="na">[rgb]</span><span class="nb">{</span>0.686,0.059,0.569<span class="nb">}{</span>#1<span class="nb">}}</span>
+</span><span class='line'><span class="k">\newcommand</span><span class="nb">{</span><span class="k">\hlstr</span><span class="nb">}</span>[1]<span class="nb">{</span><span class="k">\textcolor</span><span class="na">[rgb]</span><span class="nb">{</span>0.192,0.494,0.8<span class="nb">}{</span>#1<span class="nb">}}</span>
+</span><span class='line'><span class="k">\newcommand</span><span class="nb">{</span><span class="k">\hlcom</span><span class="nb">}</span>[1]<span class="nb">{</span><span class="k">\textcolor</span><span class="na">[rgb]</span><span class="nb">{</span>0.678,0.584,0.686<span class="nb">}{</span><span class="k">\textit</span><span class="nb">{</span>#1<span class="nb">}}}</span>
+</span><span class='line'><span class="k">\newcommand</span><span class="nb">{</span><span class="k">\hlopt</span><span class="nb">}</span>[1]<span class="nb">{</span><span class="k">\textcolor</span><span class="na">[rgb]</span><span class="nb">{</span>0,0,0<span class="nb">}{</span>#1<span class="nb">}}</span>
+</span><span class='line'><span class="k">\newcommand</span><span class="nb">{</span><span class="k">\hlstd</span><span class="nb">}</span>[1]<span class="nb">{</span><span class="k">\textcolor</span><span class="na">[rgb]</span><span class="nb">{</span>0.345,0.345,0.345<span class="nb">}{</span>#1<span class="nb">}}</span>
+</span><span class='line'><span class="k">\newcommand</span><span class="nb">{</span><span class="k">\hlkwa</span><span class="nb">}</span>[1]<span class="nb">{</span><span class="k">\textcolor</span><span class="na">[rgb]</span><span class="nb">{</span>0.161,0.373,0.58<span class="nb">}{</span><span class="k">\textbf</span><span class="nb">{</span>#1<span class="nb">}}}</span>
+</span><span class='line'><span class="k">\newcommand</span><span class="nb">{</span><span class="k">\hlkwb</span><span class="nb">}</span>[1]<span class="nb">{</span><span class="k">\textcolor</span><span class="na">[rgb]</span><span class="nb">{</span>0.69,0.353,0.396<span class="nb">}{</span>#1<span class="nb">}}</span>
+</span><span class='line'><span class="k">\newcommand</span><span class="nb">{</span><span class="k">\hlkwc</span><span class="nb">}</span>[1]<span class="nb">{</span><span class="k">\textcolor</span><span class="na">[rgb]</span><span class="nb">{</span>0.333,0.667,0.333<span class="nb">}{</span>#1<span class="nb">}}</span>
+</span><span class='line'><span class="k">\newcommand</span><span class="nb">{</span><span class="k">\hlkwd</span><span class="nb">}</span>[1]<span class="nb">{</span><span class="k">\textcolor</span><span class="na">[rgb]</span><span class="nb">{</span>0.737,0.353,0.396<span class="nb">}{</span><span class="k">\textbf</span><span class="nb">{</span>#1<span class="nb">}}}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">\usepackage</span><span class="nb">{</span>framed<span class="nb">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">\definecolor</span><span class="nb">{</span>shadecolor<span class="nb">}{</span>rgb<span class="nb">}{</span>.97, .97, .97<span class="nb">}</span>
+</span><span class='line'><span class="k">\definecolor</span><span class="nb">{</span>messagecolor<span class="nb">}{</span>rgb<span class="nb">}{</span>0, 0, 0<span class="nb">}</span>
+</span><span class='line'><span class="k">\definecolor</span><span class="nb">{</span>warningcolor<span class="nb">}{</span>rgb<span class="nb">}{</span>1, 0, 1<span class="nb">}</span>
+</span><span class='line'><span class="k">\definecolor</span><span class="nb">{</span>errorcolor<span class="nb">}{</span>rgb<span class="nb">}{</span>1, 0, 0<span class="nb">}</span>
+</span><span class='line'><span class="k">\newenvironment</span><span class="nb">{</span>knitrout<span class="nb">}{}{}</span> <span class="c">% an empty environment to be redefined in TeX</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">\usepackage</span><span class="nb">{</span>alltt<span class="nb">}</span>
+</span><span class='line'><span class="k">\usepackage</span><span class="na">[sc]</span><span class="nb">{</span>mathpazo<span class="nb">}</span>
+</span><span class='line'><span class="k">\usepackage</span><span class="na">[T1]</span><span class="nb">{</span>fontenc<span class="nb">}</span>
+</span><span class='line'><span class="k">\usepackage</span><span class="nb">{</span>geometry<span class="nb">}</span>
+</span><span class='line'><span class="k">\geometry</span><span class="nb">{</span>verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm<span class="nb">}</span>
+</span><span class='line'><span class="k">\setcounter</span><span class="nb">{</span>secnumdepth<span class="nb">}{</span>2<span class="nb">}</span>
+</span><span class='line'><span class="k">\setcounter</span><span class="nb">{</span>tocdepth<span class="nb">}{</span>2<span class="nb">}</span>
+</span><span class='line'><span class="k">\usepackage</span><span class="nb">{</span>url<span class="nb">}</span>
+</span><span class='line'><span class="k">\usepackage</span>[unicode=true,pdfusetitle,
+</span><span class='line'> bookmarks=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=2,
+</span><span class='line'> breaklinks=false,pdfborder=<span class="nb">{</span>0 0 1<span class="nb">}</span>,backref=false,colorlinks=false]
+</span><span class='line'> <span class="nb">{</span>hyperref<span class="nb">}</span>
+</span><span class='line'><span class="k">\hypersetup</span><span class="nb">{</span>
+</span><span class='line'> pdfstartview=<span class="nb">{</span>XYZ null null 1<span class="nb">}}</span>
+</span><span class='line'><span class="k">\usepackage</span><span class="nb">{</span>breakurl<span class="nb">}</span>
+</span><span class='line'><span class="k">\IfFileExists</span><span class="nb">{</span>upquote.sty<span class="nb">}{</span><span class="k">\usepackage</span><span class="nb">{</span>upquote<span class="nb">}}{}</span>
+</span><span class='line'><span class="k">\begin</span><span class="nb">{</span>document<span class="nb">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">\title</span><span class="nb">{</span>A Minimal Demo of knitr<span class="nb">}</span>
+</span><span class='line'><span class="k">\author</span><span class="nb">{</span>Jason A. French<span class="nb">}</span>
+</span><span class='line'><span class="k">\maketitle</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">\section</span><span class="nb">{</span>Methods<span class="nb">}</span>
+</span><span class='line'>We recruited 200 university undergraduates from an introductory psychology class. Participants were drawn from various genders and ethnic groups across the Chicago area (see Table~<span class="k">\ref</span><span class="nb">{</span>tab:ethnicity<span class="nb">}</span>)...
+</span><span class='line'>
+</span><span class='line'><span class="k">\begin</span><span class="nb">{</span>table<span class="nb">}</span>[ht]
+</span><span class='line'><span class="k">\centering</span>
+</span><span class='line'><span class="k">\begin</span><span class="nb">{</span>tabular<span class="nb">}{</span>rrr<span class="nb">}</span>
+</span><span class='line'><span class="k">\hline</span>
+</span><span class='line'> <span class="nb">&amp;</span> Female <span class="nb">&amp;</span> Male <span class="k">\\</span>
+</span><span class='line'><span class="k">\hline</span>
+</span><span class='line'>African American <span class="nb">&amp;</span>  22 <span class="nb">&amp;</span>  16 <span class="k">\\</span>
+</span><span class='line'>Asian American <span class="nb">&amp;</span>  26 <span class="nb">&amp;</span>  30 <span class="k">\\</span>
+</span><span class='line'>Latino <span class="nb">&amp;</span>  14 <span class="nb">&amp;</span>  30 <span class="k">\\</span>
+</span><span class='line'>Pacific Islander <span class="nb">&amp;</span>  18 <span class="nb">&amp;</span>  14 <span class="k">\\</span>
+</span><span class='line'>White <span class="nb">&amp;</span>  20 <span class="nb">&amp;</span>  10 <span class="k">\\</span>
+</span><span class='line'><span class="k">\hline</span>
+</span><span class='line'><span class="k">\end</span><span class="nb">{</span>tabular<span class="nb">}</span>
+</span><span class='line'><span class="k">\caption</span><span class="nb">{</span>Participant Ethnicities<span class="nb">}</span>
+</span><span class='line'><span class="k">\label</span><span class="nb">{</span>tab:ethnicity<span class="nb">}</span>
+</span><span class='line'><span class="k">\end</span><span class="nb">{</span>table<span class="nb">}</span>
+</span><span class='line'><span class="k">\end</span><span class="nb">{</span>document<span class="nb">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Last, after compiling our LaTeX file using TeX Shop, we&#8217;re greeted with the final product below:</p>
+
+<p><img src="/images/knitr-example.png"></p>
+
+<h3>Summary thus far</h3>
+
+<p>The example above used data from R directly in a sentence in the Methods section (i.e., &#8220;We recruited 200 university undergraduates from an introductory psychology class.&#8221;) and did so using the <code>\Sexpr{}</code> command in the <a href="https://en.wikipedia.org/wiki/LaTeX">knitr</a> manuscript (i.e., knitr.Rnw).  The <code>\Sexpr{}</code> command contained an <code>R</code> expression to calculate the total number participants.  This expression was evaluated and converted to LaTeX code when we ran the <code>knit()</code> function on the .Rnw file, which produces a .tex document. The .tex document contained no R code and was therefore ready to be compiled to a PDF using TeX Shop or pdf2latex in Terminal.app.</p>
+
+<h2>Forcing knitr to round to 2 decimal places</h2>
+
+<p>The default behavior of knitr works well <em>most</em> of the time. However, what if we didn&#8217;t have whole numbers in our data table?  What if we had percentages that we wanted to round down to 2 digits, as required by many journals?  For example, the value <code>\Sexpr{pi}</code> would be evaluated and replaced with 3.141593 in the LaTeX file.  One common problem, and part of <a href="https://stackoverflow.com/questions/11062497/how-to-avoid-using-round-in-every-sexpr">Yihui&#8217;s motivation</a> for replacing Sweave with <a href="http://yihui.name/knitr/"><code>knitr</code></a>, is that <code>\Sexpr{}</code> doesn&#8217;t automatically round digits.</p>
+
+<p>In Sweave (i.e., knitr&#8217;s predecessor), <em>each</em> value of pi would have to be encased in <code>round(pi,2)</code>.  Thus, we end up with <code>\Sexpr{round(pi,2)}</code>.  Yihui fixed this problem by automatically rounding digits, the length of which is set with <code>options(digits=2)</code> in the knitr preamble in your .Rnw document.  See below:</p>
+
+<figure class='code'><figcaption><span>Typical knitr preamble</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='tex'><span class='line'>&lt;&lt;&gt;&gt;=
+</span><span class='line'>library(knitr)
+</span><span class='line'>options(digits=2)
+</span><span class='line'>@
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The default rounding behavior of knitr works well <em>until</em> a value contains a 0 after rounding, such as 123.10.  Running the expression <code>round(123.10,2)</code> outputs 123.1. In this case, every other value in the manuscript table would be aligned at the decimal place <em>except</em> for the unlucky value - sticking out like a sore thumb. To fix this, you <em>could</em> use <code>sprintf("%.2f", pi)</code> every time you have to call <code>\Sexpr{}</code> in the manuscript - but then what&#8217;s the advantage of using <a href="http://yihui.name/knitr/">knitr</a>? This hack unnecessarily complicates the manuscript and distracts from the writing process.</p>
+
+<h3>Modify the default inline_hook for knitr</h3>
+
+<p>After seeing a <a href="https://stackoverflow.com/questions/11062497/how-to-avoid-using-round-in-every-sexpr">StackOverflow answer by Josh O&#8217;Brien</a>, I realized that the default inline_hook function for knitr could be easily modified to use the <a href="http://stat.ethz.ch/R-manual/R-devel/library/base/html/sprintf.html"><code>sprintf()</code></a> command instead of <a href="http://stat.ethz.ch/R-manual/R-devel/library/base/html/Round.html"><code>round()</code></a>.  The minute change will forcibly output all manuscript values to 2 decimal places. Below, we see the default behavior for knitr when processing inline R expressions:</p>
+
+<figure class='code'><figcaption><span>knitr&#8217;s Default Hook</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>library<span class="p">(</span>knitr<span class="p">)</span>
+</span><span class='line'>knit_hooks<span class="o">$</span>get<span class="p">(</span><span class="s">&quot;inline&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>knitr&#8217;s Default Hook</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="kr">function</span> <span class="p">(</span>x<span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="kr">if</span> <span class="p">(</span>is.numeric<span class="p">(</span>x<span class="p">))</span>
+</span><span class='line'>        x <span class="o">=</span> round<span class="p">(</span>x<span class="p">,</span> getOption<span class="p">(</span><span class="s">&quot;digits&quot;</span><span class="p">))</span>
+</span><span class='line'>    paste<span class="p">(</span>as.character<span class="p">(</span>x<span class="p">),</span> collapse <span class="o">=</span> <span class="s">&quot;, &quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em>Note:</em> My original code for this post used the <a href="http://stat.ethz.ch/R-manual/R-patched/library/base/html/format.html"><code>format()</code></a> command.  <a href="https://github.com/wch">Winston Chang</a> pointed out that this could lead to unreliable output and tweaked the code to use <a href="http://stat.ethz.ch/R-manual/R-devel/library/base/html/sprintf.html"><code>sprintf()</code></a>. The credit for the more efficient function below goes to him.  Below, we add out improved <code>inline_hook</code> to the preamble of our knitr document:</p>
+
+<figure class='code'><figcaption><span>Improving the inline_hook</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='tex'><span class='line'>&lt;&lt;&gt;&gt;=
+</span><span class='line'>library(knitr)
+</span><span class='line'>inline<span class="nb">_</span>hook &lt;- function (x) <span class="nb">{</span>
+</span><span class='line'>  if (is.numeric(x)) <span class="nb">{</span>
+</span><span class='line'>    # ifelse does a vectorized comparison
+</span><span class='line'>    # If integer, print without decimal; otherwise print two places
+</span><span class='line'>    res &lt;- ifelse(x == round(x),
+</span><span class='line'>      sprintf(&quot;<span class="c">%d&quot;, x),</span>
+</span><span class='line'>      sprintf(&quot;<span class="c">%.2f&quot;, x)</span>
+</span><span class='line'>    )
+</span><span class='line'>    paste(res, collapse = &quot;, &quot;)
+</span><span class='line'>  <span class="nb">}</span>
+</span><span class='line'><span class="nb">}</span>
+</span><span class='line'>knit<span class="nb">_</span>hooks<span class="s">$</span><span class="nb">set</span><span class="o">(</span><span class="nb">inline </span><span class="o">=</span><span class="nb"> inline_hook</span><span class="o">)</span><span class="nb"></span>
+</span><span class='line'><span class="nb">@</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Working Example</h3>
+
+<p>Let&#8217;s put it all together!  The following is a working example of the the suggested knitr inline_hook function, which <em>should</em> give more reliable output by rounding inline values to 2 decimal places.</p>
+
+<figure class='code'><figcaption><span>Winston&#8217;s Example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+</pre></td><td class='code'><pre><code class='tex'><span class='line'><span class="k">\documentclass</span><span class="na">[12pt]</span><span class="nb">{</span>article<span class="nb">}</span>
+</span><span class='line'><span class="k">\begin</span><span class="nb">{</span>document<span class="nb">}</span>
+</span><span class='line'>
+</span><span class='line'>&lt;&lt;load, include=FALSE, echo=FALSE&gt;&gt;=
+</span><span class='line'>library(knitr)
+</span><span class='line'>
+</span><span class='line'>inline<span class="nb">_</span>hook &lt;- function (x) <span class="nb">{</span>
+</span><span class='line'>  if (is.numeric(x)) <span class="nb">{</span>
+</span><span class='line'>    # ifelse does a vectorized comparison
+</span><span class='line'>    # If integer, print without decimal; otherwise print two places
+</span><span class='line'>    res &lt;- ifelse(x == round(x),
+</span><span class='line'>      sprintf(&quot;<span class="c">%d&quot;, x),</span>
+</span><span class='line'>      sprintf(&quot;<span class="c">%.2f&quot;, x)</span>
+</span><span class='line'>    )
+</span><span class='line'>    paste(res, collapse = &quot;, &quot;)
+</span><span class='line'>  <span class="nb">}</span>
+</span><span class='line'><span class="nb">}</span>
+</span><span class='line'>
+</span><span class='line'>knit<span class="nb">_</span>hooks<span class="s">$</span><span class="nb">set</span><span class="o">(</span><span class="nb">inline </span><span class="o">=</span><span class="nb"> inline_hook</span><span class="o">)</span><span class="nb"></span>
+</span><span class='line'><span class="nb">@</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">Inline code looks like </span><span class="nv">\Sexpr</span><span class="nb">{</span><span class="m">123</span><span class="nb">}, </span><span class="nv">\Sexpr</span><span class="nb">{</span><span class="m">123</span><span class="nb">.</span><span class="m">4</span><span class="nb">}, </span><span class="nv">\Sexpr</span><span class="nb">{</span><span class="m">123</span><span class="nb">.</span><span class="m">45</span><span class="nb">}, </span><span class="nv">\Sexpr</span><span class="nb">{</span><span class="m">123</span><span class="nb">.</span><span class="m">456</span><span class="nb">}.</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">And with vectors: </span><span class="nv">\Sexpr</span><span class="nb">{c</span><span class="o">(</span><span class="m">123</span><span class="nb">, </span><span class="m">123</span><span class="nb">.</span><span class="m">4</span><span class="nb">, </span><span class="m">123</span><span class="nb">.</span><span class="m">45</span><span class="nb">, </span><span class="m">123</span><span class="nb">.</span><span class="m">456</span><span class="o">)</span><span class="nb">}.</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">Regular output is not affected by the inline hook:</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">&lt;&lt;&gt;&gt;</span><span class="o">=</span><span class="nb"></span>
+</span><span class='line'><span class="m">123</span><span class="nb"></span>
+</span><span class='line'><span class="m">123</span><span class="nb">.</span><span class="m">4</span><span class="nb"></span>
+</span><span class='line'><span class="m">123</span><span class="nb">.</span><span class="m">45</span><span class="nb"></span>
+</span><span class='line'><span class="m">123</span><span class="nb">.</span><span class="m">456</span><span class="nb"></span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">c</span><span class="o">(</span><span class="m">123</span><span class="nb">, </span><span class="m">123</span><span class="nb">.</span><span class="m">4</span><span class="nb">, </span><span class="m">123</span><span class="nb">.</span><span class="m">45</span><span class="nb">, </span><span class="m">123</span><span class="nb">.</span><span class="m">456</span><span class="o">)</span><span class="nb"></span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">getOption</span><span class="o">(</span><span class="nb">&#39;digits&#39;</span><span class="o">)</span><span class="nb"></span>
+</span><span class='line'><span class="nb">@</span>
+</span><span class='line'><span class="nv">\end</span><span class="nb">{document}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img src="/images/example.png"></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Jason A. French</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-25T16:53:00-05:00" pubdate data-updated="true">Apr 25<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/r/'>R</a>, <a class='category' href='/blog/categories/sweave/'>Sweave</a>, <a class='category' href='/blog/categories/digits/'>digits</a>, <a class='category' href='/blog/categories/knitr/'>knitr</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://www.jason-french.com/blog/2014/04/25/formatting-sweave-and-knitr-output-for-2-digits/" data-via="" data-counturl="http://www.jason-french.com/blog/2014/04/25/formatting-sweave-and-knitr-output-for-2-digits/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/11/07/faster-tetrachoric-correlations/" title="Previous Post: Faster Tetrachoric Correlations">&laquo; Faster Tetrachoric Correlations</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/04/25/formatting-sweave-and-knitr-output-for-2-digits/">Fixing knitr: Formatting statistcal output to 2 digits in R</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/07/faster-tetrachoric-correlations/">Faster Tetrachoric Correlations</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/10/25/analyzing-student-exams-using-irt/">Analyze Student Exam Items using IRT</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/16/easy-sweaving-for-latex-and-r/">Easy Sweave for LaTeX and R</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/11/installing-r-in-linux/">Installing R in Linux</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/frenchja">@frenchja</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'frenchja',
+            count: 4,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/113717313588371204162?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <h1>Popular Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/01/17/using-figures-within-tables-in-latex/">Using Figures within Tables in LaTeX</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2/">Graphing Error Bars for Repeated-Measures Variables with ggplot2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/27/integrating-r-and-qualtrics/">Analyzing Qualtrics Data in R using Github Packages</a>
+      </li>
+    
+  </ul>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Jason A. French -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'frenchja';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://www.jason-french.com/blog/2014/04/25/formatting-sweave-and-knitr-output-for-2-digits/';
+        var disqus_url = 'http://www.jason-french.com/blog/2014/04/25/formatting-sweave-and-knitr-output-for-2-digits/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

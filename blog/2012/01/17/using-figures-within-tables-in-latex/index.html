@@ -1,0 +1,543 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Using Figures within Tables in LaTeX - Jason A. French</title>
+  <meta name="author" content="Jason A. French">
+
+  
+  <meta name="description" content="By using LaTeX to author APA manuscripts, researchers can address many problems associated with formatting their results
+into tables and figures. For &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://www.jason-french.com/blog/2012/01/17/using-figures-within-tables-in-latex/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Jason A. French" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<!-- MathJax -->
+<script type="text/javascript"
+  src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    var pluginUrl =
+     '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+    _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+    _gaq.push(['_setAccount', 'UA-29782432-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Jason A. French</a></h1>
+  
+    <h2>Northwestern University</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:www.jason-french.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/files/JFrenchCV.pdf">CV</a></li>
+  <li><a href="https://sapa-project.org">Projects</a></li>
+  <li><a href="/pubs">Pubs</a></li>
+  <li><a href="https://personality-project.org/pmc.html">Lab</a></li>
+  <li><a href="/tutorials">R Tutorials</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Using Figures Within Tables in LaTeX</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-17T18:23:00-06:00" pubdate data-updated="true">Jan 17<span>th</span>, 2012</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>By using LaTeX to author APA manuscripts, researchers can address many problems associated with formatting their results
+into tables and figures. For example, ANOVA tables can be readily generated using the
+<a href="http://cran.r-project.org/web/packages/xtable/index.html"><code>xtable</code></a> package in R, and graphs from
+<a href="http://cran.r-project.org/web/packages/ggplot2/index.html"><code>ggplot2</code></a> can be rendered <em>within</em> the manuscript using
+<code>Sweave</code> (see <a href="https://en.wikipedia.org/wiki/Sweave">Wikipedia</a>). However, more complicated layouts can be difficult to
+achieve.</p>
+
+<p>In order to make test items or stimuli easier to understand, researchers occasionally organize examples in a table or
+figure. Using the standard <code>\table</code> command in LaTeX, it&#8217;s possible to include figures in an individual table cell
+without breaking the <a href="http://ctan.org/pkg/apa6">APA6.cls</a> package. For example: <!-- more --></p>
+
+<figure class='code'><figcaption><span>Bottom-Aligned Figures in LaTeX Tables</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+</pre></td><td class='code'><pre><code class='latex'><span class='line'><span class="k">\begin</span><span class="nb">{</span>table<span class="nb">}</span>
+</span><span class='line'>  [ht] <span class="k">\caption</span><span class="nb">{</span>Stimuli Category Explanations<span class="nb">}</span> <span class="k">\label</span><span class="nb">{</span>tab:stimuli<span class="nb">}</span>
+</span><span class='line'>  <span class="k">\begin</span><span class="nb">{</span>tabular<span class="nb">}</span>
+</span><span class='line'>      <span class="nb">{</span>lllll<span class="nb">}</span> <span class="k">\hline</span> Category <span class="nb">&amp;</span> Familiar Organism <span class="nb">&amp;</span> Growth Model <span class="nb">&amp;</span> Metamorphosis <span class="nb">&amp;</span> Figure <span class="k">\\</span>
+</span><span class='line'>      <span class="k">\hline</span> <span class="k">\textbf</span><span class="nb">{</span>FDM<span class="nb">}</span> <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> Dramatic <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Meta-Dramatic<span class="nb">}</span> <span class="k">\\</span>
+</span><span class='line'>      FDN <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> Dramatic <span class="nb">&amp;</span> No <span class="nb">&amp;</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Dramatic<span class="nb">}</span> <span class="k">\\</span>
+</span><span class='line'>      FGM <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> Growth <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Meta-Growth<span class="nb">}</span> <span class="k">\\</span>
+</span><span class='line'>      <span class="k">\textbf</span><span class="nb">{</span>FGN<span class="nb">}</span> <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> Growth <span class="nb">&amp;</span> No <span class="nb">&amp;</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Growth<span class="nb">}</span> <span class="k">\\</span>
+</span><span class='line'>      FIM <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> Identical <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Meta-ID<span class="nb">}</span> <span class="k">\\</span>
+</span><span class='line'>      FIN <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> Identical <span class="nb">&amp;</span> No <span class="nb">&amp;</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Identical<span class="nb">}</span> <span class="k">\\</span>
+</span><span class='line'>      FSM <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> Species Change <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Meta-Species<span class="nb">}</span> <span class="k">\\</span>
+</span><span class='line'>      FSN <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> Species Change <span class="nb">&amp;</span> No <span class="nb">&amp;</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Species<span class="nb">}</span> <span class="k">\\</span>
+</span><span class='line'>      <span class="k">\textbf</span><span class="nb">{</span>UDM<span class="nb">}</span> <span class="nb">&amp;</span> No <span class="nb">&amp;</span> Dramatic <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un2-Meta-Dramatic<span class="nb">}</span> <span class="k">\\</span>
+</span><span class='line'>      UDN <span class="nb">&amp;</span> No <span class="nb">&amp;</span> Dramatic <span class="nb">&amp;</span> No <span class="nb">&amp;</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un-Dramatic<span class="nb">}</span> <span class="k">\\</span>
+</span><span class='line'>      UGM <span class="nb">&amp;</span> No <span class="nb">&amp;</span> Growth <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un2-Meta-Growth<span class="nb">}</span> <span class="k">\\</span>
+</span><span class='line'>      <span class="k">\textbf</span><span class="nb">{</span>UGN<span class="nb">}</span> <span class="nb">&amp;</span> No <span class="nb">&amp;</span> Growth <span class="nb">&amp;</span> No <span class="nb">&amp;</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un-Growth<span class="nb">}</span> <span class="k">\\</span>
+</span><span class='line'>      UIM <span class="nb">&amp;</span> No <span class="nb">&amp;</span> Identical <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un2-Meta-ID<span class="nb">}</span> <span class="k">\\</span>
+</span><span class='line'>      UIN <span class="nb">&amp;</span> No <span class="nb">&amp;</span> Identical <span class="nb">&amp;</span> No <span class="nb">&amp;</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un-Identical<span class="nb">}</span> <span class="k">\\</span>
+</span><span class='line'>      USM <span class="nb">&amp;</span> No <span class="nb">&amp;</span> Species Change <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un2-Meta-Species<span class="nb">}</span> <span class="k">\\</span>
+</span><span class='line'>      USN <span class="nb">&amp;</span> No <span class="nb">&amp;</span> Species Change <span class="nb">&amp;</span> No <span class="nb">&amp;</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un-Species<span class="nb">}</span> <span class="k">\\</span>
+</span><span class='line'>      USM <span class="nb">&amp;</span> No <span class="nb">&amp;</span> Species Change <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un2-Meta-Species<span class="nb">}</span> <span class="k">\\</span>
+</span><span class='line'>      <span class="k">\hline</span>
+</span><span class='line'>  <span class="k">\end</span><span class="nb">{</span>tabular<span class="nb">}</span>
+</span><span class='line'>  <span class="k">\tabfnt</span><span class="nb">{</span>Note: Bold categories are biologically correct growth models.<span class="nb">}</span>
+</span><span class='line'><span class="k">\end</span><span class="nb">{</span>table<span class="nb">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Center-Aligned Figures</h2>
+
+<p>However, the above code vertically aligned my images according to their bottom-edge, producing an awkward looking table.
+Instead, we want the figures to be vertically centered. A Google search revealed the <a href="https://en.wikibooks.org/wiki/LaTeX/Tables#Vertically_centered_images">LaTeX
+Wikibook</a>, which suggests a few methods to force
+figures to vertically align according to their center. Below, I surround each <code>\includegraphics{}</code> command with the
+<code>\parbox{}</code> command, which centers it along 1 unit of measurement, set to 12 pts. in my apa6 class options.</p>
+
+<figure class='code'><figcaption><span>Center-Aligned Figures in LaTeX Tables  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+</pre></td><td class='code'><pre><code class='latex'><span class='line'><span class="k">\begin</span><span class="nb">{</span>table<span class="nb">}</span>
+</span><span class='line'>  [ht] <span class="k">\caption</span><span class="nb">{</span>Stimuli Category Explanations<span class="nb">}</span> <span class="k">\label</span><span class="nb">{</span>tab:stimuli<span class="nb">}</span>
+</span><span class='line'>  <span class="k">\begin</span><span class="nb">{</span>tabular<span class="nb">}</span>
+</span><span class='line'>      <span class="nb">{</span>lllll<span class="nb">}</span> <span class="k">\hline</span> Stimuli Category <span class="nb">&amp;</span> Familiar Organism <span class="nb">&amp;</span> Growth Model <span class="nb">&amp;</span> Metamorphosis <span class="nb">&amp;</span> Figure <span class="k">\\</span>
+</span><span class='line'>      <span class="k">\hline</span> <span class="k">\textbf</span><span class="nb">{</span>FDM<span class="nb">}</span> <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> Dramatic <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Meta-Dramatic<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>      FDN <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> Dramatic <span class="nb">&amp;</span> No <span class="nb">&amp;</span> <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Dramatic<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>      FGM <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> Growth <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Meta-Growth<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>      <span class="k">\textbf</span><span class="nb">{</span>FGN<span class="nb">}</span> <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> Growth <span class="nb">&amp;</span> No <span class="nb">&amp;</span> <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Growth<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>      FIM <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> Identical <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Meta-ID<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>      FIN <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> Identical <span class="nb">&amp;</span> No <span class="nb">&amp;</span> <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Identical<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>      FSM <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> Species Change <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Meta-Species<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>      FSN <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> Species Change <span class="nb">&amp;</span> No <span class="nb">&amp;</span> <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Fam-Species<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>      <span class="k">\textbf</span><span class="nb">{</span>UDM<span class="nb">}</span> <span class="nb">&amp;</span> No <span class="nb">&amp;</span> Dramatic <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un2-Meta-Dramatic<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>      UDN <span class="nb">&amp;</span> No <span class="nb">&amp;</span> Dramatic <span class="nb">&amp;</span> No <span class="nb">&amp;</span> <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un-Dramatic<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>      UGM <span class="nb">&amp;</span> No <span class="nb">&amp;</span> Growth <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un2-Meta-Growth<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>      <span class="k">\textbf</span><span class="nb">{</span>UGN<span class="nb">}</span> <span class="nb">&amp;</span> No <span class="nb">&amp;</span> Growth <span class="nb">&amp;</span> No <span class="nb">&amp;</span> <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un-Growth<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>      UIM <span class="nb">&amp;</span> No <span class="nb">&amp;</span> Identical <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un2-Meta-ID<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>      UIN <span class="nb">&amp;</span> No <span class="nb">&amp;</span> Identical <span class="nb">&amp;</span> No <span class="nb">&amp;</span> <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un-Identical<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>      USM <span class="nb">&amp;</span> No <span class="nb">&amp;</span> Species Change <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un2-Meta-Species<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>      USN <span class="nb">&amp;</span> No <span class="nb">&amp;</span> Species Change <span class="nb">&amp;</span> No <span class="nb">&amp;</span> <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un-Species<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>      USM <span class="nb">&amp;</span> No <span class="nb">&amp;</span> Species Change <span class="nb">&amp;</span> Yes <span class="nb">&amp;</span> <span class="k">\parbox</span><span class="na">[c]</span><span class="nb">{</span>1em<span class="nb">}{</span>
+</span><span class='line'>      <span class="k">\includegraphics</span><span class="na">[width=1in]</span><span class="nb">{</span>&quot;Figure Stimuli&quot;/Un2-Meta-Species<span class="nb">}}</span> <span class="k">\\</span>
+</span><span class='line'>      <span class="k">\hline</span>
+</span><span class='line'>  <span class="k">\end</span><span class="nb">{</span>tabular<span class="nb">}</span>
+</span><span class='line'>  <span class="k">\tabfnt</span><span class="nb">{</span>Note: Bold categories are biologically correct growth models.<span class="nb">}</span>
+</span><span class='line'><span class="k">\end</span><span class="nb">{</span>table<span class="nb">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Output:
+<img class="center" src="/images/origins.png" title="'Broken LaTeX Table'" ></p>
+
+<p>By using <code>\parbox</code>, figures are now vertically aligned with text cells. However, with the addition of figures the table
+is too long and we must span the table across 2-pages. To solve this, split the information across two tables. In this
+case, I can split by the <strong>stimuli category</strong>.</p>
+
+<p>Alternatively, <a href="http://www.edpsych.net/brian/">Brian Beitzel</a> also pointed out that we can invoke
+<a href="http://tug.ctan.org/pkg/longtable"><code>longtable</code></a> as a class option in <a href="http://ctan.org/pkg/apa6">APA6.cls</a>, which allows
+tables to span multiple pages.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Jason A. French</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-17T18:23:00-06:00" pubdate data-updated="true">Jan 17<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/latex/'>LaTeX</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://www.jason-french.com/blog/2012/01/17/using-figures-within-tables-in-latex/" data-via="" data-counturl="http://www.jason-french.com/blog/2012/01/17/using-figures-within-tables-in-latex/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2/" title="Next Post: Graphing Error Bars for Repeated-Measures Variables with ggplot2">Graphing Error Bars for Repeated-Measures Variables with ggplot2 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/04/25/formatting-sweave-and-knitr-output-for-2-digits/">Fixing knitr: Formatting statistcal output to 2 digits in R</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/07/faster-tetrachoric-correlations/">Faster Tetrachoric Correlations</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/10/25/analyzing-student-exams-using-irt/">Analyze Student Exam Items using IRT</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/16/easy-sweaving-for-latex-and-r/">Easy Sweave for LaTeX and R</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/03/11/installing-r-in-linux/">Installing R in Linux</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/frenchja">@frenchja</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'frenchja',
+            count: 4,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/113717313588371204162?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <h1>Popular Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/01/17/using-figures-within-tables-in-latex/">Using Figures within Tables in LaTeX</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2/">Graphing Error Bars for Repeated-Measures Variables with ggplot2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/27/integrating-r-and-qualtrics/">Analyzing Qualtrics Data in R using Github Packages</a>
+      </li>
+    
+  </ul>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Jason A. French -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'frenchja';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://www.jason-french.com/blog/2012/01/17/using-figures-within-tables-in-latex/';
+        var disqus_url = 'http://www.jason-french.com/blog/2012/01/17/using-figures-within-tables-in-latex/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
