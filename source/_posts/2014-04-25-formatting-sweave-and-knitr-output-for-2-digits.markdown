@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Formatting knitr output for 2 digits in R"
+title: "Fixing knitr: Formatting statistcal output to 2 digits in R"
 date: 2014-04-25 16:53
 comments: true
 categories: [R, Sweave, knitr, digits]
@@ -8,10 +8,12 @@ published: true
 ---
 
 ### Overview of reproducible research
-Reproducible research is a phrase that describes an academic paper that contains the code and data along with the researcher's interpretation.  One way of engaging in reproducible research is to use R code directly inside your LaTeX document. knitr is an R package for doing reproducible research and is designed as a replacement for Sweave. A knitr document combines your R analysis with your [LaTeX](https://en.wikipedia.org/wiki/LaTeX) manuscript (i.e., knitr = R + LaTeX).  In doing so, the experimental design and method of analysis is easily replicated and critiqued by reviewers and other researchers as the full analysis used to produce the results is submitted along with the final paper.
+Reproducible research is a phrase that describes an academic paper or manuscript that contains the code and data in addition to what is usually published - the researcher's interpretation.  In doing so, the experimental design and method of analysis is easily replicated by unaffiliated labs and critiqued by reviewers as the full analysis used to produce the results is submitted along with the final paper.  One way of producing reproducible research is to use [R code](http://r-project.org) directly inside your LaTeX document. In order to faciliate the combination of statistical code and manuscript writing, two R packages in particular have arisen:  [Sweave]() and [knitr](). knitr is an R package designed as a replacement for Sweave, but both packages combine your R analysis with your [LaTeX](https://en.wikipedia.org/wiki/LaTeX) manuscript (i.e., knitr = R + LaTeX).  
 
-By using knitr, the researcher can easily create ANOVA and demographic tables directly from the data without messing around in Excel.  The basic example below contains the beginning of a hypothetical Methods section of a manuscript. We want to take the values from an R table, which has the breakdown of participants by gender and ethnicity, and display them as numbers in our manuscript. 
+One advantage of knitr is that the researcher can easily create ANOVA and demographic tables directly from the data without messing around in Excel.  However, as we'll see, both knitr and Sweave can run into problems when formatting your table values to 2 decimal points.  In this post, I'll detail my proposed method of fixing that which can be applied to your entire mansucript by editing the beginning of your knitr preamble.
 <!-- more -->
+
+The basic example below contains the beginning of a hypothetical Methods section of a manuscript. We want to take the values from an R table, which has the breakdown of participants by gender and ethnicity, and display them as numbers in our manuscript. 
 
 ```tex Basic knitr.Rnw Example
 \documentclass[12pt]{article}
@@ -64,7 +66,7 @@ xtable(x.table, caption = 'Participant Ethnicities', label='tab:ethnicity')
 \end{document}
 ```
 
-As we see below, running `knit()` on our knitr manuscript inside R produces a regular LaTeX file that can be compiled with to a PDF using pdflatex or [TeX Shop](http://pages.uoregon.edu/koch/texshop/).
+As we see below, running the `knit()` command on our knitr manuscript inside R produces a regular LaTeX file that can be compiled with to a PDF using pdflatex or [TeX Shop](http://pages.uoregon.edu/koch/texshop/). *Notice that the R table objects have been replaced with LaTeX tables.*
 
 ```r Running knit() knitr.Rnw inside R
 library(knitr)
@@ -142,13 +144,13 @@ Last, after compiling our LaTeX file using TeX Shop, we're greeted with the fina
 {% img /images/knitr-example.png %}
 
 ### Summary thus far
-The example above used data from R directly in a sentence in the Methods section (i.e., "We recruited 200 university undergraduates from an introductory psychology class.") and did so using the `\Sexpr{}` command in the [knitr](https://en.wikipedia.org/wiki/LaTeX) manuscript (i.e., knitr.Rnw).  The `\Sexpr{}` command contained an `R` expression of the total number participants.  This expression was evaluated and converted to LaTeX code when we ran the `knit()` function on the .Rnw file, which produces a .tex document. The .tex document contained no R code and was therefore ready to be compiled to a PDF using TeX Shop or pdf2latex.
+The example above used data from R directly in a sentence in the Methods section (i.e., "We recruited 200 university undergraduates from an introductory psychology class.") and did so using the `\Sexpr{}` command in the [knitr](https://en.wikipedia.org/wiki/LaTeX) manuscript (i.e., knitr.Rnw).  The `\Sexpr{}` command contained an `R` expression to calculate the total number participants.  This expression was evaluated and converted to LaTeX code when we ran the `knit()` function on the .Rnw file, which produces a .tex document. The .tex document contained no R code and was therefore ready to be compiled to a PDF using TeX Shop or pdf2latex in Terminal.app.
 
 ## Forcing knitr to round to 2 decimal places
 
-The default behavior works great *most* of the time. However, what if we didn't have whole numbers in our data table?  What if we had percentages that we wanted to round down to 2 digits?  For example, the value `\Sexpr{pi}` would be evaluated and replaced with 3.141593 in the LaTeX file.  One common problem, and part of [Yihui's motivation](https://stackoverflow.com/questions/11062497/how-to-avoid-using-round-in-every-sexpr) for replacing Sweave with [`knitr`](http://yihui.name/knitr/), is that `\Sexpr{}` doesn't automatically round digits.  
+The default behavior of knitr works well *most* of the time. However, what if we didn't have whole numbers in our data table?  What if we had percentages that we wanted to round down to 2 digits, as required by many journals?  For example, the value `\Sexpr{pi}` would be evaluated and replaced with 3.141593 in the LaTeX file.  One common problem, and part of [Yihui's motivation](https://stackoverflow.com/questions/11062497/how-to-avoid-using-round-in-every-sexpr) for replacing Sweave with [`knitr`](http://yihui.name/knitr/), is that `\Sexpr{}` doesn't automatically round digits.  
 
-In Sweave, *each* value of pi would be encased in `round(pi,2)`.  Thus, we end up with `\Sexpr{round(pi,2)}`.  Yihui fixed this problem by automatically rounding digits, the length of which is set with `options(digits=2)` in the knitr preamble in your .Rnw document.  See below:
+In Sweave (i.e., knitr's predecessor), *each* value of pi would have to be encased in `round(pi,2)`.  Thus, we end up with `\Sexpr{round(pi,2)}`.  Yihui fixed this problem by automatically rounding digits, the length of which is set with `options(digits=2)` in the knitr preamble in your .Rnw document.  See below:
 
 ```tex Typical knitr preamble
 <<>>=
@@ -157,10 +159,10 @@ options(digits=2)
 @
 ```
 
-The default rounding behavior of knitr works well *until* a value contains a 0 after rounding, such as 123.10.  Using `round(123.10,2)` outputs 123.1. In this case, every other value in the manuscript table would be aligned at the decimal place *except* for the unlucky value - sticking out like a sore thumb. To fix this, you *could* use `sprintf("%.2f", pi)` every time you have to call `\Sexpr{}` in the manuscript - but then what's the advantage of using [knitr](http://yihui.name/knitr/)? This hack unnecessarily complicates the manuscript.
+The default rounding behavior of knitr works well *until* a value contains a 0 after rounding, such as 123.10.  Running the expression `round(123.10,2)` outputs 123.1. In this case, every other value in the manuscript table would be aligned at the decimal place *except* for the unlucky value - sticking out like a sore thumb. To fix this, you *could* use `sprintf("%.2f", pi)` every time you have to call `\Sexpr{}` in the manuscript - but then what's the advantage of using [knitr](http://yihui.name/knitr/)? This hack unnecessarily complicates the manuscript and distracts from the writing process.
 
 ### Modify the default inline_hook for knitr
-After seeing a [StackOverflow answer by Josh O'Brien](https://stackoverflow.com/questions/11062497/how-to-avoid-using-round-in-every-sexpr), I realized that the default inline_hook for knitr could be easily modified to use the [`sprintf()`](http://stat.ethz.ch/R-manual/R-devel/library/base/html/sprintf.html) command instead of [`round()`](http://stat.ethz.ch/R-manual/R-devel/library/base/html/Round.html).  The change will forcibly output all values to 2 decimal places. Below, we see the default behavior for knitr when processing inline R expressions:
+After seeing a [StackOverflow answer by Josh O'Brien](https://stackoverflow.com/questions/11062497/how-to-avoid-using-round-in-every-sexpr), I realized that the default inline_hook function for knitr could be easily modified to use the [`sprintf()`](http://stat.ethz.ch/R-manual/R-devel/library/base/html/sprintf.html) command instead of [`round()`](http://stat.ethz.ch/R-manual/R-devel/library/base/html/Round.html).  The minute change will forcibly output all manuscript values to 2 decimal places. Below, we see the default behavior for knitr when processing inline R expressions:
 
 ```r knitr's Default Hook
 library(knitr)
