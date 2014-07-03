@@ -4,7 +4,7 @@
   <title><![CDATA[Jason A. French]]></title>
   <link href="http://frenchja.github.com/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-05-28T16:19:03-05:00</updated>
+  <updated>2014-07-03T13:02:57-07:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -14,9 +14,322 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Using R with MySQL Databases]]></title>
+    <link href="http://frenchja.github.com/blog/2014/07/03/using-r-with-mysql-databases/"/>
+    <updated>2014-07-03T10:58:00-07:00</updated>
+    <id>http://frenchja.github.com/blog/2014/07/03/using-r-with-mysql-databases</id>
+    <content type="html"><![CDATA[<h2>Overview</h2>
+
+<p>When I began using R, like most researchers I kept all my data in some combination
+of R&#8217;s native <a href="http://stat.ethz.ch/R-manual/R-devel/library/base/html/data.frame.html">data.frame</a>
+format or a <a href="http://en.wikipedia.org/wiki/Comma-separated_values">CSV</a> file that my analysis would continually read.
+However, as I began to analyze big datasets at the <a href="https://sapa-project.org">SAPA Project</a>
+and at <a href="http://insightdatascience.com/">Insight</a>,
+I realized that there is a lot of value to instead keeping your data in a MySQL database.</p>
+
+<!-- more -->
+
+
+<p>For example, relational databases are better at handling large datasets and are more efficient
+at storing data that CSVs.
+When reading data stored in a data.frame or CSV file, the data must all fit <em>in memory</em>.
+All of your data may not fit easily in memory, as is the case if you have a
+large dataset or are cursed with an older computers with &lt;= 4GB of RAM.
+In these cases, every time you load your dataset or do an expensive operation
+your computer will slow to a painful crawl as your hard drives grind while your operating system
+switches to using <a href="http://en.wikipedia.org/wiki/Virtual_memory">virtual memory</a>, rather than RAM.
+You can get around this by using random sampling to sample a smaller subset (or multiple subsets
+if you want to bootstrap), but you can also use this technique on a SQL database, but SQL databases
+only load the data you&#8217;re working with into the machine&#8217;s RAM.</p>
+
+<p>Another reason I prefer SQL databases are due to safety and security. Services such as
+Amazon&#8217;s RDS (i.e., Relational Database Service) offer frequent backups and replication
+across machines. This means that if your machine dies, your data is safe and uncorrupted. If I were storing
+data in an .Rdata file, I&#8217;d have to rely on my OS (e.g., Time Machine) or a cloud-based storage solution
+(e.g., Dropbox or CrashPlan) to backup my data. Additionally, I can give a collaborator access
+to only needed portions of the data by locking down their SQL username to certain tables
+and operations.</p>
+
+<p>Last, I find relational databases such as MySQL to be scalable. In the case of using Amazon&#8217;s RDS,
+you can buy as much storage or bandwidth as you need to complete your analysis, dissertation,
+or build your web app. If I need multiple nodes or machines to analyze the data, I don&#8217;t need to keep a copy of
+the data on each machine.  I simply pass the SQL authentication parameters to each machine and the
+data is accessed from a central location.</p>
+
+<p>So let&#8217;s begin by setting up a <a href="http://aws.amazon.com/rds/free/">Free-Tier RDS service</a> on Amazon and then move some
+data from R to the RDS database.</p>
+
+<h2>Setting up an RDS Instance</h2>
+
+<p>Amazon currently offers a Free Tier for their RDS storage.  It offers:
+* Enough hours to run a DB Instance continuously each month,
+* 20 GB of database storage,
+* 10 million I/O operations, and
+* automated database backups.</p>
+
+<p>To setup an RDS instance:
+1. Sign into the AWS Management Console.
+2. Select &#8216;RDS&#8217; under the &#8216;Database&#8217; group.
+3. Click &#8216;Launch DB Instance&#8217;.
+4. Select &#8216;MySQL&#8217; for the database engine.
+5. Select &#8216;No&#8217; when asked if you intend to use the database for production purposes. Accidentally selecting &#8216;Yes&#8217; could result in hefty fees.
+6. For &#8216;Instance Class&#8217;, select &#8216;db.t1.micro&#8217;, &#8216;No&#8217; for &#8216;Multi-AZ Deployment&#8217;, and 20 GB for &#8216;Allocated Storage&#8217;.
+7. Click &#8216;Next&#8217; and launch your RDS instance.</p>
+
+<p>At this point, you should have a blank RDS database with a master username and password combination.<br/>
+Be sure to test that you can connect - I suggest using <a href="http://www.sequelpro.com/">Sequel Pro</a>. <em>If you can&#8217;t connect,
+you may need to open up port 3306 in your EC2 Security Group</em>.</p>
+
+<p>Click on your new RDS Instance to get the hostname to connect to and note the database name:</p>
+
+<p><img class="center" src="http://frenchja.github.com/images/rds1.png"></p>
+
+<p>Fire up Sequel Pro and test out your new database.  If you want to connect using SSL, you&#8217;ll need the SSH key you generated when
+you first created your EC2 instance (not covered here).</p>
+
+<p><img class="center" src="http://frenchja.github.com/images/rds2.png"></p>
+
+<h2>Installing the RMySQL package</h2>
+
+<p>Previously, I found installing <a href="">RMySQL</a> to be very difficult when I was using MacPorts.  However,
+having switched to <a href="http://brew.sh/">Homebrew</a> on my new machine, RMySQL found all my MySQL headers and libraries as
+<a href="http://brew.sh/">Homebrew</a> uses the <code>/usr/local</code> directory to store your software, which is already in your BASH $PATH.</p>
+
+<p>Before compiling RMySQL, first compile MySQL using Homebrew:</p>
+
+<figure class='code'><figcaption><span>Installing MySQL using Homebrew</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># If you haven&#39;t already, install Homebrew:</span>
+</span><span class='line'><span class="c"># ruby -e &quot;$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Install MySQL</span>
+</span><span class='line'>brew install mysql
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Installing MySQL using Homebrew</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="o">==</span>&gt; Downloading https://downloads.sf.net/project/machomebrew/Bottles/mysql-5.6.1
+</span><span class='line'>Already downloaded: /Library/Caches/Homebrew/mysql-5.6.19.mavericks.bottle.tar.gz
+</span><span class='line'><span class="o">==</span>&gt; Pouring mysql-5.6.19.mavericks.bottle.tar.gz
+</span><span class='line'><span class="o">==</span>&gt; Caveats
+</span><span class='line'>A <span class="s2">&quot;/etc/my.cnf&quot;</span> from another install may interfere with a Homebrew-built
+</span><span class='line'>server starting up correctly.
+</span><span class='line'>
+</span><span class='line'>To connect:
+</span><span class='line'>    mysql -uroot
+</span><span class='line'>
+</span><span class='line'>To have launchd start mysql at login:
+</span><span class='line'>    ln -sfv /usr/local/opt/mysql/*.plist ~/Library/LaunchAgents
+</span><span class='line'>Then to load mysql now:
+</span><span class='line'>    launchctl load ~/Library/LaunchAgents/homebrew.mxcl.mysql.plist
+</span><span class='line'>Or, <span class="k">if </span>you don<span class="err">&#39;</span>t want/need launchctl, you can just run:
+</span><span class='line'>    mysql.server <span class="nv">start</span>
+</span><span class='line'><span class="o">==</span>&gt; Summary
+</span><span class='line'>🍺  /usr/local/Cellar/mysql/5.6.19: 9536 files, 338M
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Next, compile RMySQL from source:</p>
+
+<figure class='code'><figcaption><span>Compiling RMySQL</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>install.packages<span class="p">(</span><span class="s">&#39;RMySQL&#39;</span><span class="p">,</span> type <span class="o">=</span> <span class="s">&#39;source&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Compiling RMySQL</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>trying URL <span class="s">&#39;http://cran.rstudio.com/src/contrib/RMySQL_0.9-3.tar.gz&#39;</span>
+</span><span class='line'>Content type <span class="s">&#39;application/x-gzip&#39;</span> length <span class="m">165363</span> bytes <span class="p">(</span><span class="m">161</span> Kb<span class="p">)</span>
+</span><span class='line'>opened URL
+</span><span class='line'><span class="o">==================================================</span>
+</span><span class='line'>downloaded <span class="m">161</span> Kb
+</span><span class='line'>
+</span><span class='line'><span class="o">*</span> installing <span class="o">*</span>source<span class="o">*</span> package ‘RMySQL’ <span class="kc">...</span>
+</span><span class='line'><span class="o">**</span> package ‘RMySQL’ successfully unpacked and MD5 sums checked
+</span><span class='line'>checking <span class="kr">for</span> gcc... gcc
+</span><span class='line'>checking <span class="kr">for</span> C compiler default output file name... a.out
+</span><span class='line'>checking whether the C compiler works... yes
+</span><span class='line'>checking whether we are cross compiling... no
+</span><span class='line'>checking <span class="kr">for</span> suffix of executables...
+</span><span class='line'>checking <span class="kr">for</span> suffix of object files... o
+</span><span class='line'>checking whether we are using the GNU C compiler... yes
+</span><span class='line'>checking whether gcc accepts <span class="o">-</span>g... yes
+</span><span class='line'>checking <span class="kr">for</span> gcc option to accept ANSI C... none needed
+</span><span class='line'>checking how to run the C preprocessor... gcc <span class="o">-</span>E
+</span><span class='line'>checking <span class="kr">for</span> compress <span class="kr">in</span> <span class="o">-</span>lz... yes
+</span><span class='line'>checking <span class="kr">for</span> getopt_long <span class="kr">in</span> <span class="o">-</span>lc... yes
+</span><span class='line'>checking <span class="kr">for</span> mysql_init <span class="kr">in</span> <span class="o">-</span>lmysqlclient... yes
+</span><span class='line'>checking <span class="kr">for</span> egrep... grep <span class="o">-</span>E
+</span><span class='line'>checking <span class="kr">for</span> ANSI C header files...
+</span><span class='line'>rm<span class="o">:</span> conftest.dSYM<span class="o">:</span> is a directory
+</span><span class='line'>rm<span class="o">:</span> conftest.dSYM<span class="o">:</span> is a directory
+</span><span class='line'>yes
+</span><span class='line'>checking <span class="kr">for</span> sys<span class="o">/</span>types.h... yes
+</span><span class='line'>checking <span class="kr">for</span> sys<span class="o">/</span>stat.h... yes
+</span><span class='line'>checking <span class="kr">for</span> stdlib.h... yes
+</span><span class='line'>checking <span class="kr">for</span> string.h... yes
+</span><span class='line'>checking <span class="kr">for</span> memory.h... yes
+</span><span class='line'>checking <span class="kr">for</span> strings.h... yes
+</span><span class='line'>checking <span class="kr">for</span> inttypes.h... yes
+</span><span class='line'>checking <span class="kr">for</span> stdint.h... yes
+</span><span class='line'>checking <span class="kr">for</span> unistd.h... yes
+</span><span class='line'>checking mysql.h usability... no
+</span><span class='line'>checking mysql.h presence... no
+</span><span class='line'>checking <span class="kr">for</span> mysql.h... no
+</span><span class='line'>checking <span class="o">/</span>usr<span class="o">/</span>local<span class="o">/</span>include<span class="o">/</span>mysql<span class="o">/</span>mysql.h usability... yes
+</span><span class='line'>checking <span class="o">/</span>usr<span class="o">/</span>local<span class="o">/</span>include<span class="o">/</span>mysql<span class="o">/</span>mysql.h presence... yes
+</span><span class='line'>checking <span class="kr">for</span> <span class="o">/</span>usr<span class="o">/</span>local<span class="o">/</span>include<span class="o">/</span>mysql<span class="o">/</span>mysql.h... yes
+</span><span class='line'>configure<span class="o">:</span> creating .<span class="o">/</span>config.status
+</span><span class='line'>config.status<span class="o">:</span> creating src<span class="o">/</span>Makevars
+</span><span class='line'><span class="o">**</span> libs
+</span><span class='line'>clang <span class="o">-</span>I<span class="o">/</span>Library<span class="o">/</span>Frameworks<span class="o">/</span>R.framework<span class="o">/</span>Resources<span class="o">/</span>include <span class="o">-</span>DNDEBUG <span class="o">-</span>I<span class="o">/</span>usr<span class="o">/</span>local<span class="o">/</span>include<span class="o">/</span>mysql <span class="o">-</span>I<span class="o">/</span>usr<span class="o">/</span>local<span class="o">/</span>include <span class="o">-</span>I<span class="o">/</span>usr<span class="o">/</span>local<span class="o">/</span>include<span class="o">/</span>freetype2 <span class="o">-</span>I<span class="o">/</span>opt<span class="o">/</span>X11<span class="o">/</span>include    <span class="o">-</span>fPIC  <span class="o">-</span>Wall <span class="o">-</span>mtune<span class="o">=</span>core2 <span class="o">-</span>g <span class="o">-</span>O2  <span class="o">-</span>c RS<span class="o">-</span>DBI.c <span class="o">-</span>o RS<span class="o">-</span>DBI.o
+</span><span class='line'>clang <span class="o">-</span>I<span class="o">/</span>Library<span class="o">/</span>Frameworks<span class="o">/</span>R.framework<span class="o">/</span>Resources<span class="o">/</span>include <span class="o">-</span>DNDEBUG <span class="o">-</span>I<span class="o">/</span>usr<span class="o">/</span>local<span class="o">/</span>include<span class="o">/</span>mysql <span class="o">-</span>I<span class="o">/</span>usr<span class="o">/</span>local<span class="o">/</span>include <span class="o">-</span>I<span class="o">/</span>usr<span class="o">/</span>local<span class="o">/</span>include<span class="o">/</span>freetype2 <span class="o">-</span>I<span class="o">/</span>opt<span class="o">/</span>X11<span class="o">/</span>include    <span class="o">-</span>fPIC  <span class="o">-</span>Wall <span class="o">-</span>mtune<span class="o">=</span>core2 <span class="o">-</span>g <span class="o">-</span>O2  <span class="o">-</span>c RS<span class="o">-</span>MySQL.c <span class="o">-</span>o RS<span class="o">-</span>MySQL.o
+</span><span class='line'>clang <span class="o">-</span>dynamiclib <span class="o">-</span>Wl<span class="p">,</span><span class="o">-</span>headerpad_max_install_names <span class="o">-</span>undefined dynamic_lookup <span class="o">-</span>single_module <span class="o">-</span>multiply_defined suppress <span class="o">-</span>L<span class="o">/</span>usr<span class="o">/</span>local<span class="o">/</span>lib <span class="o">-</span>o RMySQL.so RS<span class="o">-</span>DBI.o RS<span class="o">-</span>MySQL.o <span class="o">-</span>lmysqlclient <span class="o">-</span>lz <span class="o">-</span><span class="k-Variable">F</span><span class="o">/</span>Library<span class="o">/</span>Frameworks<span class="o">/</span>R.framework<span class="o">/</span>.. <span class="o">-</span>framework R <span class="o">-</span>Wl<span class="p">,</span><span class="o">-</span>framework <span class="o">-</span>Wl<span class="p">,</span>CoreFoundation
+</span><span class='line'>installing to <span class="o">/</span>Library<span class="o">/</span>Frameworks<span class="o">/</span>R.framework<span class="o">/</span>Versions<span class="o">/</span><span class="m">3.1</span><span class="o">/</span>Resources<span class="o">/</span>library<span class="o">/</span>RMySQL<span class="o">/</span>libs
+</span><span class='line'><span class="o">**</span> R
+</span><span class='line'><span class="o">**</span> inst
+</span><span class='line'><span class="o">**</span> preparing package <span class="kr">for</span> lazy loading
+</span><span class='line'>Creating a generic <span class="kr">function</span> <span class="kr">for</span> ‘format’ from package ‘base’ <span class="kr">in</span> package ‘RMySQL’
+</span><span class='line'>Creating a generic <span class="kr">function</span> <span class="kr">for</span> ‘print’ from package ‘base’ <span class="kr">in</span> package ‘RMySQL’
+</span><span class='line'><span class="o">**</span> help
+</span><span class='line'><span class="o">***</span> installing help indices
+</span><span class='line'><span class="o">**</span> building package indices
+</span><span class='line'><span class="o">**</span> testing <span class="kr">if</span> installed package can be loaded
+</span><span class='line'><span class="o">*</span> DONE <span class="p">(</span>RMySQL<span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Transferring Existing Data to MySQL</h2>
+
+<p>Having a database is useless unless we can easily convert our existing data.frames
+into MySQL tables.  Let&#8217;s try this using the <code>Thurstone</code> dataset from the Bill&#8217;s <code>psych</code> package:</p>
+
+<figure class='code'><figcaption><span>Moving Thurstone to RDS</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>library<span class="p">(</span>RMySQL<span class="p">)</span>
+</span><span class='line'>library<span class="p">(</span>psych<span class="p">)</span>
+</span><span class='line'>con <span class="o">&lt;-</span> dbConnect<span class="p">(</span>MySQL<span class="p">(),</span>
+</span><span class='line'>    user <span class="o">=</span> <span class="s">&#39;RDSUser&#39;</span><span class="p">,</span>
+</span><span class='line'>    password <span class="o">=</span> <span class="s">&#39;YourPass&#39;</span><span class="p">,</span>
+</span><span class='line'>    host <span class="o">=</span> <span class="s">&#39;RDS Host&#39;</span><span class="p">,</span>
+</span><span class='line'>    dbname<span class="o">=</span><span class="s">&#39;YourDB&#39;</span><span class="p">)</span>
+</span><span class='line'>dbWriteTable<span class="p">(</span>conn <span class="o">=</span> con<span class="p">,</span> name <span class="o">=</span> <span class="s">&#39;Test&#39;</span><span class="p">,</span> value <span class="o">=</span> as.data.frame<span class="p">(</span>Thurstone<span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There! Now we have transferred out data.frame to our SQL database.</p>
+
+<p><img class="center" src="http://frenchja.github.com/images/rds3.png"></p>
+
+<h2>Useful Packages for Fast DB Operations</h2>
+
+<p>Ideally, we want to have one set of analysis code that is somewhat agnostic to <em>how</em>
+the data are stored.  I suggest looking into Hadley&#8217;s new <a href="http://blog.rstudio.org/2014/01/17/introducing-dplyr/"><code>dplyr</code></a> package
+(<a href="https://github.com/hadley/dplyr">Github</a>). <code>dplyr</code> is able to filter, sort, group, and summarize data
+quickly whether it is stored in a data.frame, data.table, or database. Database operations may not always be as
+fast as a data.table operation, but again, the advantage is that you don&#8217;t need to feed all of your data into memory.</p>
+
+<p>Hadley provides a few vignettes for getting used to <code>dplyr</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>vignette<span class="p">(</span><span class="s">&quot;introduction&quot;</span><span class="p">,</span> package <span class="o">=</span> <span class="s">&quot;dplyr&quot;</span><span class="p">)</span>
+</span><span class='line'>vignette<span class="p">(</span><span class="s">&quot;databases&quot;</span><span class="p">,</span> package <span class="o">=</span> <span class="s">&quot;dplyr&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Fixing knitr: Formatting statistical output to 2 digits in R]]></title>
     <link href="http://frenchja.github.com/blog/2014/04/25/formatting-sweave-and-knitr-output-for-2-digits/"/>
-    <updated>2014-04-25T16:53:00-05:00</updated>
+    <updated>2014-04-25T16:53:00-07:00</updated>
     <id>http://frenchja.github.com/blog/2014/04/25/formatting-sweave-and-knitr-output-for-2-digits</id>
     <content type="html"><![CDATA[<h3>Overview of reproducible research</h3>
 
@@ -448,7 +761,7 @@
   <entry>
     <title type="html"><![CDATA[Faster Tetrachoric Correlations]]></title>
     <link href="http://frenchja.github.com/blog/2013/11/07/faster-tetrachoric-correlations/"/>
-    <updated>2013-11-07T16:48:00-06:00</updated>
+    <updated>2013-11-07T16:48:00-08:00</updated>
     <id>http://frenchja.github.com/blog/2013/11/07/faster-tetrachoric-correlations</id>
     <content type="html"><![CDATA[<h2>What are tetra- and polychoric correlations?</h2>
 
@@ -562,7 +875,7 @@
   <entry>
     <title type="html"><![CDATA[Analyze Student Exam Items using IRT]]></title>
     <link href="http://frenchja.github.com/blog/2013/10/25/analyzing-student-exams-using-irt/"/>
-    <updated>2013-10-25T14:26:00-05:00</updated>
+    <updated>2013-10-25T14:26:00-07:00</updated>
     <id>http://frenchja.github.com/blog/2013/10/25/analyzing-student-exams-using-irt</id>
     <content type="html"><![CDATA[<p>I&#8217;ve cross-posted this at the <a href="http://sapa-project.org/blog/">SAPA Project&#8217;s blog</a>.</p>
 
@@ -723,7 +1036,7 @@ being taught.  Next, we can rescale the grades, creating a mean of 87.5 and a st
   <entry>
     <title type="html"><![CDATA[Easy Sweave for LaTeX and R]]></title>
     <link href="http://frenchja.github.com/blog/2013/08/16/easy-sweaving-for-latex-and-r/"/>
-    <updated>2013-08-16T12:41:00-05:00</updated>
+    <updated>2013-08-16T12:41:00-07:00</updated>
     <id>http://frenchja.github.com/blog/2013/08/16/easy-sweaving-for-latex-and-r</id>
     <content type="html"><![CDATA[<p>When you&#8217;re writing up reports using statistics from R, it can be tiresome
 to constantly copy and paste results from the R Console.  To get around this, many of us use Sweave, which allows us to <em>embed</em> R code in LaTeX files.
@@ -812,7 +1125,7 @@ editor, TeXShop.  <a href="http://cameron.bracken.bz/sweave-for-texshop">Cameron
   <entry>
     <title type="html"><![CDATA[Installing R in Linux]]></title>
     <link href="http://frenchja.github.com/blog/2013/03/11/installing-r-in-linux/"/>
-    <updated>2013-03-11T17:18:00-05:00</updated>
+    <updated>2013-03-11T17:18:00-07:00</updated>
     <id>http://frenchja.github.com/blog/2013/03/11/installing-r-in-linux</id>
     <content type="html"><![CDATA[<p>This guide is intended to faciliate the installation of up-to-date R packages
 for users new to either R or Linux.  Unlike Windows binaries or Mac packages,
@@ -1046,7 +1359,7 @@ many users, I chose to install RStudio Server on our lab server.</p>
   <entry>
     <title type="html"><![CDATA[Faster SSCC  Access using Bash]]></title>
     <link href="http://frenchja.github.com/blog/2012/04/05/faster-sscc-access-using-bash/"/>
-    <updated>2012-04-05T19:08:00-05:00</updated>
+    <updated>2012-04-05T19:08:00-07:00</updated>
     <id>http://frenchja.github.com/blog/2012/04/05/faster-sscc-access-using-bash</id>
     <content type="html"><![CDATA[<p>I use SSH regularly to login remotely to servers for experiments and
 data analysis.  For instance, <a href="http://www.it.northwestern.edu/research/sscc/">Northwestern&#8217;s Social Sciences Computing
@@ -1139,7 +1452,7 @@ using Ethernet.</p>
   <entry>
     <title type="html"><![CDATA[Analyzing Qualtrics Data in R using Github Packages]]></title>
     <link href="http://frenchja.github.com/blog/2012/03/27/integrating-r-and-qualtrics/"/>
-    <updated>2012-03-27T14:23:00-05:00</updated>
+    <updated>2012-03-27T14:23:00-07:00</updated>
     <id>http://frenchja.github.com/blog/2012/03/27/integrating-r-and-qualtrics</id>
     <content type="html"><![CDATA[<p><a href="http://www.qualtrics.com/">Qualtrics</a> is an online survey platform similar to SurveyMonkey that is used by researchers to
 collect data.  Until recently, one had to manually download the data in either SPSS or .csv format, making ongoing data
@@ -1380,7 +1693,7 @@ as executable:</p>
   <entry>
     <title type="html"><![CDATA[Graphing Error Bars for Repeated-Measures Variables with ggplot2]]></title>
     <link href="http://frenchja.github.com/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2/"/>
-    <updated>2012-03-07T10:37:00-06:00</updated>
+    <updated>2012-03-07T10:37:00-08:00</updated>
     <id>http://frenchja.github.com/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2</id>
     <content type="html"><![CDATA[<p>When presenting data, confidence intervals and error bars let the audience know the amount of uncertainty in the data, and
 see how much of the variance is explained by the reported effect of an experiment.  While this is straightforward for
@@ -1419,7 +1732,7 @@ intervals in within‐subject designs.</em></p>
   <entry>
     <title type="html"><![CDATA[Using Figures within Tables in LaTeX]]></title>
     <link href="http://frenchja.github.com/blog/2012/01/17/using-figures-within-tables-in-latex/"/>
-    <updated>2012-01-17T18:23:00-06:00</updated>
+    <updated>2012-01-17T18:23:00-08:00</updated>
     <id>http://frenchja.github.com/blog/2012/01/17/using-figures-within-tables-in-latex</id>
     <content type="html"><![CDATA[<p>By using LaTeX to author APA manuscripts, researchers can address many problems associated with formatting their results
 into tables and figures. For example, ANOVA tables can be readily generated using the

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: repeated-measures | Jason A. French]]></title>
   <link href="http://frenchja.github.com/blog/categories/repeated-measures/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-05-28T16:19:03-05:00</updated>
+  <updated>2014-07-03T13:02:57-07:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Graphing Error Bars for Repeated-Measures Variables with ggplot2]]></title>
     <link href="http://frenchja.github.com/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2/"/>
-    <updated>2012-03-07T10:37:00-06:00</updated>
+    <updated>2012-03-07T10:37:00-08:00</updated>
     <id>http://frenchja.github.com/blog/2012/03/07/graphing-error-bars-for-repeated-measures-variables-with-ggplot2</id>
     <content type="html"><![CDATA[<p>When presenting data, confidence intervals and error bars let the audience know the amount of uncertainty in the data, and
 see how much of the variance is explained by the reported effect of an experiment.  While this is straightforward for

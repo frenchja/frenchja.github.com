@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Sweave | Jason A. French]]></title>
   <link href="http://frenchja.github.com/blog/categories/sweave/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-05-28T16:19:03-05:00</updated>
+  <updated>2014-07-03T13:02:57-07:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Fixing knitr: Formatting statistical output to 2 digits in R]]></title>
     <link href="http://frenchja.github.com/blog/2014/04/25/formatting-sweave-and-knitr-output-for-2-digits/"/>
-    <updated>2014-04-25T16:53:00-05:00</updated>
+    <updated>2014-04-25T16:53:00-07:00</updated>
     <id>http://frenchja.github.com/blog/2014/04/25/formatting-sweave-and-knitr-output-for-2-digits</id>
     <content type="html"><![CDATA[<h3>Overview of reproducible research</h3>
 
@@ -281,7 +281,7 @@ paste(res, collapse = ", ")
   <entry>
     <title type="html"><![CDATA[Easy Sweave for LaTeX and R]]></title>
     <link href="http://frenchja.github.com/blog/2013/08/16/easy-sweaving-for-latex-and-r/"/>
-    <updated>2013-08-16T12:41:00-05:00</updated>
+    <updated>2013-08-16T12:41:00-07:00</updated>
     <id>http://frenchja.github.com/blog/2013/08/16/easy-sweaving-for-latex-and-r</id>
     <content type="html"><![CDATA[<p>When you're writing up reports using statistics from R, it can be tiresome
 to constantly copy and paste results from the R Console.  To get around this, many of us use Sweave, which allows us to <em>embed</em> R code in LaTeX files.

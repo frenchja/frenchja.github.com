@@ -4,7 +4,7 @@
   <title><![CDATA[Category: knitr | Jason A. French]]></title>
   <link href="http://frenchja.github.com/blog/categories/knitr/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-05-28T16:19:03-05:00</updated>
+  <updated>2014-07-03T13:02:57-07:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Fixing knitr: Formatting statistical output to 2 digits in R]]></title>
     <link href="http://frenchja.github.com/blog/2014/04/25/formatting-sweave-and-knitr-output-for-2-digits/"/>
-    <updated>2014-04-25T16:53:00-05:00</updated>
+    <updated>2014-04-25T16:53:00-07:00</updated>
     <id>http://frenchja.github.com/blog/2014/04/25/formatting-sweave-and-knitr-output-for-2-digits</id>
     <content type="html"><![CDATA[<h3>Overview of reproducible research</h3>
 

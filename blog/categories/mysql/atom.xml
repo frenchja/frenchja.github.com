@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: MySQL | Jason A. French]]></title>
+  <link href="http://frenchja.github.com/blog/categories/mysql/atom.xml" rel="self"/>
+  <link href="http://frenchja.github.com/"/>
+  <updated>2014-07-03T13:02:57-07:00</updated>
+  <id>http://frenchja.github.com/</id>
+  <author>
+    <name><![CDATA[Jason A. French]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Using R with MySQL Databases]]></title>
+    <link href="http://frenchja.github.com/blog/2014/07/03/using-r-with-mysql-databases/"/>
+    <updated>2014-07-03T10:58:00-07:00</updated>
+    <id>http://frenchja.github.com/blog/2014/07/03/using-r-with-mysql-databases</id>
+    <content type="html"><![CDATA[<h2>Overview</h2>
+
+<p>When I began using R, like most researchers I kept all my data in some combination
+of R's native <a href="http://stat.ethz.ch/R-manual/R-devel/library/base/html/data.frame.html">data.frame</a>
+format or a <a href="http://en.wikipedia.org/wiki/Comma-separated_values">CSV</a> file that my analysis would continually read.
+However, as I began to analyze big datasets at the <a href="https://sapa-project.org">SAPA Project</a>
+and at <a href="http://insightdatascience.com/">Insight</a>,
+I realized that there is a lot of value to instead keeping your data in a MySQL database.</p>
+
+<!-- more -->
+
+
+<p>For example, relational databases are better at handling large datasets and are more efficient
+at storing data that CSVs.
+When reading data stored in a data.frame or CSV file, the data must all fit <em>in memory</em>.
+All of your data may not fit easily in memory, as is the case if you have a
+large dataset or are cursed with an older computers with &lt;= 4GB of RAM.
+In these cases, every time you load your dataset or do an expensive operation
+your computer will slow to a painful crawl as your hard drives grind while your operating system
+switches to using <a href="http://en.wikipedia.org/wiki/Virtual_memory">virtual memory</a>, rather than RAM.
+You can get around this by using random sampling to sample a smaller subset (or multiple subsets
+if you want to bootstrap), but you can also use this technique on a SQL database, but SQL databases
+only load the data you're working with into the machine's RAM.</p>
+
+<p>Another reason I prefer SQL databases are due to safety and security. Services such as
+Amazon's RDS (i.e., Relational Database Service) offer frequent backups and replication
+across machines. This means that if your machine dies, your data is safe and uncorrupted. If I were storing
+data in an .Rdata file, I'd have to rely on my OS (e.g., Time Machine) or a cloud-based storage solution
+(e.g., Dropbox or CrashPlan) to backup my data. Additionally, I can give a collaborator access
+to only needed portions of the data by locking down their SQL username to certain tables
+and operations.</p>
+
+<p>Last, I find relational databases such as MySQL to be scalable. In the case of using Amazon's RDS,
+you can buy as much storage or bandwidth as you need to complete your analysis, dissertation,
+or build your web app. If I need multiple nodes or machines to analyze the data, I don't need to keep a copy of
+the data on each machine.  I simply pass the SQL authentication parameters to each machine and the
+data is accessed from a central location.</p>
+
+<p>So let's begin by setting up a <a href="http://aws.amazon.com/rds/free/">Free-Tier RDS service</a> on Amazon and then move some
+data from R to the RDS database.</p>
+
+<h2>Setting up an RDS Instance</h2>
+
+<p>Amazon currently offers a Free Tier for their RDS storage.  It offers:
+* Enough hours to run a DB Instance continuously each month,
+* 20 GB of database storage,
+* 10 million I/O operations, and
+* automated database backups.</p>
+
+<p>To setup an RDS instance:
+1. Sign into the AWS Management Console.
+2. Select 'RDS' under the 'Database' group.
+3. Click 'Launch DB Instance'.
+4. Select 'MySQL' for the database engine.
+5. Select 'No' when asked if you intend to use the database for production purposes. Accidentally selecting 'Yes' could result in hefty fees.
+6. For 'Instance Class', select 'db.t1.micro', 'No' for 'Multi-AZ Deployment', and 20 GB for 'Allocated Storage'.
+7. Click 'Next' and launch your RDS instance.</p>
+
+<p>At this point, you should have a blank RDS database with a master username and password combination.<br/>
+Be sure to test that you can connect - I suggest using <a href="http://www.sequelpro.com/">Sequel Pro</a>. <em>If you can't connect,
+you may need to open up port 3306 in your EC2 Security Group</em>.</p>
+
+<p>Click on your new RDS Instance to get the hostname to connect to and note the database name:</p>
+
+<p><img class="center" src="/images/rds1.png"></p>
+
+<p>Fire up Sequel Pro and test out your new database.  If you want to connect using SSL, you'll need the SSH key you generated when
+you first created your EC2 instance (not covered here).</p>
+
+<p><img class="center" src="/images/rds2.png"></p>
+
+<h2>Installing the RMySQL package</h2>
+
+<p>Previously, I found installing <a href="">RMySQL</a> to be very difficult when I was using MacPorts.  However,
+having switched to <a href="http://brew.sh/">Homebrew</a> on my new machine, RMySQL found all my MySQL headers and libraries as
+<a href="http://brew.sh/">Homebrew</a> uses the <code>/usr/local</code> directory to store your software, which is already in your BASH $PATH.</p>
+
+<p>Before compiling RMySQL, first compile MySQL using Homebrew:</p>
+
+<p>```bash Installing MySQL using Homebrew</p>
+
+<h1>If you haven't already, install Homebrew:</h1>
+
+<h1>ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"</h1>
+
+<h1>Install MySQL</h1>
+
+<p>brew install mysql
+```</p>
+
+<p>```
+==> Downloading https://downloads.sf.net/project/machomebrew/Bottles/mysql-5.6.1
+Already downloaded: /Library/Caches/Homebrew/mysql-5.6.19.mavericks.bottle.tar.gz
+==> Pouring mysql-5.6.19.mavericks.bottle.tar.gz
+==> Caveats
+A "/etc/my.cnf" from another install may interfere with a Homebrew-built
+server starting up correctly.</p>
+
+<p>To connect:</p>
+
+<pre><code>mysql -uroot
+</code></pre>
+
+<p>To have launchd start mysql at login:</p>
+
+<pre><code>ln -sfv /usr/local/opt/mysql/*.plist ~/Library/LaunchAgents
+</code></pre>
+
+<p>Then to load mysql now:</p>
+
+<pre><code>launchctl load ~/Library/LaunchAgents/homebrew.mxcl.mysql.plist
+</code></pre>
+
+<p>Or, if you don't want/need launchctl, you can just run:</p>
+
+<pre><code>mysql.server start
+</code></pre>
+
+<p>==> Summary
+🍺  /usr/local/Cellar/mysql/5.6.19: 9536 files, 338M</p>
+
+<p>```</p>
+
+<p>Next, compile RMySQL from source:</p>
+
+<p><code>r Compiling RMySQL
+install.packages('RMySQL', type = 'source')
+</code></p>
+
+<p>```
+trying URL 'http://cran.rstudio.com/src/contrib/RMySQL_0.9-3.tar.gz'
+Content type 'application/x-gzip' length 165363 bytes (161 Kb)</p>
+
+<h1>opened URL</h1>
+
+<p>downloaded 161 Kb</p>
+
+<ul>
+<li>installing <em>source</em> package ‘RMySQL’ ...
+<strong> package ‘RMySQL’ successfully unpacked and MD5 sums checked
+checking for gcc... gcc
+checking for C compiler default output file name... a.out
+checking whether the C compiler works... yes
+checking whether we are cross compiling... no
+checking for suffix of executables...
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to accept ANSI C... none needed
+checking how to run the C preprocessor... gcc -E
+checking for compress in -lz... yes
+checking for getopt_long in -lc... yes
+checking for mysql_init in -lmysqlclient... yes
+checking for egrep... grep -E
+checking for ANSI C header files...
+rm: conftest.dSYM: is a directory
+rm: conftest.dSYM: is a directory
+yes
+checking for sys/types.h... yes
+checking for sys/stat.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for memory.h... yes
+checking for strings.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for unistd.h... yes
+checking mysql.h usability... no
+checking mysql.h presence... no
+checking for mysql.h... no
+checking /usr/local/include/mysql/mysql.h usability... yes
+checking /usr/local/include/mysql/mysql.h presence... yes
+checking for /usr/local/include/mysql/mysql.h... yes
+configure: creating ./config.status
+config.status: creating src/Makevars
+</strong> libs
+clang -I/Library/Frameworks/R.framework/Resources/include -DNDEBUG -I/usr/local/include/mysql -I/usr/local/include -I/usr/local/include/freetype2 -I/opt/X11/include    -fPIC  -Wall -mtune=core2 -g -O2  -c RS-DBI.c -o RS-DBI.o
+clang -I/Library/Frameworks/R.framework/Resources/include -DNDEBUG -I/usr/local/include/mysql -I/usr/local/include -I/usr/local/include/freetype2 -I/opt/X11/include    -fPIC  -Wall -mtune=core2 -g -O2  -c RS-MySQL.c -o RS-MySQL.o
+clang -dynamiclib -Wl,-headerpad_max_install_names -undefined dynamic_lookup -single_module -multiply_defined suppress -L/usr/local/lib -o RMySQL.so RS-DBI.o RS-MySQL.o -lmysqlclient -lz -F/Library/Frameworks/R.framework/.. -framework R -Wl,-framework -Wl,CoreFoundation
+installing to /Library/Frameworks/R.framework/Versions/3.1/Resources/library/RMySQL/libs
+<strong> R
+</strong> inst
+<strong> preparing package for lazy loading
+Creating a generic function for ‘format’ from package ‘base’ in package ‘RMySQL’
+Creating a generic function for ‘print’ from package ‘base’ in package ‘RMySQL’
+</strong> help
+<strong>* installing help indices
+</strong> building package indices
+** testing if installed package can be loaded</li>
+<li>DONE (RMySQL)
+```</li>
+</ul>
+
+
+<h2>Transferring Existing Data to MySQL</h2>
+
+<p>Having a database is useless unless we can easily convert our existing data.frames
+into MySQL tables.  Let's try this using the <code>Thurstone</code> dataset from the Bill's <code>psych</code> package:</p>
+
+<p>```r Moving Thurstone to RDS
+library(RMySQL)
+library(psych)
+con &lt;- dbConnect(MySQL(),</p>
+
+<pre><code>user = 'RDSUser',
+password = 'YourPass',
+host = 'RDS Host',
+dbname='YourDB')
+</code></pre>
+
+<p>dbWriteTable(conn = con, name = 'Test', value = as.data.frame(Thurstone))
+```</p>
+
+<p>There! Now we have transferred out data.frame to our SQL database.</p>
+
+<p><img class="center" src="/images/rds3.png"></p>
+
+<h2>Useful Packages for Fast DB Operations</h2>
+
+<p>Ideally, we want to have one set of analysis code that is somewhat agnostic to <em>how</em>
+the data are stored.  I suggest looking into Hadley's new <a href="http://blog.rstudio.org/2014/01/17/introducing-dplyr/"><code>dplyr</code></a> package
+(<a href="https://github.com/hadley/dplyr">Github</a>). <code>dplyr</code> is able to filter, sort, group, and summarize data
+quickly whether it is stored in a data.frame, data.table, or database. Database operations may not always be as
+fast as a data.table operation, but again, the advantage is that you don't need to feed all of your data into memory.</p>
+
+<p>Hadley provides a few vignettes for getting used to <code>dplyr</code>:</p>
+
+<p><code>r
+vignette("introduction", package = "dplyr")
+vignette("databases", package = "dplyr")
+</code></p>
+]]></content>
+  </entry>
+  
+</feed>
