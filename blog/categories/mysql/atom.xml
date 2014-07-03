@@ -4,7 +4,7 @@
   <title><![CDATA[Category: MySQL | Jason A. French]]></title>
   <link href="http://frenchja.github.com/blog/categories/mysql/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-07-03T13:05:10-07:00</updated>
+  <updated>2014-07-03T13:10:51-07:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -30,6 +30,8 @@ I realized that there is a lot of value to instead keeping your data in a MySQL 
 <!-- more -->
 
 
+<h3>Memory Efficiency</h3>
+
 <p>For example, relational databases are better at handling large datasets and are more efficient
 at storing data that CSVs.
 When reading data stored in a data.frame or CSV file, the data must all fit <em>in memory</em>.
@@ -42,15 +44,22 @@ You can get around this by using random sampling to sample a smaller subset (or 
 if you want to bootstrap), but you can also use this technique on a SQL database, but SQL databases
 only load the data you're working with into the machine's RAM.</p>
 
-<p>Another reason I prefer SQL databases are due to safety and security. Services such as
-Amazon's RDS (i.e., Relational Database Service) offer frequent backups and replication
+<h3>Safety and Security</h3>
+
+<p>Two additional reasons I prefer SQL databases are safety and security. Services such as
+Amazon's RDS (i.e., Relational Database Service) offer frequent backups and easily replication
 across machines. This means that if your machine dies, your data is safe and uncorrupted. If I were storing
 data in an .Rdata file, I'd have to rely on my OS (e.g., Time Machine) or a cloud-based storage solution
-(e.g., Dropbox or CrashPlan) to backup my data. Additionally, I can give a collaborator access
-to only needed portions of the data by locking down their SQL username to certain tables
-and operations.</p>
+(e.g., Dropbox or CrashPlan) to backup my data. Worse, if I were storing my data in an Excel database and Excel
+crashed, I may risk losing years of progress.</p>
 
-<p>Last, I find relational databases such as MySQL to be scalable. In the case of using Amazon's RDS,
+<p>Furthermore, I can give a collaborator access
+to only needed portions of the data by locking down their SQL username to certain tables
+and operations. By limiting access, we limit risk of corruption and overwriting years of progress.</p>
+
+<h3>Scalable as your need grows</h3>
+
+<p>Last, I find relational databases such as MySQL to be more scalable. In the case of using Amazon's RDS,
 you can buy as much storage or bandwidth as you need to complete your analysis, dissertation,
 or build your web app. If I need multiple nodes or machines to analyze the data, I don't need to keep a copy of
 the data on each machine.  I simply pass the SQL authentication parameters to each machine and the
