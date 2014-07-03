@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Amazon RDS | Jason A. French]]></title>
   <link href="http://frenchja.github.com/blog/categories/amazon-rds/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-07-03T13:43:25-07:00</updated>
+  <updated>2014-07-03T13:46:38-07:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -249,13 +249,12 @@ dbname='YourDB')
 <p>dbWriteTable(conn = con, name = 'Test', value = as.data.frame(Thurstone))
 ```</p>
 
-<p>There! Now we have transferred our data.frame to our SQL database. Similarly, if
-we want to read data <em>from</em> MySQL to R, we can use the <code>dbReadTable()</code> function,
-which returns a data.frame.</p>
+<p>There! Now we have transferred our data.frame to our SQL database.</p>
 
 <p><img class="center" src="/images/rds3.png"></p>
 
-<p>Last, you can keep your data in MySQL and stream it into R for specific analyses.
+<p>Similarly, if you want to read data <em>from</em> MySQL to R, we can use the <code>dbReadTable()</code> function,
+which returns a data.frame. You can keep your data in MySQL and stream it into R for specific analyses.
 Since <code>dbReadTable</code> outputs a data.frame, we can use this command in place of a data.frame.</p>
 
 <p>Let's run an <code>omega()</code> on the Thurstone table:</p>
@@ -328,6 +327,8 @@ Minimum correlation of factor score estimates 0.49 0.08 0.03 0.11</p>
 Omega general for total scores and subscales  0.74 0.58 0.50 0.47
 Omega group for total scores and subscales    0.16 0.35 0.32 0.32
 ```</p>
+
+<p><img class="center" src="/images/rds4.png"></p>
 
 <h2>Useful Packages for Fast DB Operations</h2>
 

@@ -420,13 +420,12 @@ into MySQL tables.  Let&#8217;s try this using the <code>Thurstone</code> datase
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>There! Now we have transferred our data.frame to our SQL database. Similarly, if
-we want to read data <em>from</em> MySQL to R, we can use the <code>dbReadTable()</code> function,
-which returns a data.frame.</p>
+<p>There! Now we have transferred our data.frame to our SQL database.</p>
 
 <p><img class="center" src="/images/rds3.png"></p>
 
-<p>Last, you can keep your data in MySQL and stream it into R for specific analyses.
+<p>Similarly, if you want to read data <em>from</em> MySQL to R, we can use the <code>dbReadTable()</code> function,
+which returns a data.frame. You can keep your data in MySQL and stream it into R for specific analyses.
 Since <code>dbReadTable</code> outputs a data.frame, we can use this command in place of a data.frame.</p>
 
 <p>Let&#8217;s run an <code>omega()</code> on the Thurstone table:</p>
@@ -546,6 +545,8 @@ Since <code>dbReadTable</code> outputs a data.frame, we can use this command in 
 </span><span class='line'>Omega group <span class="kr">for</span> total scores and subscales    <span class="m">0.16</span> <span class="m">0.35</span> <span class="m">0.32</span> <span class="m">0.32</span>
 </span></code></pre></td></tr></table></div></figure>
 
+
+<p><img class="center" src="/images/rds4.png"></p>
 
 <h2>Useful Packages for Fast DB Operations</h2>
 
