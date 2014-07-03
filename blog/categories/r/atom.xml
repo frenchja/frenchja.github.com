@@ -4,7 +4,7 @@
   <title><![CDATA[Category: R | Jason A. French]]></title>
   <link href="http://frenchja.github.com/blog/categories/r/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-07-03T13:17:38-07:00</updated>
+  <updated>2014-07-03T13:19:45-07:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -72,20 +72,28 @@ data from R to the RDS database.</p>
 
 <h2>Setting up an RDS Instance</h2>
 
-<p>Amazon currently offers a Free Tier for their RDS storage.  It offers:
-* Enough hours to run a DB Instance continuously each month,
-* 20 GB of database storage,
-* 10 million I/O operations, and
-* automated database backups.</p>
+<p>Amazon currently offers a Free Tier for their RDS storage.  It offers:</p>
 
-<p>To setup an RDS instance:
-1. Sign into the AWS Management Console.
-2. Select 'RDS' under the 'Database' group.
-3. Click 'Launch DB Instance'.
-4. Select 'MySQL' for the database engine.
-5. Select 'No' when asked if you intend to use the database for production purposes. Accidentally selecting 'Yes' could result in hefty fees.
-6. For 'Instance Class', select 'db.t1.micro', 'No' for 'Multi-AZ Deployment', and 20 GB for 'Allocated Storage'.
-7. Click 'Next' and launch your RDS instance.</p>
+<ul>
+<li>Enough hours to run a DB Instance continuously each month,</li>
+<li>20 GB of database storage,</li>
+<li>10 million I/O operations, and</li>
+<li>automated database backups.</li>
+</ul>
+
+
+<p>To setup an RDS instance:</p>
+
+<ol>
+<li>Sign into the AWS Management Console.</li>
+<li>Select 'RDS' under the 'Database' group.</li>
+<li>Click 'Launch DB Instance'.</li>
+<li>Select 'MySQL' for the database engine.</li>
+<li>Select 'No' when asked if you intend to use the database for production purposes. Accidentally selecting 'Yes' could result in hefty fees.</li>
+<li>For 'Instance Class', select 'db.t1.micro', 'No' for 'Multi-AZ Deployment', and 20 GB for 'Allocated Storage'.</li>
+<li>Click 'Next' and launch your RDS instance.</li>
+</ol>
+
 
 <p>At this point, you should have a blank RDS database with a master username and password combination.<br/>
 Be sure to test that you can connect - I suggest using <a href="http://www.sequelpro.com/">Sequel Pro</a>. <em>If you can't connect,
