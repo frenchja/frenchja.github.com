@@ -4,7 +4,7 @@
   <title><![CDATA[Jason A. French]]></title>
   <link href="http://frenchja.github.com/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-07-03T13:23:52-07:00</updated>
+  <updated>2014-07-03T13:43:25-07:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -297,7 +297,7 @@ having switched to <a href="http://brew.sh/">Homebrew</a> on my new machine, RMy
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h2>Transferring Existing Data to MySQL</h2>
+<h2>Transferring Existing Data to/from MySQL</h2>
 
 <p>Having a database is useless unless we can easily convert our existing data.frames
 into MySQL tables.  Let&#8217;s try this using the <code>Thurstone</code> dataset from the Bill&#8217;s <code>psych</code> package:</p>
@@ -326,6 +326,127 @@ we want to read data <em>from</em> MySQL to R, we can use the <code>dbReadTable(
 which returns a data.frame.</p>
 
 <p><img class="center" src="http://frenchja.github.com/images/rds3.png"></p>
+
+<p>Last, you can keep your data in MySQL and stream it into R for specific analyses.
+Since <code>dbReadTable</code> outputs a data.frame, we can use this command in place of a data.frame.</p>
+
+<p>Let&#8217;s run an <code>omega()</code> on the Thurstone table:</p>
+
+<figure class='code'><figcaption><span>Thurstone Omega</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>omega<span class="p">(</span>dbReadTable<span class="p">(</span>conn <span class="o">=</span> con<span class="p">,</span>name <span class="o">=</span> <span class="s">&#39;Test&#39;</span><span class="p">),</span>title<span class="o">=</span><span class="s">&quot;9 variables from Thurstone&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Thurstone Omega</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>Loading required package<span class="o">:</span> MASS
+</span><span class='line'>Loading required package<span class="o">:</span> GPArotation
+</span><span class='line'>Loading required package<span class="o">:</span> parallel
+</span><span class='line'><span class="m">9</span> variables from Thurstone
+</span><span class='line'>Call<span class="o">:</span> omega<span class="p">(</span>m <span class="o">=</span> dbReadTable<span class="p">(</span>conn <span class="o">=</span> con<span class="p">,</span> name <span class="o">=</span> <span class="s">&quot;Test&quot;</span><span class="p">),</span> title <span class="o">=</span> <span class="s">&quot;9 variables from Thurstone&quot;</span><span class="p">)</span>
+</span><span class='line'>Alpha<span class="o">:</span>                 <span class="m">0.89</span>
+</span><span class='line'>G.6<span class="o">:</span>                   <span class="m">0.91</span>
+</span><span class='line'>Omega Hierarchical<span class="o">:</span>    <span class="m">0.74</span>
+</span><span class='line'>Omega H asymptotic<span class="o">:</span>    <span class="m">0.79</span>
+</span><span class='line'>Omega Total            <span class="m">0.93</span>
+</span><span class='line'>
+</span><span class='line'>Schmid Leiman Factor loadings greater than  <span class="m">0.2</span>
+</span><span class='line'>                   g   F1<span class="o">*</span>   F2<span class="o">*</span>   F3<span class="o">*</span>   h2   u2   p2
+</span><span class='line'>Sentences       <span class="m">0.71</span>  <span class="m">0.57</span>             <span class="m">0.82</span> <span class="m">0.18</span> <span class="m">0.61</span>
+</span><span class='line'>Vocabulary      <span class="m">0.73</span>  <span class="m">0.55</span>             <span class="m">0.84</span> <span class="m">0.16</span> <span class="m">0.63</span>
+</span><span class='line'>Sent_Completion <span class="m">0.68</span>  <span class="m">0.52</span>             <span class="m">0.73</span> <span class="m">0.27</span> <span class="m">0.63</span>
+</span><span class='line'>First_Letters   <span class="m">0.65</span>        <span class="m">0.56</span>       <span class="m">0.73</span> <span class="m">0.27</span> <span class="m">0.57</span>
+</span><span class='line'>X4_Letter_Words <span class="m">0.62</span>        <span class="m">0.49</span>       <span class="m">0.63</span> <span class="m">0.37</span> <span class="m">0.61</span>
+</span><span class='line'>Suffixes        <span class="m">0.56</span>        <span class="m">0.41</span>       <span class="m">0.50</span> <span class="m">0.50</span> <span class="m">0.63</span>
+</span><span class='line'>Letter_Series   <span class="m">0.59</span>              <span class="m">0.61</span> <span class="m">0.72</span> <span class="m">0.28</span> <span class="m">0.48</span>
+</span><span class='line'>Pedigrees       <span class="m">0.58</span>  <span class="m">0.23</span>        <span class="m">0.34</span> <span class="m">0.50</span> <span class="m">0.50</span> <span class="m">0.66</span>
+</span><span class='line'>Letter_Group    <span class="m">0.54</span>              <span class="m">0.46</span> <span class="m">0.53</span> <span class="m">0.47</span> <span class="m">0.56</span>
+</span><span class='line'>
+</span><span class='line'>With eigenvalues of<span class="o">:</span>
+</span><span class='line'>   g  F1<span class="o">*</span>  F2<span class="o">*</span>  F3<span class="o">*</span>
+</span><span class='line'><span class="m">3.58</span> <span class="m">0.96</span> <span class="m">0.74</span> <span class="m">0.71</span>
+</span><span class='line'>
+</span><span class='line'>general<span class="o">/</span>max  <span class="m">3.71</span>   max<span class="o">/</span>min <span class="o">=</span>   <span class="m">1.35</span>
+</span><span class='line'>mean percent general <span class="o">=</span>  <span class="m">0.6</span>    with sd <span class="o">=</span>  <span class="m">0.05</span> and cv of  <span class="m">0.09</span>
+</span><span class='line'>Explained Common Variance of the general factor <span class="o">=</span>  <span class="m">0.6</span>
+</span><span class='line'>
+</span><span class='line'>The degrees of freedom are <span class="m">12</span>  and the fit is  <span class="m">0.01</span>
+</span><span class='line'>
+</span><span class='line'>The root mean square of the residuals is  <span class="m">0.01</span>
+</span><span class='line'>The df corrected root mean square of the residuals is  <span class="m">0.01</span>
+</span><span class='line'>
+</span><span class='line'>Compare this with the adequacy of just a general factor and no group factors
+</span><span class='line'>The degrees of freedom <span class="kr">for</span> just the general factor are <span class="m">27</span>  and the fit is  <span class="m">1.48</span>
+</span><span class='line'>
+</span><span class='line'>The root mean square of the residuals is  <span class="m">0.14</span>
+</span><span class='line'>The df corrected root mean square of the residuals is  <span class="m">0.16</span>
+</span><span class='line'>
+</span><span class='line'>Measures of factor score adequacy
+</span><span class='line'>                                                 g  F1<span class="o">*</span>  F2<span class="o">*</span>  F3<span class="o">*</span>
+</span><span class='line'>Correlation of scores with factors            <span class="m">0.86</span> <span class="m">0.73</span> <span class="m">0.72</span> <span class="m">0.75</span>
+</span><span class='line'>Multiple R square of scores with factors      <span class="m">0.74</span> <span class="m">0.54</span> <span class="m">0.52</span> <span class="m">0.56</span>
+</span><span class='line'>Minimum correlation of factor score estimates <span class="m">0.49</span> <span class="m">0.08</span> <span class="m">0.03</span> <span class="m">0.11</span>
+</span><span class='line'>
+</span><span class='line'> Total<span class="p">,</span> General and Subset omega <span class="kr">for</span> each subset
+</span><span class='line'>                                                 g  F1<span class="o">*</span>  F2<span class="o">*</span>  F3<span class="o">*</span>
+</span><span class='line'>Omega total <span class="kr">for</span> total scores and subscales    <span class="m">0.93</span> <span class="m">0.92</span> <span class="m">0.83</span> <span class="m">0.79</span>
+</span><span class='line'>Omega general <span class="kr">for</span> total scores and subscales  <span class="m">0.74</span> <span class="m">0.58</span> <span class="m">0.50</span> <span class="m">0.47</span>
+</span><span class='line'>Omega group <span class="kr">for</span> total scores and subscales    <span class="m">0.16</span> <span class="m">0.35</span> <span class="m">0.32</span> <span class="m">0.32</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <h2>Useful Packages for Fast DB Operations</h2>
 
