@@ -553,7 +553,7 @@ Since <code>dbReadTable</code> outputs a data.frame, we can use this command in 
 <p>It&#8217;s important to note that in my above example, while I passed the <code>user</code> and <code>password</code>
 parameters within my <code>dbConnect()</code> function, you would <strong>never</strong> want to do this in code that
 you were sharing collaboratively.  It&#8217;s far better to store the credentials in the
-default.file where `dbConnect(MySQL())&#8220; will look when you don&#8217;t pass any credentials:</p>
+default.file where <code>dbConnect(MySQL())</code> will look when you don&#8217;t pass any credentials:</p>
 
 <figure class='code'><figcaption><span>~/.my.cnf</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
