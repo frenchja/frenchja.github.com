@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Amazon RDS | Jason A. French]]></title>
   <link href="http://frenchja.github.com/blog/categories/amazon-rds/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-07-03T13:10:51-07:00</updated>
+  <updated>2014-07-03T13:14:01-07:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -25,7 +25,9 @@ of R's native <a href="http://stat.ethz.ch/R-manual/R-devel/library/base/html/da
 format or a <a href="http://en.wikipedia.org/wiki/Comma-separated_values">CSV</a> file that my analysis would continually read.
 However, as I began to analyze big datasets at the <a href="https://sapa-project.org">SAPA Project</a>
 and at <a href="http://insightdatascience.com/">Insight</a>,
-I realized that there is a lot of value to instead keeping your data in a MySQL database.</p>
+I realized that there is a lot of value to instead keeping your data in a MySQL database.
+This post will detail a few advantages of using a database to store data and run through a
+basic example of using R to transfer data to MySQL.</p>
 
 <!-- more -->
 
@@ -240,7 +242,9 @@ dbname='YourDB')
 <p>dbWriteTable(conn = con, name = 'Test', value = as.data.frame(Thurstone))
 ```</p>
 
-<p>There! Now we have transferred out data.frame to our SQL database.</p>
+<p>There! Now we have transferred out data.frame to our SQL database. Similarly, if
+we want to read data <em>from</em> MySQL to R, we can use the <code>dbReadTable()</code> function,
+which returns a data.frame.</p>
 
 <p><img class="center" src="/images/rds3.png"></p>
 
