@@ -4,7 +4,7 @@
   <title><![CDATA[Category: MySQL | Jason A. French]]></title>
   <link href="http://frenchja.github.com/blog/categories/mysql/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-07-03T13:19:45-07:00</updated>
+  <updated>2014-07-03T13:20:49-07:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -95,8 +95,7 @@ data from R to the RDS database.</p>
 </ol>
 
 
-<p>At this point, you should have a blank RDS database with a master username and password combination.<br/>
-Be sure to test that you can connect - I suggest using <a href="http://www.sequelpro.com/">Sequel Pro</a>. <em>If you can't connect,
+<p>At this point, you should have a blank RDS database with a master username and password combination. Be sure to test that you can connect - I suggest using <a href="http://www.sequelpro.com/">Sequel Pro</a>. <em>If you can't connect,
 you may need to open up port 3306 in your EC2 Security Group</em>.</p>
 
 <p>Click on your new RDS Instance to get the hostname to connect to and note the database name:</p>
