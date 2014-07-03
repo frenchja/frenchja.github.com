@@ -4,7 +4,7 @@
   <title><![CDATA[Category: MySQL | Jason A. French]]></title>
   <link href="http://frenchja.github.com/blog/categories/mysql/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-07-03T13:04:14-07:00</updated>
+  <updated>2014-07-03T13:05:10-07:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -238,7 +238,7 @@ dbname='YourDB')
 <h2>Useful Packages for Fast DB Operations</h2>
 
 <p>Ideally, we want to have one set of analysis code that is somewhat agnostic to <em>how</em>
-the data are stored.  I suggest looking into Hadley's new <a href="http://blog.rstudio.org/2014/01/17/introducing-dplyr/"><code>dplyr</code></a> package
+the data are stored.  I suggest looking into <a href="http://had.co.nz/">Hadley Wickham's</a> new <a href="http://blog.rstudio.org/2014/01/17/introducing-dplyr/"><code>dplyr</code></a> package
 (<a href="https://github.com/hadley/dplyr">Github</a>). <code>dplyr</code> is able to filter, sort, group, and summarize data
 quickly whether it is stored in a data.frame, data.table, or database. Database operations may not always be as
 fast as a data.table operation, but again, the advantage is that you don't need to feed all of your data into memory.</p>
