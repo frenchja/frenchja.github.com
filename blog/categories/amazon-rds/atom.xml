@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Amazon RDS | Jason A. French]]></title>
   <link href="http://frenchja.github.com/blog/categories/amazon-rds/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-07-03T13:20:49-07:00</updated>
+  <updated>2014-07-03T13:23:52-07:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -249,7 +249,7 @@ dbname='YourDB')
 <p>dbWriteTable(conn = con, name = 'Test', value = as.data.frame(Thurstone))
 ```</p>
 
-<p>There! Now we have transferred out data.frame to our SQL database. Similarly, if
+<p>There! Now we have transferred our data.frame to our SQL database. Similarly, if
 we want to read data <em>from</em> MySQL to R, we can use the <code>dbReadTable()</code> function,
 which returns a data.frame.</p>
 
@@ -263,7 +263,7 @@ the data are stored.  I suggest looking into <a href="http://had.co.nz/">Hadley 
 quickly whether it is stored in a data.frame, data.table, or database. Database operations may not always be as
 fast as a data.table operation, but again, the advantage is that you don't need to feed all of your data into memory.</p>
 
-<p>Hadley provides a few vignettes for getting used to <code>dplyr</code>:</p>
+<p>Hadley provides a few vignettes for getting getting started with <code>dplyr</code>:</p>
 
 <p><code>r
 vignette("introduction", package = "dplyr")
