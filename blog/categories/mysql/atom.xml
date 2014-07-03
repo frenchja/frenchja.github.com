@@ -4,7 +4,7 @@
   <title><![CDATA[Category: MySQL | Jason A. French]]></title>
   <link href="http://frenchja.github.com/blog/categories/mysql/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-07-03T13:46:38-07:00</updated>
+  <updated>2014-07-03T14:00:42-07:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -329,6 +329,20 @@ Omega group for total scores and subscales    0.16 0.35 0.32 0.32
 ```</p>
 
 <p><img class="center" src="/images/rds4.png"></p>
+
+<h3>Safely storing credentials</h3>
+
+<p>It's important to note that in my above example, while I passed the <code>user</code> and <code>password</code>
+parameters within my <code>dbConnect()</code> function, you would <strong>never</strong> want to do this in code that
+you were sharing collaboratively.  It's far better to store the credentials in the
+default.file where `dbConnect(MySQL())`` will look when you don't pass any credentials:</p>
+
+<p><code>bash ~/.my.cnf
+user = youruser
+password = yourpassword
+host = yourhouse
+dbname = yourdb
+</code></p>
 
 <h2>Useful Packages for Fast DB Operations</h2>
 

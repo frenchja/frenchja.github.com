@@ -548,6 +548,24 @@ Since <code>dbReadTable</code> outputs a data.frame, we can use this command in 
 
 <p><img class="center" src="/images/rds4.png"></p>
 
+<h3>Safely storing credentials</h3>
+
+<p>It&#8217;s important to note that in my above example, while I passed the <code>user</code> and <code>password</code>
+parameters within my <code>dbConnect()</code> function, you would <strong>never</strong> want to do this in code that
+you were sharing collaboratively.  It&#8217;s far better to store the credentials in the
+default.file where `dbConnect(MySQL())&#8220; will look when you don&#8217;t pass any credentials:</p>
+
+<figure class='code'><figcaption><span>~/.my.cnf</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">user</span> <span class="o">=</span> youruser
+</span><span class='line'><span class="nv">password</span> <span class="o">=</span> yourpassword
+</span><span class='line'><span class="nv">host</span> <span class="o">=</span> yourhouse
+</span><span class='line'><span class="nv">dbname</span> <span class="o">=</span> yourdb
+</span></code></pre></td></tr></table></div></figure>
+
+
 <h2>Useful Packages for Fast DB Operations</h2>
 
 <p>Ideally, we want to have one set of analysis code that is somewhat agnostic to <em>how</em>
