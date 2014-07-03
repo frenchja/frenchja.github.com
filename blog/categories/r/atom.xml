@@ -4,7 +4,7 @@
   <title><![CDATA[Category: R | Jason A. French]]></title>
   <link href="http://frenchja.github.com/blog/categories/r/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-07-03T13:14:01-07:00</updated>
+  <updated>2014-07-03T13:17:38-07:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -35,7 +35,7 @@ basic example of using R to transfer data to MySQL.</p>
 <h3>Memory Efficiency</h3>
 
 <p>For example, relational databases are better at handling large datasets and are more efficient
-at storing data that CSVs.
+at storing data than CSVs.
 When reading data stored in a data.frame or CSV file, the data must all fit <em>in memory</em>.
 All of your data may not fit easily in memory, as is the case if you have a
 large dataset or are cursed with an older computers with &lt;= 4GB of RAM.
@@ -43,7 +43,7 @@ In these cases, every time you load your dataset or do an expensive operation
 your computer will slow to a painful crawl as your hard drives grind while your operating system
 switches to using <a href="http://en.wikipedia.org/wiki/Virtual_memory">virtual memory</a>, rather than RAM.
 You can get around this by using random sampling to sample a smaller subset (or multiple subsets
-if you want to bootstrap), but you can also use this technique on a SQL database, but SQL databases
+if you want to bootstrap), but you can also use this technique on a SQL database. The advantage is that SQL databases
 only load the data you're working with into the machine's RAM.</p>
 
 <h3>Safety and Security</h3>
