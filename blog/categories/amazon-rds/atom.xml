@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Amazon RDS | Jason A. French]]></title>
   <link href="http://frenchja.github.com/blog/categories/amazon-rds/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-07-10T11:19:01-07:00</updated>
+  <updated>2014-07-10T11:45:24-07:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -25,8 +25,9 @@ of R's native <a href="http://stat.ethz.ch/R-manual/R-devel/library/base/html/da
 format or a <a href="http://en.wikipedia.org/wiki/Comma-separated_values">CSV</a> file that my analysis would continually read.
 However, as I began to analyze big datasets at the <a href="https://sapa-project.org">SAPA Project</a>
 and at <a href="http://insightdatascience.com/">Insight</a>,
-I realized that there is a lot of value to instead keeping your data in a MySQL database.
-This post will detail a few advantages of using a database to store data and run through a
+I realized that there is a lot of value to instead keeping your data in a MySQL database
+and streaming it into R when necessary.
+This post will briefly outline a few advantages of using a database to store data and run through a
 basic example of using R to transfer data to MySQL.</p>
 
 <!-- more -->
@@ -34,34 +35,37 @@ basic example of using R to transfer data to MySQL.</p>
 
 <h3>Memory Efficiency</h3>
 
-<p>Relational databases, such as MySQL, organize data into tables (much like a spreadsheet) and can link data in tables to eachother.  Generally, they are better at handling large datasets and are more efficient
-at storing data than CSVs.
-When reading data stored in a data.frame or CSV file, the data must all fit <em>in memory</em>.
-All of your data may not fit easily in memory, as is the case if you have a
-large dataset or are cursed with an older computers with &lt;= 4GB of RAM.
-In these cases, every time you load your dataset or do an expensive operation
+<p>Relational databases, such as MySQL, organize data into <em>tables</em> (like a spreadsheet)
+and can link values in tables to each other.  Generally speaking, they are better at handling large datasets and are more efficient
+at storing and accessing data than CSVs due to compression and indexing.
+The data stay in the MySQL database until accessed via a query, which is
+different than how R approaches data.frames and CSVs.
+When accessing data stored in a data.frame or CSV file in R, the data must all fit <em>in memory</em>.
+However, this becomes a problem if when using a large dataset or if you're cursed with an older computer with &lt;= 4GB of RAM.
+In these cases, every time you load your dataset or do a memory-intensive operation (e.g., polychoric correlations)
 your computer will slow to a painful crawl as your hard drives grind while your operating system
-switches to using <a href="http://en.wikipedia.org/wiki/Virtual_memory">virtual memory</a>, rather than RAM.
-You can get around this by using random sampling to sample a smaller subset (or multiple subsets
+switches to using <a href="http://en.wikipedia.org/wiki/Virtual_memory">virtual memory</a> or swap space, rather than RAM.
+You could get around this by using random sampling to create a smaller subset (or multiple subsets
 if you want to bootstrap), but you can also use this technique on a SQL database. The advantage is that SQL databases
-only load the data you're working with into the machine's RAM when you SELECT the data you need.</p>
+only load the data you're working with into your local machine's RAM when you SELECT the data you need - leaving plenty of
+memory for the actual analysis.</p>
 
 <h3>Safety and Security</h3>
 
 <p>Two additional reasons I prefer SQL databases are safety and security. Services such as
 Amazon's RDS (i.e., Relational Database Service) offer frequent backups and easy replication
-across machines. This means that if your machine dies, your data is safe and uncorrupted. If I were storing
+across instances. If the local machine dies, the data are safe and uncorrupted. If I were storing
 data in an .Rdata file, I'd have to rely on my OS (e.g., Time Machine) or a cloud-based storage solution
 (e.g., Dropbox or CrashPlan) to backup my data. Worse, if I were storing my data in an Excel database and Excel
 crashed, I may risk losing years of progress.</p>
 
-<p>Furthermore, I can give a collaborator access
+<p>Using MySQL, I can give a collaborator access
 to only needed portions of the data by locking down their SQL user to certain tables
 and operations. By limiting access, we limit risk of corruption and overwriting years of progress.</p>
 
-<h3>Scalable as your need grows</h3>
+<h3>Scalable as the need grows</h3>
 
-<p>Last, I find relational databases such as MySQL to be more scalable. In the case of using Amazon's RDS,
+<p>Last, I find databases such as MySQL to be more scalable due to cloud computing. In the case of using Amazon's RDS,
 you can buy as much storage or bandwidth as you need to complete your analysis, dissertation,
 or build your web app. If I need multiple nodes or machines to analyze the data, I don't need to keep a copy of
 the data on each machine.  I simply pass the SQL authentication parameters to each machine and the
@@ -110,8 +114,8 @@ you first created your EC2 instance (not covered here).</p>
 <h2>Installing the RMySQL package</h2>
 
 <p>Previously, I found installing <a href="http://cran.r-project.org/web/packages/RMySQL/index.html">RMySQL</a> to be very difficult when I was using MacPorts.  However,
-having switched to <a href="http://brew.sh/">Homebrew</a> on my new machine, RMySQL found all my MySQL headers and libraries as
-<a href="http://brew.sh/">Homebrew</a> uses the <code>/usr/local</code> directory to store your software, which is already in your BASH $PATH.</p>
+having switched to <a href="http://brew.sh/">Homebrew</a> on my new machine, RMySQL found all the MySQL headers and libraries as
+<a href="http://brew.sh/">Homebrew</a> uses the <code>/usr/local</code> directory to store your software, which is already in your shell $PATH.</p>
 
 <p>Before compiling RMySQL, first compile MySQL using Homebrew:</p>
 
@@ -254,10 +258,10 @@ dbname='YourDB')
 <p><img class="center" src="/images/rds3.png"></p>
 
 <p>Similarly, if you want to read data <em>from</em> MySQL to R, we can use the <code>dbReadTable()</code> function,
-which returns a data.frame. You can keep your data in MySQL and stream portions into R for specific analyses.
+which returns a data.frame object. You can keep your data in MySQL and stream portions into R for specific analyses.
 Since <code>dbReadTable</code> outputs a data.frame, we can use this command in place of a data.frame.</p>
 
-<p>Let's run an <code>omega()</code> on the Thurstone table:</p>
+<p>Let's run an <code>omega()</code> factor analysis on the Thurstone table:</p>
 
 <p><code>r Thurstone Omega
 omega(dbReadTable(conn = con,name = 'Test'), title = "9 variables from Thurstone")
@@ -346,10 +350,9 @@ dbGetQuery(conn = con, statement = "SELECT Sentences FROM Test WHERE Sentences &
 
 <h3>Safely storing credentials</h3>
 
-<p>It's important to note that in my above example, although I passed the <code>user</code> and <code>password</code>
-parameters within my <code>dbConnect()</code> function, you would <strong>never</strong> want to do this in code that
-you were sharing collaboratively.  It's far better to store the credentials in the
-default.file where <code>dbConnect(MySQL())</code> will look when you don't pass any credentials:</p>
+<p>It's important to note that in the above example, although I passed the <code>user</code> and <code>password</code>
+parameters within my <code>dbConnect()</code> function, you would <strong>never</strong> want to do this in production code that
+you were sharing.  It's far better to store the credentials a text file where <code>dbConnect(MySQL())</code> will look when you don't pass any credentials:</p>
 
 <p><code>bash ~/.my.cnf
 user = youruser
