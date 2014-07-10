@@ -4,7 +4,7 @@
   <title><![CDATA[Category: MySQL | Jason A. French]]></title>
   <link href="http://frenchja.github.com/blog/categories/mysql/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-07-08T11:37:11-07:00</updated>
+  <updated>2014-07-10T11:16:49-07:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -34,7 +34,7 @@ basic example of using R to transfer data to MySQL.</p>
 
 <h3>Memory Efficiency</h3>
 
-<p>Relational databases are better at handling large datasets and are more efficient
+<p>Relational databases, such as MySQL, organize data into tables (much like a spreadsheet) and can link data in tables to eachother.  Generally, they are better at handling large datasets and are more efficient
 at storing data than CSVs.
 When reading data stored in a data.frame or CSV file, the data must all fit <em>in memory</em>.
 All of your data may not fit easily in memory, as is the case if you have a
@@ -44,19 +44,19 @@ your computer will slow to a painful crawl as your hard drives grind while your 
 switches to using <a href="http://en.wikipedia.org/wiki/Virtual_memory">virtual memory</a>, rather than RAM.
 You can get around this by using random sampling to sample a smaller subset (or multiple subsets
 if you want to bootstrap), but you can also use this technique on a SQL database. The advantage is that SQL databases
-only load the data you're working with into the machine's RAM.</p>
+only load the data you're working with into the machine's RAM when you SELECT the data you need.</p>
 
 <h3>Safety and Security</h3>
 
 <p>Two additional reasons I prefer SQL databases are safety and security. Services such as
-Amazon's RDS (i.e., Relational Database Service) offer frequent backups and easily replication
+Amazon's RDS (i.e., Relational Database Service) offer frequent backups and easy replication
 across machines. This means that if your machine dies, your data is safe and uncorrupted. If I were storing
 data in an .Rdata file, I'd have to rely on my OS (e.g., Time Machine) or a cloud-based storage solution
 (e.g., Dropbox or CrashPlan) to backup my data. Worse, if I were storing my data in an Excel database and Excel
 crashed, I may risk losing years of progress.</p>
 
 <p>Furthermore, I can give a collaborator access
-to only needed portions of the data by locking down their SQL username to certain tables
+to only needed portions of the data by locking down their SQL user to certain tables
 and operations. By limiting access, we limit risk of corruption and overwriting years of progress.</p>
 
 <h3>Scalable as your need grows</h3>
@@ -109,7 +109,7 @@ you first created your EC2 instance (not covered here).</p>
 
 <h2>Installing the RMySQL package</h2>
 
-<p>Previously, I found installing <a href="">RMySQL</a> to be very difficult when I was using MacPorts.  However,
+<p>Previously, I found installing <a href="http://cran.r-project.org/web/packages/RMySQL/index.html">RMySQL</a> to be very difficult when I was using MacPorts.  However,
 having switched to <a href="http://brew.sh/">Homebrew</a> on my new machine, RMySQL found all my MySQL headers and libraries as
 <a href="http://brew.sh/">Homebrew</a> uses the <code>/usr/local</code> directory to store your software, which is already in your BASH $PATH.</p>
 
@@ -233,7 +233,7 @@ Creating a generic function for ‘print’ from package ‘base’ in package �
 <h2>Transferring Existing Data to/from MySQL</h2>
 
 <p>Having a database is useless unless we can easily convert our existing data.frames
-into MySQL tables.  Let's try this using the <code>Thurstone</code> dataset from the Bill's <code>psych</code> package:</p>
+into MySQL tables.  Let's try this using the <code>Thurstone</code> dataset from the Revelle's <a href="http://cran.r-project.org/web/packages/psych/index.html"><code>psych</code></a> package:</p>
 
 <p>```r Moving Thurstone to RDS
 library(RMySQL)
@@ -254,13 +254,13 @@ dbname='YourDB')
 <p><img class="center" src="/images/rds3.png"></p>
 
 <p>Similarly, if you want to read data <em>from</em> MySQL to R, we can use the <code>dbReadTable()</code> function,
-which returns a data.frame. You can keep your data in MySQL and stream it into R for specific analyses.
+which returns a data.frame. You can keep your data in MySQL and stream portions into R for specific analyses.
 Since <code>dbReadTable</code> outputs a data.frame, we can use this command in place of a data.frame.</p>
 
 <p>Let's run an <code>omega()</code> on the Thurstone table:</p>
 
 <p><code>r Thurstone Omega
-omega(dbReadTable(conn = con,name = 'Test'),title="9 variables from Thurstone")
+omega(dbReadTable(conn = con,name = 'Test'), title = "9 variables from Thurstone")
 </code></p>
 
 <p>```
@@ -330,9 +330,28 @@ Omega group for total scores and subscales    0.16 0.35 0.32 0.32
 
 <p><img class="center" src="/images/rds4.png"></p>
 
+<p>In other analyses, you may only need a fraction of the MySQL table.  In these cases, we'd want to use the <code>dbGetQuery()</code> command and issue a MySQL statement to SELECT and aggregate the information.  Let's get a vector of Sentences correlations that are greater than 0.5:</p>
+
+<p><code>r
+dbGetQuery(conn = con, statement = "SELECT Sentences FROM Test WHERE Sentences &gt; 0.5;")
+</code></p>
+
+<p><code>
+  Sentences
+1     1.000
+2     0.828
+3     0.776
+4     0.439
+5     0.432
+6     0.447
+7     0.447
+8     0.541
+9     0.380
+</code></p>
+
 <h3>Safely storing credentials</h3>
 
-<p>It's important to note that in my above example, while I passed the <code>user</code> and <code>password</code>
+<p>It's important to note that in my above example, although I passed the <code>user</code> and <code>password</code>
 parameters within my <code>dbConnect()</code> function, you would <strong>never</strong> want to do this in code that
 you were sharing collaboratively.  It's far better to store the credentials in the
 default.file where <code>dbConnect(MySQL())</code> will look when you don't pass any credentials:</p>
@@ -346,7 +365,7 @@ dbname = yourdb
 
 <h2>Useful Packages for Fast DB Operations</h2>
 
-<p>Ideally, we want to have one set of analysis code that is somewhat agnostic to <em>how</em>
+<p>Ideally, we want to have one set of analysis code that is agnostic to <em>how</em>
 the data are stored.  I suggest looking into <a href="http://had.co.nz/">Hadley Wickham's</a> new <a href="http://blog.rstudio.org/2014/01/17/introducing-dplyr/"><code>dplyr</code></a> package
 (<a href="https://github.com/hadley/dplyr">Github</a>). <code>dplyr</code> is able to filter, sort, group, and summarize data
 quickly whether it is stored in a data.frame, data.table, or database. Database operations may not always be as
