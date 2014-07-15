@@ -4,7 +4,7 @@
   <title><![CDATA[Jason A. French]]></title>
   <link href="http://frenchja.github.com/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-07-10T12:06:58-07:00</updated>
+  <updated>2014-07-14T18:37:31-07:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -12,6 +12,58 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Installing old R packages for new installations]]></title>
+    <link href="http://frenchja.github.com/blog/2014/07/14/updating-r-packages-after-new-installations/"/>
+    <updated>2014-07-14T18:31:00-07:00</updated>
+    <id>http://frenchja.github.com/blog/2014/07/14/updating-r-packages-after-new-installations</id>
+    <content type="html"><![CDATA[<p>New version of R are pushed frequently to fix bugs and address performance
+concerns.  However, in order to avoid conflicts between R and packages that were
+compiled for older versions of R, every upgrade defines a new system and user library
+location in which to install packages.  So how do you avoid installing each package
+manually?</p>
+
+<p>I wrote the following code for my lab to automate the re-installation of your
+R system library after version upgrades.  It reads your old packages into R as a list
+and recompiles each packages for the new version of R, when available.</p>
+
+<figure class='code'><figcaption><span>Re-installing R packages for newer versions</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="c1">#!/usr/bin/env Rscript</span>
+</span><span class='line'><span class="c1"># Automatic Package Reinstallation</span>
+</span><span class='line'><span class="c1"># Author:  Jason A. French, Northwestern University</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Replace the 3.1 with your old version</span>
+</span><span class='line'>versions <span class="o">&lt;-</span> system<span class="p">(</span><span class="s">&#39;ls /Library/Frameworks/R.framework/Versions/&#39;</span><span class="p">,</span>intern<span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span>
+</span><span class='line'>previous.version <span class="o">&lt;-</span> sort<span class="p">(</span>versions<span class="p">[</span><span class="o">-</span>which<span class="p">(</span>versions<span class="o">==</span><span class="s">&#39;Current&#39;</span><span class="p">)])[</span>length<span class="p">(</span>sort<span class="p">(</span>versions<span class="p">[</span><span class="o">-</span>which<span class="p">(</span>versions<span class="o">==</span><span class="s">&#39;Current&#39;</span><span class="p">)]))</span> <span class="o">-</span> <span class="m">1</span><span class="p">]</span>
+</span><span class='line'>full.dir <span class="o">&lt;-</span> paste<span class="p">(</span><span class="s">&#39;/Library/Frameworks/R.framework/Versions/&#39;</span><span class="p">,</span>
+</span><span class='line'>                  previous.version<span class="p">,</span>
+</span><span class='line'>                  <span class="s">&#39;/Resources/library/&#39;</span><span class="p">,</span>
+</span><span class='line'>                  sep<span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+</span><span class='line'>packages <span class="o">&lt;-</span> system<span class="p">(</span>paste<span class="p">(</span><span class="s">&#39;ls&#39;</span><span class="p">,</span>full.dir<span class="p">),</span>intern<span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>lapply<span class="p">(</span>X<span class="o">=</span>packages<span class="p">,</span><span class="kr">function</span><span class="p">(</span>x<span class="p">){</span>install.packages<span class="p">(</span>x<span class="p">,</span>type<span class="o">=</span><span class="s">&#39;source&#39;</span><span class="p">)})</span>
+</span><span class='line'>
+</span><span class='line'>update.packages<span class="p">(</span>ask<span class="o">=</span><span class="kc">FALSE</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Using R with MySQL Databases]]></title>

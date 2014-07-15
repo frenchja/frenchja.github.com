@@ -9,9 +9,8 @@
   <meta name="author" content="Jason A. French">
 
   
-  <meta name="description" content="Overview When I began using R, like most researchers I kept all my data in some combination
-of R&#8217;s native data.frame
-format or a CSV file that &hellip;">
+  <meta name="description" content="New version of R are pushed frequently to fix bugs and address performance
+concerns. However, in order to avoid conflicts between R and packages that &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +90,87 @@ format or a CSV file that &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/14/updating-r-packages-after-new-installations/">Installing Old R Packages for New Installations</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-14T18:31:00-07:00" pubdate data-updated="true">Jul 14<span>th</span>, 2014</time>
+        
+         | <a href="/blog/2014/07/14/updating-r-packages-after-new-installations/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>New version of R are pushed frequently to fix bugs and address performance
+concerns.  However, in order to avoid conflicts between R and packages that were
+compiled for older versions of R, every upgrade defines a new system and user library
+location in which to install packages.  So how do you avoid installing each package
+manually?</p>
+
+<p>I wrote the following code for my lab to automate the re-installation of your
+R system library after version upgrades.  It reads your old packages into R as a list
+and recompiles each packages for the new version of R, when available.</p>
+
+<figure class='code'><figcaption><span>Re-installing R packages for newer versions</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="c1">#!/usr/bin/env Rscript</span>
+</span><span class='line'><span class="c1"># Automatic Package Reinstallation</span>
+</span><span class='line'><span class="c1"># Author:  Jason A. French, Northwestern University</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Replace the 3.1 with your old version</span>
+</span><span class='line'>versions <span class="o">&lt;-</span> system<span class="p">(</span><span class="s">&#39;ls /Library/Frameworks/R.framework/Versions/&#39;</span><span class="p">,</span>intern<span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span>
+</span><span class='line'>previous.version <span class="o">&lt;-</span> sort<span class="p">(</span>versions<span class="p">[</span><span class="o">-</span>which<span class="p">(</span>versions<span class="o">==</span><span class="s">&#39;Current&#39;</span><span class="p">)])[</span>length<span class="p">(</span>sort<span class="p">(</span>versions<span class="p">[</span><span class="o">-</span>which<span class="p">(</span>versions<span class="o">==</span><span class="s">&#39;Current&#39;</span><span class="p">)]))</span> <span class="o">-</span> <span class="m">1</span><span class="p">]</span>
+</span><span class='line'>full.dir <span class="o">&lt;-</span> paste<span class="p">(</span><span class="s">&#39;/Library/Frameworks/R.framework/Versions/&#39;</span><span class="p">,</span>
+</span><span class='line'>                  previous.version<span class="p">,</span>
+</span><span class='line'>                  <span class="s">&#39;/Resources/library/&#39;</span><span class="p">,</span>
+</span><span class='line'>                  sep<span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+</span><span class='line'>packages <span class="o">&lt;-</span> system<span class="p">(</span>paste<span class="p">(</span><span class="s">&#39;ls&#39;</span><span class="p">,</span>full.dir<span class="p">),</span>intern<span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>lapply<span class="p">(</span>X<span class="o">=</span>packages<span class="p">,</span><span class="kr">function</span><span class="p">(</span>x<span class="p">){</span>install.packages<span class="p">(</span>x<span class="p">,</span>type<span class="o">=</span><span class="s">&#39;source&#39;</span><span class="p">)})</span>
+</span><span class='line'>
+</span><span class='line'>update.packages<span class="p">(</span>ask<span class="o">=</span><span class="kc">FALSE</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -679,57 +759,9 @@ number of within-subject conditions.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/01/17/using-figures-within-tables-in-latex/">Using Figures Within Tables in LaTeX</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-01-17T18:23:00-08:00" pubdate data-updated="true">Jan 17<span>th</span>, 2012</time>
-        
-         | <a href="/blog/2012/01/17/using-figures-within-tables-in-latex/#disqus_thread">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>By using LaTeX to author APA manuscripts, researchers can address many problems associated with formatting their results
-into tables and figures. For example, ANOVA tables can be readily generated using the
-<a href="http://cran.r-project.org/web/packages/xtable/index.html"><code>xtable</code></a> package in R, and graphs from
-<a href="http://cran.r-project.org/web/packages/ggplot2/index.html"><code>ggplot2</code></a> can be rendered <em>within</em> the manuscript using
-<code>Sweave</code> (see <a href="https://en.wikipedia.org/wiki/Sweave">Wikipedia</a>). However, more complicated layouts can be difficult to
-achieve.</p>
-
-<p>In order to make test items or stimuli easier to understand, researchers occasionally organize examples in a table or
-figure. Using the standard <code>\table</code> command in LaTeX, it&#8217;s possible to include figures in an individual table cell
-without breaking the <a href="http://ctan.org/pkg/apa6">APA6.cls</a> package. For example: </div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2012/01/17/using-figures-within-tables-in-latex/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
+    
+      <a class="prev" href="/blog/page/2/">&larr; Older</a>
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -740,6 +772,10 @@ without breaking the <a href="http://ctan.org/pkg/apa6">APA6.cls</a> package. Fo
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/07/14/updating-r-packages-after-new-installations/">Installing old R packages for new installations</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2014/07/03/using-r-with-mysql-databases/">Using R with MySQL Databases</a>
@@ -755,10 +791,6 @@ without breaking the <a href="http://ctan.org/pkg/apa6">APA6.cls</a> package. Fo
     
       <li class="post">
         <a href="/blog/2013/10/25/analyzing-student-exams-using-irt/">Analyze Student Exam Items using IRT</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/08/16/easy-sweaving-for-latex-and-r/">Easy Sweave for LaTeX and R</a>
       </li>
     
   </ul>
