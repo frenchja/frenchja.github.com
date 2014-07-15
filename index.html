@@ -128,8 +128,8 @@ location in which to install packages (e.g., /Library/Frameworks/R.framework/Ver
 So how does one avoid installing each package
 manually?</p>
 
-<p>I wrote the following code for my lab to automate the re-installation of your
-R system library after version upgrades.  It reads your old packages into R as a list
+<p>I wrote the following code for my lab to automate the re-installation of an
+R system library after version upgrades.  It reads the old package names into R as a list
 and recompiles each packages for the new version of R, when available.</p>
 
 <figure class='code'><figcaption><span>Re-installing R packages for newer versions</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
