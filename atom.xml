@@ -4,7 +4,7 @@
   <title><![CDATA[Jason A. French]]></title>
   <link href="http://frenchja.github.com/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-07-14T18:37:31-07:00</updated>
+  <updated>2014-07-14T18:38:03-07:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -18,7 +18,7 @@
     <link href="http://frenchja.github.com/blog/2014/07/14/updating-r-packages-after-new-installations/"/>
     <updated>2014-07-14T18:31:00-07:00</updated>
     <id>http://frenchja.github.com/blog/2014/07/14/updating-r-packages-after-new-installations</id>
-    <content type="html"><![CDATA[<p>New version of R are pushed frequently to fix bugs and address performance
+    <content type="html"><![CDATA[<p>New versions of R are pushed frequently to fix bugs and address performance
 concerns.  However, in order to avoid conflicts between R and packages that were
 compiled for older versions of R, every upgrade defines a new system and user library
 location in which to install packages.  So how do you avoid installing each package
