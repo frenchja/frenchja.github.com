@@ -145,9 +145,11 @@ and recompiles each packages for the new version of R, when available.</p>
 <span class='line-number'>14</span>
 <span class='line-number'>15</span>
 <span class='line-number'>16</span>
+<span class='line-number'>17</span>
 </pre></td><td class='code'><pre><code class='r'><span class='line'><span class="c1">#!/usr/bin/env Rscript</span>
 </span><span class='line'><span class="c1"># Automatic Package Reinstallation</span>
 </span><span class='line'><span class="c1"># Author:  Jason A. French, Northwestern University</span>
+</span><span class='line'><span class="c1"># GPL v2.0</span>
 </span><span class='line'>
 </span><span class='line'><span class="c1"># Replace the 3.1 with your old version</span>
 </span><span class='line'>versions <span class="o">&lt;-</span> system<span class="p">(</span><span class="s">&#39;ls /Library/Frameworks/R.framework/Versions/&#39;</span><span class="p">,</span>intern<span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span>
