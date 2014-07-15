@@ -4,7 +4,7 @@
   <title><![CDATA[Jason A. French]]></title>
   <link href="http://frenchja.github.com/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-07-14T18:38:03-07:00</updated>
+  <updated>2014-07-14T18:39:42-07:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -21,7 +21,8 @@
     <content type="html"><![CDATA[<p>New versions of R are pushed frequently to fix bugs and address performance
 concerns.  However, in order to avoid conflicts between R and packages that were
 compiled for older versions of R, every upgrade defines a new system and user library
-location in which to install packages.  So how do you avoid installing each package
+location in which to install packages (e.g., /Library/Frameworks/R.framework/Versions/3.1/).<br/>
+So how do you avoid installing each package
 manually?</p>
 
 <p>I wrote the following code for my lab to automate the re-installation of your
