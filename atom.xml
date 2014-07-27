@@ -4,7 +4,7 @@
   <title><![CDATA[Jason A. French]]></title>
   <link href="http://frenchja.github.com/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-07-14T18:43:58-07:00</updated>
+  <updated>2014-07-26T18:11:07-07:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -12,6 +12,325 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Recursion in R]]></title>
+    <link href="http://frenchja.github.com/blog/2014/07/26/recursion-in-r/"/>
+    <updated>2014-07-26T15:49:00-07:00</updated>
+    <id>http://frenchja.github.com/blog/2014/07/26/recursion-in-r</id>
+    <content type="html"><![CDATA[<p>Most technical interviews with companies will ask
+you to whiteboard code some type of recursive function
+in your favorite programming language.  Although Python
+seems to be the dominate king in data science, recursion
+can be a powerful tool in R.</p>
+
+<h2>What is recursion?</h2>
+
+<p>Recursive functions call <em>themselves</em>.  That is, they
+break down the problem into the smallest possible
+components and the <code>function()</code> calls itself within the
+original function() on each of the smaller components.
+Afterward, the results are put together to solve the
+original problem.  Let&#8217;s take a look at more concrete examples.</p>
+
+<!-- more -->
+
+
+<h2>Quicksort</h2>
+
+<p>A technical interview will usually ask you to implement
+some type of sorting function that can be solved using
+a recursive algorithm.  Let&#8217;s try implementing <a href="https://en.wikipedia.org/wiki/Quicksort">quicksort</a> in R:</p>
+
+<figure class='code'><figcaption><span>Programming Quicksort in R</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="c1">#!/usr/bin/env Rscript</span>
+</span><span class='line'><span class="c1"># Author:  Jason A. French</span>
+</span><span class='line'>
+</span><span class='line'>quickSort <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>vect<span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1"># Args:</span>
+</span><span class='line'>  <span class="c1">#  vect: Numeric Vector</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="c1"># Stop if vector has length of 1</span>
+</span><span class='line'>  <span class="kr">if</span> <span class="p">(</span>length<span class="p">(</span>vect<span class="p">)</span> <span class="o">&lt;=</span> <span class="m">1</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="kr">return</span><span class="p">(</span>vect<span class="p">)</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="c1"># Pick an element from the vector</span>
+</span><span class='line'>  element <span class="o">&lt;-</span> vect<span class="p">[</span><span class="m">1</span><span class="p">]</span>
+</span><span class='line'>  partition <span class="o">&lt;-</span> vect<span class="p">[</span><span class="m">-1</span><span class="p">]</span>
+</span><span class='line'>  <span class="c1"># Reorder vector so that integers less than element</span>
+</span><span class='line'>  <span class="c1"># come before, and all integers greater come after.</span>
+</span><span class='line'>  v1 <span class="o">&lt;-</span> partition<span class="p">[</span>partition <span class="o">&lt;</span> element<span class="p">]</span>
+</span><span class='line'>  v2 <span class="o">&lt;-</span> partition<span class="p">[</span>partition <span class="o">&gt;=</span> element<span class="p">]</span>
+</span><span class='line'>  <span class="c1"># Recursively apply steps to smaller vectors.</span>
+</span><span class='line'>  v1 <span class="o">&lt;-</span> quickSort<span class="p">(</span>v1<span class="p">)</span>
+</span><span class='line'>  v2 <span class="o">&lt;-</span> quickSort<span class="p">(</span>v2<span class="p">)</span>
+</span><span class='line'>  <span class="kr">return</span><span class="p">(</span>c<span class="p">(</span>v1<span class="p">,</span> element<span class="p">,</span> v2<span class="p">))</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>quickSort<span class="p">(</span>c<span class="p">(</span><span class="m">4</span><span class="p">,</span> <span class="m">65</span><span class="p">,</span> <span class="m">2</span><span class="p">,</span> <span class="m">-31</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="m">99</span><span class="p">,</span> <span class="m">83</span><span class="p">,</span> <span class="m">782</span><span class="p">,</span> <span class="m">1</span><span class="p">))</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="m">-31</span>   <span class="m">0</span>   <span class="m">1</span>   <span class="m">2</span>   <span class="m">4</span>  <span class="m">65</span>  <span class="m">83</span>  <span class="m">99</span> <span class="m">782</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Merge Sort</h2>
+
+<p>A second sorting algorithm that we can implement using recursion is the <a href="https://en.wikipedia.org/wiki/Merge_sort">Merge Sort</a>.
+Sorting algorithms are important because they differ in their <em>speed</em>, depending on the
+nature of the input data.  In the case of merge sort, the <em>worst possible outcome</em> for
+the time it takes to sort the data is <em>n * log(n)</em>, where <em>n</em> is the length of your list of
+numbers.</p>
+
+<p>Like Quicksort, we&#8217;re splitting the vector into smaller sub-vectors by halving it until
+each vector has just one integer.  We then merge the vectors back together, this time in order. Let&#8217;s tackle this algorithm in R as well.</p>
+
+<p>I found that <a href="http://rosettacode.org/">Rosetta Code</a> already provides a good example, so below is the their public domain code with my
+comments added to the code for explanation.</p>
+
+<figure class='code'><figcaption><span>Merge sort in R</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="c1">#!/usr/bin/env Rscript</span>
+</span><span class='line'><span class="c1"># http://rosettacode.org/wiki/Sorting_algorithms/Merge_sort#R</span>
+</span><span class='line'>
+</span><span class='line'>mergesort <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>m<span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   merge_ <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>left<span class="p">,</span> right<span class="p">)</span>
+</span><span class='line'>   <span class="c1"># Recursive function to compare and append values in order</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>        <span class="c1"># Create a list to hold the results</span>
+</span><span class='line'>      result <span class="o">&lt;-</span> c<span class="p">()</span>
+</span><span class='line'>      <span class="c1"># This is our stop condition. While left and right contain </span>
+</span><span class='line'>      <span class="c1"># a value, compare them</span>
+</span><span class='line'>      <span class="kr">while</span><span class="p">(</span>length<span class="p">(</span>left<span class="p">)</span> <span class="o">&gt;</span> <span class="m">0</span> <span class="o">&amp;&amp;</span> length<span class="p">(</span>right<span class="p">)</span> <span class="o">&gt;</span> <span class="m">0</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>           <span class="c1"># If left is less than or equal to right,</span>
+</span><span class='line'>           <span class="c1"># add it to the result list</span>
+</span><span class='line'>         <span class="kr">if</span><span class="p">(</span>left<span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="o">&lt;=</span> right<span class="p">[</span><span class="m">1</span><span class="p">])</span>
+</span><span class='line'>         <span class="p">{</span>
+</span><span class='line'>            result <span class="o">&lt;-</span> c<span class="p">(</span>result<span class="p">,</span> left<span class="p">[</span><span class="m">1</span><span class="p">])</span>
+</span><span class='line'>            <span class="c1"># Remove the value from the list</span>
+</span><span class='line'>            left <span class="o">&lt;-</span> left<span class="p">[</span><span class="m">-1</span><span class="p">]</span>
+</span><span class='line'>         <span class="p">}</span> <span class="kr">else</span>
+</span><span class='line'>         <span class="p">{</span>
+</span><span class='line'>            <span class="c1"># When right is less than or equal to left,</span>
+</span><span class='line'>            <span class="c1"># add it to the result.</span>
+</span><span class='line'>            result <span class="o">&lt;-</span> c<span class="p">(</span>result<span class="p">,</span> right<span class="p">[</span><span class="m">1</span><span class="p">])</span>
+</span><span class='line'>            <span class="c1"># Remove the appended integer from the list.</span>
+</span><span class='line'>            right <span class="o">&lt;-</span> right<span class="p">[</span><span class="m">-1</span><span class="p">]</span>
+</span><span class='line'>         <span class="p">}</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>      <span class="c1"># Keep appending the values to the result while left and right</span>
+</span><span class='line'>      <span class="c1"># exist.</span>
+</span><span class='line'>      <span class="kr">if</span><span class="p">(</span>length<span class="p">(</span>left<span class="p">)</span> <span class="o">&gt;</span> <span class="m">0</span><span class="p">)</span> result <span class="o">&lt;-</span> c<span class="p">(</span>result<span class="p">,</span> left<span class="p">)</span>
+</span><span class='line'>      <span class="kr">if</span><span class="p">(</span>length<span class="p">(</span>right<span class="p">)</span> <span class="o">&gt;</span> <span class="m">0</span><span class="p">)</span> result <span class="o">&lt;-</span> c<span class="p">(</span>result<span class="p">,</span> right<span class="p">)</span>
+</span><span class='line'>      result
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1"># Below is our stop condition for the mergesort function.</span>
+</span><span class='line'>   <span class="c1"># When the length of the vector is 1, just return the integer. </span>
+</span><span class='line'>   len <span class="o">&lt;-</span> length<span class="p">(</span>m<span class="p">)</span>
+</span><span class='line'>   <span class="kr">if</span><span class="p">(</span>len <span class="o">&lt;=</span> <span class="m">1</span><span class="p">)</span> m <span class="kr">else</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>        <span class="c1"># Otherwise keep dividing the vector into two halves.</span>
+</span><span class='line'>      middle <span class="o">&lt;-</span> length<span class="p">(</span>m<span class="p">)</span> <span class="o">/</span> <span class="m">2</span>
+</span><span class='line'>      <span class="c1"># Add every integer from 1 to the middle to the left</span>
+</span><span class='line'>      left <span class="o">&lt;-</span> m<span class="p">[</span><span class="m">1</span><span class="o">:</span>floor<span class="p">(</span>middle<span class="p">)]</span>
+</span><span class='line'>      right <span class="o">&lt;-</span> m<span class="p">[</span>floor<span class="p">(</span>middle<span class="m">+1</span><span class="p">)</span><span class="o">:</span>len<span class="p">]</span>
+</span><span class='line'>      <span class="c1"># Recursively call mergesort() on the left and right halves.</span>
+</span><span class='line'>      left <span class="o">&lt;-</span> mergesort<span class="p">(</span>left<span class="p">)</span>
+</span><span class='line'>      right <span class="o">&lt;-</span> mergesort<span class="p">(</span>right<span class="p">)</span>
+</span><span class='line'>      <span class="c1"># Order and combine the results.</span>
+</span><span class='line'>      <span class="kr">if</span><span class="p">(</span>left<span class="p">[</span>length<span class="p">(</span>left<span class="p">)]</span> <span class="o">&lt;=</span> right<span class="p">[</span><span class="m">1</span><span class="p">])</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>         c<span class="p">(</span>left<span class="p">,</span> right<span class="p">)</span>
+</span><span class='line'>      <span class="p">}</span> <span class="kr">else</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>         merge_<span class="p">(</span>left<span class="p">,</span> right<span class="p">)</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!--
+## Binary Search Tree
+Another question commonly asked in tech interviews is to 
+implement a [binary search tree](https://en.wikipedia.org/wiki/Binary_search_tree).  Once again, these types of questions are common with Java or Python but R programmers can implement them 
+just as well. A binary search tree is a node-based way to organize data.  The data structure generally follows some law, such as "each value in the left child is less than the parent node, and each value in the right child is greater than the parent node."
+
+<img src="images/binarytree.png" title="Example Binary Tree" >
+
+In the picture above, 7 is in the *root* of the tree.  All other 
+values follow my rule above.
+
+While implementing a BST is non-trivial in Python, it becomes 
+more complex in R as R doesn&#8217;t have pointer [variables](https://en.wikipedia.org/wiki/Pointer_%28computer_programming%29) as far as I know.  However, we can still implement our data structure as a series of matrices, where 
+each row contains the c(left, right, root) for each node.
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>print.tree <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>index<span class="p">,</span> tree<span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1"># Args:</span>
+</span><span class='line'>  <span class="c1">#  index: Tree row</span>
+</span><span class='line'>  <span class="c1">#  tree</span>
+</span><span class='line'>  left <span class="o">&lt;-</span> tree<span class="o">$</span>matrix<span class="p">[</span>index<span class="p">,</span> <span class="m">1</span><span class="p">]</span>
+</span><span class='line'>  print<span class="p">(</span>tree<span class="o">$</span>matrix<span class="p">[</span>index<span class="p">,</span> <span class="m">3</span><span class="p">]</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>new.tree <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>value<span class="p">,</span> nrow<span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  m <span class="o">&lt;-</span> matrix<span class="p">(</span>rep<span class="p">(</span><span class="kc">NA</span><span class="p">,</span> nrow<span class="o">*</span><span class="m">3</span><span class="p">,</span> ncol <span class="o">=</span> <span class="m">3</span><span class="p">)</span>
+</span><span class='line'>  <span class="c1"># Place the first value in the 3rd root column</span>
+</span><span class='line'>  m<span class="p">[</span><span class="m">1</span><span class="p">,</span> <span class="m">3</span><span class="p">]</span> <span class="o">&lt;-</span> value
+</span><span class='line'>  <span class="kr">return</span><span class="p">(</span>list<span class="p">(</span>mat <span class="o">=</span> m<span class="p">,</span> <span class="kr">next</span> <span class="o">=</span> <span class="m">2</span><span class="p">,</span> nrow <span class="o">=</span> nrow<span class="p">))</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>insert.tree <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>index<span class="p">,</span> tree<span class="p">,</span> new.value<span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1"># Inserts a new value into the sub-tree, with the root being</span>
+</span><span class='line'>  <span class="c1"># at &#39;index&#39;.</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Should the value go to the left or right child?</span>
+</span><span class='line'>  direction <span class="o">&lt;-</span> <span class="kr">if</span><span class="p">(</span>new.value <span class="o">&lt;=</span> tree<span class="o">$</span>matrix<span class="p">[</span>index<span class="p">,</span> <span class="m">3</span><span class="p">]){</span>
+</span><span class='line'>          <span class="m">1</span><span class="p">}</span> <span class="kr">else</span> <span class="p">{</span>
+</span><span class='line'>          <span class="m">2</span><span class="p">}</span>
+</span><span class='line'>  <span class="c1"># If that child is NA, place new.value.  Otherwise recurse down.</span>
+</span><span class='line'>  <span class="kr">if</span><span class="p">(</span>is.na<span class="p">(</span>tree<span class="o">$</span>matrix<span class="p">[</span>index<span class="p">,</span> direction<span class="p">]))</span> <span class="p">{</span>
+</span><span class='line'>      new.index <span class="o">&lt;-</span> tree<span class="o">$</span><span class="kr">next</span>
+</span><span class='line'>      
+</span><span class='line'>      <span class="kr">if</span><span class="p">(</span>tree<span class="o">$</span><span class="kr">next</span> <span class="o">==</span> nrow<span class="p">(</span>tree<span class="o">$</span>matrix<span class="p">)</span> <span class="o">+</span> <span class="m">1</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+&#8211;>
+
+
+<h3>References</h3>
+
+<ul>
+<li>Matloff, N., &amp; Matloff, N. S. (2011). The art of R programming: a tour of statistical software design. No Starch Press.</li>
+<li>https://stackoverflow.com/questions/8797089/how-to-walk-up-a-tree-in-r</li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Installing old R packages for new installations]]></title>
@@ -52,17 +371,17 @@ and recompiles each packages for the new version of R, when available.</p>
 </span><span class='line'><span class="c1"># GPL v2.0</span>
 </span><span class='line'>
 </span><span class='line'><span class="c1"># Replace the 3.1 with your old version</span>
-</span><span class='line'>versions <span class="o">&lt;-</span> system<span class="p">(</span><span class="s">&#39;ls /Library/Frameworks/R.framework/Versions/&#39;</span><span class="p">,</span>intern<span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span>
+</span><span class='line'>versions <span class="o">&lt;-</span> system<span class="p">(</span><span class="s">&#39;ls /Library/Frameworks/R.framework/Versions/&#39;</span><span class="p">,</span> intern <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span>
 </span><span class='line'>previous.version <span class="o">&lt;-</span> sort<span class="p">(</span>versions<span class="p">[</span><span class="o">-</span>which<span class="p">(</span>versions<span class="o">==</span><span class="s">&#39;Current&#39;</span><span class="p">)])[</span>length<span class="p">(</span>sort<span class="p">(</span>versions<span class="p">[</span><span class="o">-</span>which<span class="p">(</span>versions<span class="o">==</span><span class="s">&#39;Current&#39;</span><span class="p">)]))</span> <span class="o">-</span> <span class="m">1</span><span class="p">]</span>
 </span><span class='line'>full.dir <span class="o">&lt;-</span> paste<span class="p">(</span><span class="s">&#39;/Library/Frameworks/R.framework/Versions/&#39;</span><span class="p">,</span>
 </span><span class='line'>                  previous.version<span class="p">,</span>
 </span><span class='line'>                  <span class="s">&#39;/Resources/library/&#39;</span><span class="p">,</span>
-</span><span class='line'>                  sep<span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">)</span>
-</span><span class='line'>packages <span class="o">&lt;-</span> system<span class="p">(</span>paste<span class="p">(</span><span class="s">&#39;ls&#39;</span><span class="p">,</span>full.dir<span class="p">),</span>intern<span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span>
+</span><span class='line'>                  sep <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
+</span><span class='line'>packages <span class="o">&lt;-</span> system<span class="p">(</span>paste<span class="p">(</span><span class="s">&#39;ls&#39;</span><span class="p">,</span> full.dir<span class="p">),</span> intern <span class="o">=</span> <span class="kc">TRUE</span><span class="p">)</span>
 </span><span class='line'>
-</span><span class='line'>lapply<span class="p">(</span>X<span class="o">=</span>packages<span class="p">,</span><span class="kr">function</span><span class="p">(</span>x<span class="p">){</span>install.packages<span class="p">(</span>x<span class="p">,</span>type<span class="o">=</span><span class="s">&#39;source&#39;</span><span class="p">)})</span>
+</span><span class='line'>lapply<span class="p">(</span>X <span class="o">=</span> packages<span class="p">,</span> <span class="kr">function</span><span class="p">(</span>x<span class="p">){</span>install.packages<span class="p">(</span>x<span class="p">,</span> type <span class="o">=</span> <span class="s">&#39;source&#39;</span><span class="p">)})</span>
 </span><span class='line'>
-</span><span class='line'>update.packages<span class="p">(</span>ask<span class="o">=</span><span class="kc">FALSE</span><span class="p">)</span>
+</span><span class='line'>update.packages<span class="p">(</span>ask <span class="o">=</span> <span class="kc">FALSE</span><span class="p">)</span>
 </span></code></pre></td></tr></table></div></figure>
 
 ]]></content>
