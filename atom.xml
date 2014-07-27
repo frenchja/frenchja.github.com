@@ -4,7 +4,7 @@
   <title><![CDATA[Jason A. French]]></title>
   <link href="http://frenchja.github.com/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-07-26T18:11:07-07:00</updated>
+  <updated>2014-07-26T18:14:43-07:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -184,7 +184,7 @@ comments added to the code for explanation.</p>
 </span><span class='line'>   merge_ <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>left<span class="p">,</span> right<span class="p">)</span>
 </span><span class='line'>   <span class="c1"># Recursive function to compare and append values in order</span>
 </span><span class='line'>   <span class="p">{</span>
-</span><span class='line'>        <span class="c1"># Create a list to hold the results</span>
+</span><span class='line'>      <span class="c1"># Create a list to hold the results</span>
 </span><span class='line'>      result <span class="o">&lt;-</span> c<span class="p">()</span>
 </span><span class='line'>      <span class="c1"># This is our stop condition. While left and right contain </span>
 </span><span class='line'>      <span class="c1"># a value, compare them</span>
@@ -218,7 +218,7 @@ comments added to the code for explanation.</p>
 </span><span class='line'>   len <span class="o">&lt;-</span> length<span class="p">(</span>m<span class="p">)</span>
 </span><span class='line'>   <span class="kr">if</span><span class="p">(</span>len <span class="o">&lt;=</span> <span class="m">1</span><span class="p">)</span> m <span class="kr">else</span>
 </span><span class='line'>   <span class="p">{</span>
-</span><span class='line'>        <span class="c1"># Otherwise keep dividing the vector into two halves.</span>
+</span><span class='line'>      <span class="c1"># Otherwise keep dividing the vector into two halves.</span>
 </span><span class='line'>      middle <span class="o">&lt;-</span> length<span class="p">(</span>m<span class="p">)</span> <span class="o">/</span> <span class="m">2</span>
 </span><span class='line'>      <span class="c1"># Add every integer from 1 to the middle to the left</span>
 </span><span class='line'>      left <span class="o">&lt;-</span> m<span class="p">[</span><span class="m">1</span><span class="o">:</span>floor<span class="p">(</span>middle<span class="p">)]</span>
