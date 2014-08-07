@@ -4,7 +4,7 @@
   <title><![CDATA[Category: data science | Jason A. French]]></title>
   <link href="http://frenchja.github.com/blog/categories/data-science/atom.xml" rel="self"/>
   <link href="http://frenchja.github.com/"/>
-  <updated>2014-08-06T18:16:23-07:00</updated>
+  <updated>2014-08-06T18:18:24-07:00</updated>
   <id>http://frenchja.github.com/</id>
   <author>
     <name><![CDATA[Jason A. French]]></name>
@@ -28,7 +28,7 @@
 </ul>
 
 
-<p>I actually read through <a href="https://github.com/wch">Winston's</a> cookbook before Insight, but it's been an invaluable resource.  Why spend 20 lines of matplotlib when you can accomplish it using 5 lines of <a href="http://ggplot2.org/">ggplot2</a>?</p>
+<p>I actually read through <a href="https://github.com/wch">Winston's</a> cookbook before Insight, but it's been an invaluable resource.  Why write 20 lines of matplotlib or R base graphics when you can accomplish a better graph using 5 lines of <a href="http://ggplot2.org/">ggplot2</a>?</p>
 ]]></content>
   </entry>
   
